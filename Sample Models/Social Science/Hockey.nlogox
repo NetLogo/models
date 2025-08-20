@@ -1,0 +1,2543 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0.0-beta2" snapToGrid="true">
+  <code><![CDATA[globals [ ;; global variables
+  tick-delta ;; model update increment to account for speeds of players and puck
+  max-tick-delta ;; maximum value the tick delta can possess
+  friction ;; the effect of friction on the puck
+  team-with-puck ;; keeps track of which team has control of puck
+  passing-location ;; global variable for where a skater will pass to
+  passing-time ;; time the pass will take to complete
+  home-shots ;; total shots taken by each team
+  away-shots
+  home-sog ;; shots on goal, the number of shots that are on target
+  away-sog
+  home-goals ;; goals, the goals scored
+  away-goals
+  home-xg ;; expected goals, the sum of goal probabilities on shots
+  away-xg
+  goal-prob ;; the probability for a shot to be a goal, updated for each shot
+]
+
+;; breeds for pucks, forwards, and goalies
+breed [ pucks a-puck ]
+breed [ skaters skater ]
+breed [ goalies goalie ]
+
+;; skater' properties
+skaters-own [
+  has-puck? ;; whether or not they have the puck
+  goal ;; the goal they go towards
+  own-goal ;; the goal they're defending
+  my-team ;; the team they're on: "home" or "away"
+  my-skaters ;; the agentset of skaters on their team
+  time-with-puck ;; the time they've spent with the puck
+  destination ;; patch they want to move to in offensive zone
+  start-destination ;; patch they want to move to at the start
+  defendant ;; player they'll guard
+  receiving-pass? ;; whether or not the player is receiving a pass
+  time-receiving-pass ;; the time this player has spent receiving a pass
+  max-back-speed ;; maximum speed going backwards
+  shooting-threshold ;; skaters' threshold for shooting or not
+  defense-puck-distance ;; the distance skaters maintain while defending the puck
+  off-puck-alignment ;; how the skaters set up off the puck
+  passing-cone-angle ;; the angle they look out for passing
+  shooting-ability ;; each skater's baseline shooting ability
+  steal-chance ;; each skater's chance of stealing the puck
+  getting-puck? ;; whether or not this player is chasing the puck
+  defense-type ;; the type of defense this skater is playing
+  passed-or-shot? ;; whether or not this player has just passed or shot the puck
+]
+
+;; properties for all turtles
+turtles-own [ speed acceleration max-speed ] ;; for moving skaters and the puck
+pucks-own [ shot? ] ;; whether or not the puck has been shot
+
+;; report the single puck
+to-report puck
+  report a-puck 0
+end
+
+;; setup code
+to setup
+  clear-all
+  ask patches [ set pcolor white ] ;; create the playing surface and puck
+  setup-constants
+  create-border
+  create-puck
+  ask patch 20 0 [ set pcolor blue + 4 ] ;; create the two goals
+  ask patch -20 0 [ set pcolor blue + 4 ]
+  create-home-team ;; create the teams
+  create-away-team
+  setup-skater-properties
+  setup-my-skaters
+  create-goalie
+  setup-positions ;; setup lots of constants
+  setup-destinations-and-defense
+  setup-shooting-aggression ;; setup parameters from choosers/sliders
+  setup-on-puck-aggression
+  setup-off-puck-alignment
+  setup-passing-cone-angles
+  setup-defense-type
+  reset-ticks
+end
+
+;; --- SETUP HELPERS ---
+
+;; setup the initial model constants
+to setup-constants
+  set friction .25
+  set max-tick-delta .1073 ;; from gas lab model
+  set team-with-puck "none"
+  set home-shots 0 ;; initialize measures
+  set away-shots 0
+  set home-sog 0
+  set away-sog 0
+  set home-goals 0
+  set away-goals 0
+  set home-xg 0
+  set away-xg 0
+end
+
+;; puck creation
+to create-puck
+  create-pucks 1 [
+    set shape "circle"
+    set color black
+    set size .5
+    setxy 0 0 ;; start at the center
+    set speed 0
+    set shot? false
+  ]
+end
+
+;; home team creation
+to create-home-team
+  create-skaters 5 [
+    set color red
+    set goal patch -20 0 ;; set up my goal
+    set own-goal patch 20 0 ;; set up my goal to defend
+    ;; setup the max speed based on the parameters
+    set max-speed random-normal home-team-max-speed-mean
+    home-team-max-speed-std-dev
+    ;; setup the shooting ability based on the parameters - set it to scale from 0 to 1
+    set shooting-ability 0.01 * random-normal home-team-shooting-mean
+    home-team-shooting-std-dev
+    set steal-chance home-team-steal-% ;; set stealing chance
+    set my-team "home" ;; my team is home
+  ]
+end
+
+;; away team creation
+to create-away-team
+  create-skaters 5 [
+    set color blue
+    set goal patch 20 0 ;; set up my goal
+    set own-goal patch -20 0 ;; set up my goal to defend
+    ;; setup the max speed based on the parameters
+    set max-speed random-normal away-team-max-speed-mean
+    away-team-max-speed-std-dev
+    ;; setup the shooting ability based on the parameters - set it to scale from 0 to 1
+    set shooting-ability 0.01 * random-normal away-team-shooting-mean
+    away-team-shooting-std-dev
+    set steal-chance away-team-steal-% ;; set stealing chance
+    set my-team "away"
+  ]
+end
+
+;; properties for all skaters
+to setup-skater-properties
+  ask skaters [
+    set has-puck? false
+    set speed 0
+    set acceleration .5
+    if max-speed < 1 [ set max-speed 1 ] ;; don't let my max speed be less than 1
+    set max-back-speed max-speed - .5 ;; set my max backward speed to be less
+    ;; don't let my shooting ability be less than 0.01
+    if shooting-ability < 0.01 [ set shooting-ability 0.01 ]
+    set time-with-puck 0
+    set receiving-pass? false
+    set getting-puck? false
+    set passed-or-shot? false
+  ]
+end
+
+;; setup each skater's set of players on their team after everyone's been created
+to setup-my-skaters
+  ask skaters with [color = red] [
+    set my-skaters skaters with [color = red]
+  ]
+  ask skaters with [color = blue] [
+    set my-skaters skaters with [color = blue]
+  ]
+end
+
+;; setting up the positions for the start of the game
+to setup-positions
+  ask skater 1 [ setxy 2 0 ]
+  ask skater 2 [ setxy 1 2 ]
+  ask skater 3 [ setxy 1 -2 ]
+  ask skater 4 [ setxy 4 3 ]
+  ask skater 5 [ setxy 4 -3 ]
+  ask skater 6 [ setxy -2 0 ]
+  ask skater 7 [ setxy -1 2 ]
+  ask skater 8 [ setxy -1 -2 ]
+  ask skater 9 [ setxy -4 3 ]
+  ask skater 10 [ setxy -4 -3 ]
+end
+
+;; setting up the skaters' destination and defense
+to setup-destinations-and-defense
+  ask skater 1 [
+    ;; patch this skater wants to go to when their team has the puck
+    set destination patch -14 0
+    set start-destination patch 0 0 ;; patch this skater wants to go to at the start
+    set defendant skater 6 ;; other team's skater this skater will defend
+  ]
+  ask skater 2 [
+    set destination patch -15 3
+    set start-destination patch 3 1.5
+    set defendant skater 7
+  ]
+  ask skater 3 [
+    set destination patch -15 -3
+    set start-destination patch 3 -1.5
+    set defendant skater 8
+  ]
+  ask skater 4 [
+    set destination patch -7 4
+    set start-destination patch 7 4
+    set defendant skater 9
+  ]
+  ask skater 5 [
+    set destination patch -7 -4
+    set start-destination patch 7 -4
+    set defendant skater 10
+  ]
+  ask skater 6 [
+    set destination patch 14 0
+    set start-destination patch 0 0
+    set defendant skater 1
+  ]
+  ask skater 7 [
+    set destination patch 14 3
+    set start-destination patch -3 1.5
+    set defendant skater 2
+  ]
+  ask skater 8 [
+    set destination patch 15 -3
+    set start-destination patch -3 -1.5
+    set defendant skater 3
+  ]
+  ask skater 9 [
+    set destination patch 7 4
+    set start-destination patch -7 4
+    set defendant skater 4
+  ]
+  ask skater 10 [
+    set destination patch 7 -4
+    set start-destination patch -7 -4
+    set defendant skater 5
+  ]
+end
+
+;; giving skaters shooting aggressiveness from slider
+;; this controls the threshold of goal probability at which the skater will
+;; choose to take a shot. If the skater thinks they have a probability of a goal
+;; higher than their threshold, they will shoot
+to setup-shooting-aggression
+  ask skaters with [my-team = "home"] [
+    set shooting-threshold 1 - (home-team-shooting-aggressiveness * .01)
+  ]
+  ask skaters with [my-team = "away"] [
+    set shooting-threshold 1 - (away-team-shooting-aggressiveness * .01)
+  ]
+end
+
+;; giving skaters aggression on puck from chooser
+;; this controls the distance the skater maintains from the player they're defending
+;; when that player has the puck. Scales from 1-3 patches in front of the player
+to setup-on-puck-aggression
+  ask skaters with [my-team = "home"] [
+    ;; scale from 1 patch at 100 aggression to 3 patches at 0 aggression
+    set defense-puck-distance 3 - (2 * home-team-on-puck-defensive-aggression * .01)
+  ]
+  ask skaters with [my-team = "away"] [
+    set defense-puck-distance 3 - (2 * away-team-on-puck-defensive-aggression * .01)
+  ]
+end
+
+;; giving skaters alignment off-puck from slider
+;; this controls how close the skaters stay to the player they're supposed to defend
+;; inverted so that players are closer to their man at higher values
+to setup-off-puck-alignment
+  ask skaters with [my-team = "home"] [
+    set off-puck-alignment 1 - (home-team-off-puck-defense-alignment * .01)
+  ]
+  ask skaters with [my-team = "away"] [
+    set off-puck-alignment 1 - (away-team-off-puck-defense-alignment * .01)
+  ]
+end
+
+;; giving skaters angle to consider when making passes from chooser
+;; this controls how wide of a cone the skaters consider when deciding
+;; whether or not a pass is open. Scales from 90 degrees at 0 aggressiveness
+;; to 10 degrees at 100 aggressiveness
+to setup-passing-cone-angles
+  ask skaters with [my-team = "home"] [
+    ;; do the scaling
+    set passing-cone-angle 90 - (80 * home-team-passing-aggressiveness * .01)
+  ]
+  ask skaters with [my-team = "away"] [
+    set passing-cone-angle 90 - (80 * away-team-passing-aggressiveness * .01)
+  ]
+end
+
+to setup-defense-type
+  ask skaters with [my-team = "home"] [
+    ifelse home-defense-type = "zone"
+    [ set defense-type "zone" ]
+    [ set defense-type "man-to-man" ]
+  ]
+  ask skaters with [my-team = "away"] [
+    ifelse away-defense-type = "zone"
+    [ set defense-type "zone" ]
+    [ set defense-type "man-to-man" ]
+  ]
+end
+
+;; goalie creation
+to create-goalie
+  create-goalies 1 [
+    set color blue
+    setxy -19.5 0
+  ]
+  create-goalies 1 [
+    set color red
+    setxy 19.5 0
+  ]
+end
+
+;; border creation
+to create-border
+  ask patches with [abs pxcor = 21 or abs pycor = 9] [
+    set pcolor red
+  ]
+end
+
+;; reset code for after scored goal
+to reset
+  ask links [ die ] ;; kill any possible links
+  ask puck [
+    set speed 0 ;; reset all variables
+    setxy 0 0
+    set shot? false
+  ]
+  ask skaters [
+    set has-puck? false
+    set speed 0
+    set time-with-puck 0
+    set receiving-pass? false
+    set time-receiving-pass 0
+  ]
+  ask patches with [pcolor != white] [ set pcolor white ] ;; recolor world
+  create-border
+  ask patch -20 0 [ set pcolor blue + 4 ]
+  ask patch 20 0 [ set pcolor blue + 4 ]
+  setup-positions ;; send back to starting positions
+  set team-with-puck "none"
+end
+
+;; --- GO CODE ---
+
+to go
+  calculate-tick-delta ;; tick delta from gas lab model
+  ask puck [ puck-move ] ;; puck behaviors
+  ask skaters [ play ] ;; then forwards play
+  ask goalies [ defend-puck ] ;; goalies defend
+  tick-advance tick-delta ;; use the tick-delta
+end
+
+to calculate-tick-delta
+  ;; tick-delta is calculated in such way that even the fastest
+  ;; turtle will jump at most 1 patch length when we advance the
+  ;; tick counter. As turtles jump (speed * tick-delta) each time, making
+  ;; tick-delta the inverse of the speed of the fastest turtle
+  ;; (1/max speed) assures that. Having each turtle advance at most
+  ;; one patch-length is necessary for it not to "jump over" a wall
+  ;; or another turtle.
+  ;; code taken from gas lab gas in a box model.
+  ifelse any? turtles with [speed > 0]
+    [ set tick-delta min list (1 / (ceiling max [speed] of turtles)) max-tick-delta ]
+  [ set tick-delta max-tick-delta ]
+end
+
+to-report tick?
+  ifelse floor ticks > floor (ticks - tick-delta) ;; see if this is a tick
+  [ report true ]
+  [ report false ]
+end
+
+;; --- PUCK PROCEDURES ---
+
+;; puck procedure
+to puck-move
+  ;; if there's another skater here, make sure they pick up the puck
+  if any? skaters-here with [not has-puck? and not passed-or-shot?] and not shot? [
+    ask one-of skaters-here [ pickup-puck ]
+  ]
+  ;; if no one has control of me, and i'm not at the start
+  if not any? links and patch-here != patch 0 0 [
+    ask min-one-of skaters [distance myself] [ ;; get the closest skater to me, tell
+      ;; them to come to me, and tell everyone to act like that team has the puck
+      set getting-puck? true
+      set team-with-puck my-team
+      ask min-one-of other-team [distance puck] [
+        ;; ask the closest player on the other team to come after me, too
+        set getting-puck? true
+      ]
+    ]
+  ]
+  if pcolor = blue + 4 [
+    score-goal
+    reset
+  ] ;; maybe score a goal
+  bounce
+  jump (speed * tick-delta) ;; move forward
+  set speed speed - (friction * tick-delta) ;; decelerate every tick
+  if speed < 0 [ set speed 0 ] ;; don't go less than 0 speed
+end
+
+;; puck procedure
+to bounce
+  ;; get the coordinates of the patch we'll be on if we go forward 1
+  ;; code adapted from gaslab gas in a box model
+  let new-patch patch-ahead 1
+  let new-px [pxcor] of new-patch
+  let new-py [pycor] of new-patch
+  ;; if we're not about to hit a wall, we don't need to do any further checks
+  (ifelse not shade-of? red [pcolor] of new-patch
+    [ stop ]
+    ;; if hitting left or right wall, reflect heading around x axis
+    abs new-px = max-pxcor [
+      reflect-x-axis
+    ]
+    ;; if hitting top or bottom wall, reflect heading around y axis
+    abs new-py = max-pycor [
+      reflect-y-axis
+  ])
+end
+
+;; procedure for pucks and skaters to reflect around the x-axis
+to reflect-x-axis
+  set heading (- heading)
+  set speed speed / 2 ;; halve speed
+end
+
+;; procedure for pucks and skaters to reflect around the y-axis
+to reflect-y-axis
+  set heading (180 - heading) ;; properly reflect around the y-axis
+  set speed speed / 2
+end
+
+;; procedure after scoring a goal
+to score-goal
+  ifelse xcor < 0 ;; increment goal scored for proper team
+  [ set home-goals home-goals + 1
+    ask patch -20 0 [set pcolor red]
+    write-goal red ]
+  [ set away-goals away-goals + 1
+    ask patch 20 0 [set pcolor blue]
+    write-goal blue ]
+  display
+  if wait-between-goals? [ wait 2 ] ;; and wait 2 seconds to restart
+  reset ;; reset
+end
+
+;; --- GOALIE PROCEDURES ---
+
+;; get the set of patches a goalie can make a play on
+to-report cone-patches
+  report (patch-set
+    patch-ahead 1
+    patch-left-and-ahead 90 1
+    patch-right-and-ahead 90 1
+  )
+end
+
+;; goalie procedure
+to defend-puck
+  set heading towards puck ;; face the puck
+  let these-pucks pucks-on cone-patches
+  if any? these-pucks with [shot?] [ ;; if there's a puck in front me
+    let save-chance 1 - (goal-prob + puck-speed * .01) ;; calculate the chance of
+    ;; saving based on the shooter's ability and distance from goal-prob,
+    ;; and the puck's speed now
+    if random-float 1 < save-chance  [ ;; maybe save the puck
+      save-puck
+    ]
+  ]
+end
+
+;; report the puck's speed
+to-report puck-speed
+  let the-speed 0
+  ask puck [ set the-speed speed ] ;; properly extract the speed and report it
+  report the-speed
+end
+
+;; save the puck
+to save-puck
+  ask puck [
+    lt 180 ;; reverse the puck's heading
+    lt random 60 ;; add some wiggle
+    rt random 60
+    ;; set speed to be a random number between 0.5 and the current speed
+    ;; minus 0.25 so there's some slowdown
+    set speed 0.5 + random (speed - 0.75)
+    set shot? false
+  ]
+end
+
+
+;; --- SKATER PROCEDURES ---
+
+;; skater procedure
+to play
+  ;; if there's a puck here with me that nobody else has, and I haven't just passed
+  ;; or shot it, pick it up
+  if any? pucks-here and not any? skaters with [has-puck?] and not passed-or-shot?
+  [ pickup-puck ]
+  if receiving-pass? [ ;; if i am receiving a pass, do that
+    receive-pass
+    stop
+  ]
+  let new-patch patch-ahead 1 ;; get the patch in front of me
+  (ifelse
+    any? skaters-on new-patch or count skaters-here > 1 [
+      ;; if there's someone there, turn a little bit and move
+      turn
+      move
+    ]
+    any? pucks-on patch 0 0 and not any? links [
+      ;; if this is the start, move to my starting location
+      set heading towards start-destination
+      move
+    ]
+    getting-puck? ;; if i'm getting the puck, go get it
+    [ set heading towards puck
+      move ]
+    team-with-puck = my-team [ ;; if my team has the puck
+      (ifelse
+        has-puck? ;; and i have the puck
+        [ set heading towards goal
+          move ] ;; move towards the goal
+        [ set heading towards destination
+          move ]) ];; otherwise, move towards my destination
+    [ ifelse any? (turtle-set defendant) with [has-puck?]
+      ;; if the player i'm supposed to defend has the puck
+      [ defend ] ;; defend them
+      [ defend-off-puck ] ]) ;; otherwise, defend off the puck
+  if has-puck? and
+  (attempt-goal-probability > shooting-threshold or distance goal < 2) [
+    ;; if i have a greater than 10% goal chance,
+    ;; or i'm less than 2 patches from the goal
+    shoot ;; shoot
+  ]
+  ;; if there's someone I can pass to and I've had the puck for at least one
+  ;; tick delta (so that players can change their movement), pass it
+  if passing-target != self and passing-target != nobody
+  and time-with-puck > 1 [ pass ]
+  ;; if I have the puck, increment my time with the puck
+  if has-puck? [ set time-with-puck time-with-puck + 1 ]
+  ;; if I passed or shot last tick delta, set it false now
+  if passed-or-shot? [ set passed-or-shot? false ]
+end
+
+;; skater procedure - turn a little bit to either the left or the right
+;; if there's someone in front of me
+to turn
+  ifelse random 100 < 50
+  [ rt 30 ]
+  [ lt 30 ]
+end
+
+;; skater procedure
+to move ;; move forward based on speed
+  skater-bounce
+  jump (speed * tick-delta)
+  if speed < max-speed and tick? [
+    ;; and accelerate every tick if speed less than max speed
+    set speed speed + acceleration
+  ]
+  ;; if i'm on top of someone, move back half a patch
+  if count skaters-here > 1 [ back 0.5 ]
+end
+
+;; skater procedure
+to skater-bounce
+  ;; get the coordinates of the patch we'll be on if we go forward 1
+  let new-patch patch-ahead 1
+  ;; if it's the goal, turn around
+  if shade-of? blue [pcolor] of new-patch [ reflect-x-axis ]
+  bounce ;; if it's the wall, just call bounce and it'll handle it
+end
+
+;; skater procedure
+to receive-pass ;; if i'm receiving a pass
+  move ;; just move normally
+  ;; update my time receiving a pass each tick
+  set time-receiving-pass time-receiving-pass + tick-delta
+  if time-receiving-pass > passing-time [
+    ;; if it's taken too long for me to receive a pass, i didn't get it
+    set team-with-puck "none" ;; so set team-with-puck to be none
+    set receiving-pass? false ;; and stop receiving
+  ]
+end
+
+;; skater procedure
+to pickup-puck
+  ask skaters [ ;; make sure everyone knows they don't have the puck
+    set has-puck? false
+    set time-with-puck 0
+    set receiving-pass? false
+    set time-receiving-pass 0
+    set getting-puck? false
+  ]
+  set has-puck? true ;; i have the puck
+  set team-with-puck my-team
+  ask links [ die ] ;; kill old link
+  create-link-to puck [ tie ] ;; and make new one
+  ask puck [ ;; set puck's speed to 0 so it goes with me
+    set speed 0
+  ]
+end
+
+;; skater procedure
+to shoot
+  let my-goal goal
+  ;; update the global goal probability for the goalie's sake
+  ;; dependent on my shooting ability and distance
+  set goal-prob shooting-ability * (3 / (distance goal))
+  ifelse my-team = "home"
+  ;; update expected goals and shot tallies accordingly
+  [ set home-xg home-xg + attempt-goal-probability
+    set home-shots home-shots + 1 ]
+  [ set away-xg away-xg + attempt-goal-probability
+    set away-shots away-shots + 1 ]
+  ;; set up the mean of the normal distribution i will draw my additive speed from
+  ;; mean is based on my shooting ability and scaled properly
+  let speed-add-mean 20 * shooting-ability
+  ;; draw from a normal distribution with that mean and a standard deviation of 0.2
+  ;; to get the speed i add
+  let speed-add random-normal speed-add-mean 0.2
+  ask puck [
+    set heading towards my-goal ;; shoot the puck toward the goal
+    lt random 10 rt random 10 ;; add some wiggle
+    ;; set the speed to be 3 plus the speed i add to it based on how good i am
+    set speed 3 + speed-add
+    set shot? true
+    if on-goal? [ ;; if the puck is going towards the goal, update shots on goal
+      ifelse xcor < 0
+      [ set home-sog home-sog + 1 ]
+      [ set away-sog away-sog + 1 ]
+    ]
+  ]
+  set has-puck? false ;; lose the puck
+  set speed speed * 0.25 ;; reduce speed
+  ask links [die] ;; kill link to puck
+  set time-with-puck 0
+  ;; set passed or shot true so I don't pick up puck next tick-delta
+  set passed-or-shot? true
+end
+
+;; skater reporter - probability of scoring a goal
+to-report attempt-goal-probability
+  let open-factor ifelse-value goal-open? [1] [0.01] ;; if it is open, set to 1
+  ;; multiply by inverse distance to goal
+  ;; anything within 3 patches gets positive probability
+  let distance-factor 3 / (distance goal)
+  ;; i have a better chance of scoring if i've just gotten the puck from a pass
+  ;; or from rebounding from in front of the goal, so add a little probability
+  let time-add ifelse-value time-with-puck < 5 [0.2] [0]
+  ;; add additive probability, then multiply by factors
+  let prob (shooting-ability + time-add) * open-factor * distance-factor
+  ;; the probability can be > 1 - don't let that happen
+  if prob > 1 [ set prob 0.99 ]
+  report prob
+end
+
+;; skater reporter - figure out if the path to the goal is open
+to-report goal-open?
+  let team my-team
+  if any? skaters-here with [my-team != team] [
+    report false
+  ]
+  ;; if there's any skaters from the other team in the cone between me and the goal,
+  ;; the goal isn't open
+  let these-skaters skaters in-cone distance goal 30
+  ifelse any? these-skaters with [my-team != team]
+  [report false]
+  [report true]
+end
+
+;; puck reporter - reports true if puck is headed towards the goal
+to-report on-goal?
+  let index 1
+  loop [ ;; loop until i hit the goal or the boundary
+    ;; if i've hit the goal, report true
+    if any? (patch-set patch-ahead index) with [pcolor = blue + 4] [ report true ]
+    ;; if i've hit the boundary, report false
+    if any? (patch-set patch-ahead index) with [pcolor = red] [ report false ]
+    set index index + 1
+  ]
+end
+
+;; skater reporter - reports whether or not a passing target exists
+to-report passing-target
+  ;; report the closest open skater to the goal
+  report min-one-of my-skaters with [open?] [distance goal]
+end
+
+;; skater reporter - report if this skater is open
+to-report open?
+  ;; if nobody has the puck, just report false because
+  ;; it doesn't matter whether or not i'm open
+  if not any? links [ report false ]
+  let team my-team
+  let my-report true
+  let my-angle passing-cone-angle
+  if any? skaters-here with [my-team != team] [
+    report false
+  ]
+  ask puck [
+    let first-heading heading ;; get my current heading for later
+    set heading towards myself ;; change my heading to face player we're looking at
+    ;; check if there's skaters from the other team in the cone
+    ;; between me and the target
+    let these-skaters skaters in-cone distance myself my-angle
+    ;; if yes, report false
+    if any? these-skaters with [my-team != team] [ set my-report false ]
+    set heading first-heading
+  ]
+  report my-report
+end
+
+;; skater procedure - how to pass
+to pass
+  let dist distance passing-target ;; get my distance to the target
+  ask passing-target [
+    set receiving-pass? true ;; passing-target receives pass
+    set time-receiving-pass 0
+    ;; this code is sending the pass to the patch (distance / 2) ahead of the
+    ;; passing target, where distance is the distance from the passer to the target
+    ;; essentially, if i'm two patches from the target, pass to the patch 1 ahead of
+    ;; the target, in the direction they're facing. this reflects the target being
+    ;; "led" by the pass
+    set passing-location patch-ahead (dist / 2)
+    ;; this code also tells the target to expect the pass in the next (distance / 2)
+    ;; ticks - if it doesn't get it, it should act accordingly
+    set passing-time (dist / 2)
+  ]
+  ;; if the passing location is outside the world, just don't do it
+  if passing-location = nobody [stop]
+  ask puck [
+    ;; ask the puck to go to the passing location; give it the appropriate speed
+    ;; and heading to get there on time
+    set speed distance passing-location
+    set heading towards passing-location
+    lt random 10 ;; add a little bit of wiggle
+    rt random 10
+  ]
+  set has-puck? false ;; lose the puck and kill my link to it
+  ask links [die]
+  set time-with-puck 0
+  ;; set passed or shot true so I don't pick up puck next tick-delta
+  set passed-or-shot? true
+end
+
+;; skater procedure if other team has puck
+to defend
+  ifelse defending? ;; if i'm on the player i'm supposed to defend
+  [ back-track ] ;; i stay with them
+  [ move-to-defendant ] ;; otherwise i go towards them
+end
+
+;; skater procedure - defend my player who doesn't have the puck
+to defend-off-puck
+  ifelse defense-type = "zone" ;; use the correct defense type
+  [ defend-off-puck-zone ]
+  [ defend-off-puck-man-to-man ]
+end
+
+;; code adapted from heroes and cowards model
+to defend-off-puck-zone
+  ;; go in between the puck and my defendant the appropriate amount
+  ;; scale by 50% - this means the maximum i can be is 50% towards the
+  ;; puck versus my defendant
+  facexy ([xcor] of puck - [xcor] of defendant) *
+  (off-puck-alignment * 0.5) + [xcor] of defendant
+  ([ycor] of puck - [ycor] of defendant) *
+  (off-puck-alignment * 0.5) + [ycor] of defendant
+  move
+end
+
+;; code adapted from heroes and cowards model
+to defend-off-puck-man-to-man
+  ;; go in between my own goal and my defendant
+  ;; scale by 25% - this means the maximum i can be is 25% towards the goal
+  ;; versus my defendant
+  facexy ([pxcor] of own-goal - [xcor] of defendant) *
+  (off-puck-alignment * 0.25) + [xcor] of defendant
+  ([pycor] of own-goal - [ycor] of defendant) *
+  (off-puck-alignment * 0.25) + [ycor] of defendant
+  move
+end
+
+;; skater reporter - the patches i want to check if my defendant is on
+to-report defensive-cone [to-patch]
+  report (patch-set
+    patch-ahead to-patch
+    patch-left-and-ahead 90 to-patch
+    patch-right-and-ahead 90 to-patch
+  )
+end
+
+;; skater reporter
+to-report defending?
+  ;; get the players i'm defending
+  let fronters skaters-on defensive-cone defense-puck-distance
+  let on-right-side false ;; make sure i'm on the right side of the player
+  ;; set it true if i'm between the player and my own goal
+  if my-team = "home" and xcor > [xcor] of defendant [ set on-right-side true ]
+  if my-team = "away" and xcor < [xcor] of defendant [ set on-right-side true ]
+  ;; report true if i'm defending the player i'm supposed to
+  ifelse member? defendant fronters and on-right-side
+  [ report true ]
+  [ report false ]
+end
+
+;; skater procedure - stick with player with puck
+to back-track
+  ;; if i'm going faster than i should be backwards, reduce speed
+  if speed > max-back-speed [ set speed max-back-speed ]
+  ;; try to steal if my mark has the puck and is close
+  if any? (turtle-set defendant) with [has-puck?]
+  and distance defendant < 1.5 [ steal ]
+  jump 0 - (speed * tick-delta)
+  ;; and accelerate every tick if speed less than max back speed
+  if speed < max-back-speed and tick? [
+    set speed speed + acceleration
+  ]
+end
+
+;; skater reporter - report the patch i should be moving to
+;; when my defendant has the puck
+to-report defense-move-to
+  let my-report defendant
+  ask defendant [
+    set my-report patch-ahead defense-puck-distance
+  ]
+  report my-report
+end
+
+;; skater procedure - go to patch i'm supposed to defend
+to move-to-defendant
+  ifelse defense-move-to != nobody
+  [ set heading towards defense-move-to ]
+  [ set heading towards defendant ]
+  move
+end
+
+;; skater procedure - maybe steal the puck
+to steal
+  ;; steal with my team's steal chance if i'm defending
+  if random 100 < steal-chance [
+    pickup-puck
+  ]
+end
+
+;; skater reporter - report the other team's players
+to-report other-team
+  ifelse my-team = "home"
+  [ report skaters with [my-team = "away" ]]
+  [ report skaters with [my-team = "home" ]]
+end
+
+;; procedure to write "GOAL!" to the screen in the scoring team's color
+to write-goal [my-color]
+  ask patch -7 2 [ set pcolor my-color ]
+  ask patch -8 2 [ set pcolor my-color ]
+  ask patch -9 2 [ set pcolor my-color ]
+  ask patch -10 2 [ set pcolor my-color ]
+  ask patch -10 1 [ set pcolor my-color ]
+  ask patch -10 0 [ set pcolor my-color ]
+  ask patch -10 -1 [ set pcolor my-color ]
+  ask patch -10 -2 [ set pcolor my-color ]
+  ask patch -9 -2 [ set pcolor my-color ]
+  ask patch -8 -2 [ set pcolor my-color ]
+  ask patch -7 -2 [ set pcolor my-color ]
+  ask patch -7 -1 [ set pcolor my-color ]
+  ask patch -7 0 [ set pcolor my-color ]
+  ask patch -8 0 [ set pcolor my-color ]
+
+  ask patch -2 2 [ set pcolor my-color ]
+  ask patch -3 2 [ set pcolor my-color ]
+  ask patch -4 2 [ set pcolor my-color ]
+  ask patch -5 2 [ set pcolor my-color ]
+  ask patch -5 1 [ set pcolor my-color ]
+  ask patch -5 0 [ set pcolor my-color ]
+  ask patch -5 -1 [ set pcolor my-color ]
+  ask patch -5 -2 [ set pcolor my-color ]
+  ask patch -4 -2 [ set pcolor my-color ]
+  ask patch -3 -2 [ set pcolor my-color ]
+  ask patch -2 -2 [ set pcolor my-color ]
+  ask patch -2 -1 [ set pcolor my-color ]
+  ask patch -2 0 [ set pcolor my-color ]
+  ask patch -2 1 [ set pcolor my-color ]
+
+  ask patch 0 -2 [ set pcolor my-color ]
+  ask patch 0 -1 [ set pcolor my-color ]
+  ask patch 0 0 [ set pcolor my-color ]
+  ask patch 1 0 [ set pcolor my-color ]
+  ask patch 2 0 [ set pcolor my-color ]
+  ask patch 0 1 [ set pcolor my-color ]
+  ask patch 0 2 [ set pcolor my-color ]
+  ask patch 1 2 [ set pcolor my-color ]
+  ask patch 2 2 [ set pcolor my-color ]
+  ask patch 3 2 [ set pcolor my-color ]
+  ask patch 3 1 [ set pcolor my-color ]
+  ask patch 3 0 [ set pcolor my-color ]
+  ask patch 3 -1 [ set pcolor my-color ]
+  ask patch 3 -2 [ set pcolor my-color ]
+
+  ask patch 5 2 [ set pcolor my-color ]
+  ask patch 5 1 [ set pcolor my-color ]
+  ask patch 5 0 [ set pcolor my-color ]
+  ask patch 5 -1 [ set pcolor my-color ]
+  ask patch 5 -2 [ set pcolor my-color ]
+  ask patch 6 -2 [ set pcolor my-color ]
+  ask patch 7 -2 [ set pcolor my-color ]
+  ask patch 8 -2 [ set pcolor my-color ]
+
+  ask patch 10 2 [ set pcolor my-color ]
+  ask patch 10 1 [ set pcolor my-color ]
+  ask patch 10 0 [ set pcolor my-color ]
+  ask patch 10 -2 [ set pcolor my-color ]
+end
+
+
+; Copyright 2025 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="610" wrappingAllowedX="false" y="85" frameRate="30.0" minPycor="-9" height="251" showTickCounter="true" patchSize="13.0" fontSize="10" wrappingAllowedY="false" width="563" tickCounterLabel="ticks" maxPycor="9" updateMode="1" maxPxcor="21" minPxcor="-21"></view>
+    <note x="65" y="10" backgroundDark="0" fontSize="12" width="150" markdown="false" height="18" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Home team settings</note>
+    <chooser x="310" y="540" height="60" variable="away-defense-type" current="0" width="285" display="away-defense-type">
+      <choice type="string" value="man-to-man"></choice>
+      <choice type="string" value="zone"></choice>
+    </chooser>
+    <slider x="310" step="1" y="480" max="20" width="285" display="away-team-steal-%" height="50" min="1" direction="Horizontal" default="5.0" variable="away-team-steal-%" units="%"></slider>
+    <slider x="310" step="1" y="425" max="100" width="285" display="away-team-off-puck-defense-alignment" height="50" min="0" direction="Horizontal" default="50.0" variable="away-team-off-puck-defense-alignment"></slider>
+    <slider x="310" step="1" y="370" max="100" width="285" display="away-team-passing-aggressiveness" height="50" min="0" direction="Horizontal" default="50.0" variable="away-team-passing-aggressiveness"></slider>
+    <slider x="310" step="1" y="315" max="100" width="285" display="away-team-on-puck-defensive-aggression" height="50" min="0" direction="Horizontal" default="50.0" variable="away-team-on-puck-defensive-aggression"></slider>
+    <slider x="310" step="1" y="260" max="100" width="285" display="away-team-shooting-aggressiveness" height="50" min="0" direction="Horizontal" default="90.0" variable="away-team-shooting-aggressiveness"></slider>
+    <slider x="310" step=".5" y="205" max="5" width="285" display="away-team-shooting-std-dev" height="50" min="0" direction="Horizontal" default="4.5" variable="away-team-shooting-std-dev"></slider>
+    <slider x="310" step="1" y="150" max="100" width="285" display="away-team-shooting-mean" height="50" min="1" direction="Horizontal" default="11.0" variable="away-team-shooting-mean" units="%"></slider>
+    <slider x="310" step=".1" y="95" max=".5" width="285" display="away-team-max-speed-std-dev" height="50" min="0" direction="Horizontal" default="0.3" variable="away-team-max-speed-std-dev"></slider>
+    <slider x="310" step=".1" y="40" max="3" width="285" display="away-team-max-speed-mean" height="50" min="1" direction="Horizontal" default="2.5" variable="away-team-max-speed-mean"></slider>
+    <chooser x="5" y="540" height="60" variable="home-defense-type" current="0" width="290" display="home-defense-type">
+      <choice type="string" value="man-to-man"></choice>
+      <choice type="string" value="zone"></choice>
+    </chooser>
+    <slider x="5" step="1" y="480" max="20" width="290" display="home-team-steal-%" height="50" min="1" direction="Horizontal" default="5.0" variable="home-team-steal-%" units="%"></slider>
+    <slider x="5" step="1" y="425" max="100" width="290" display="home-team-off-puck-defense-alignment" height="50" min="0" direction="Horizontal" default="50.0" variable="home-team-off-puck-defense-alignment"></slider>
+    <slider x="5" step="1" y="370" max="100" width="290" display="home-team-passing-aggressiveness" height="50" min="0" direction="Horizontal" default="50.0" variable="home-team-passing-aggressiveness"></slider>
+    <slider x="5" step="1" y="315" max="100" width="290" display="home-team-on-puck-defensive-aggression" height="50" min="0" direction="Horizontal" default="50.0" variable="home-team-on-puck-defensive-aggression"></slider>
+    <slider x="5" step="1" y="260" max="100" width="290" display="home-team-shooting-aggressiveness" height="50" min="0" direction="Horizontal" default="90.0" variable="home-team-shooting-aggressiveness"></slider>
+    <slider x="5" step=".1" y="40" max="3" width="290" display="home-team-max-speed-mean" height="50" min="1" direction="Horizontal" default="2.5" variable="home-team-max-speed-mean"></slider>
+    <slider x="5" step=".5" y="205" max="5" width="290" display="home-team-shooting-std-dev" height="50" min="0" direction="Horizontal" default="4.5" variable="home-team-shooting-std-dev"></slider>
+    <slider x="5" step="1" y="150" max="100" width="290" display="home-team-shooting-mean" height="50" min="1" direction="Horizontal" default="11.0" variable="home-team-shooting-mean" units="%"></slider>
+    <slider x="5" step=".1" y="95" max=".5" width="290" display="home-team-max-speed-std-dev" height="50" min="0" direction="Horizontal" default="0.3" variable="home-team-max-speed-std-dev"></slider>
+    <note x="360" y="10" backgroundDark="0" fontSize="12" width="150" markdown="false" height="18" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Away team settings</note>
+    <button x="710" y="15" height="50" disableUntilTicks="true" forever="true" kind="Observer" width="85">go</button>
+    <button x="610" y="15" height="50" disableUntilTicks="false" forever="false" kind="Observer" width="85">setup</button>
+    <note x="800" y="15" backgroundDark="0" fontSize="12" width="135" markdown="true" height="56" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">This model runs fast. Slow down the speed slider to see it better. </note>
+    <switch x="945" y="15" height="40" on="true" variable="wait-between-goals?" width="155" display="wait-between-goals?"></switch>
+    <note x="945" y="55" backgroundDark="0" fontSize="12" width="200" markdown="true" height="18" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Turn off for BehaviorSpace runs</note>
+    <monitor x="670" precision="17" y="345" height="60" fontSize="11" width="100">home-goals</monitor>
+    <monitor x="785" precision="17" y="345" height="60" fontSize="11" width="100">home-shots</monitor>
+    <monitor x="900" precision="17" y="345" height="60" fontSize="11" width="100">home-sog</monitor>
+    <monitor x="670" precision="17" y="415" height="60" fontSize="11" width="100">away-goals</monitor>
+    <monitor x="785" precision="17" y="415" height="60" fontSize="11" width="100">away-shots</monitor>
+    <monitor x="900" precision="17" y="415" height="60" fontSize="11" width="100">away-sog</monitor>
+    <monitor x="1010" precision="3" y="415" height="60" fontSize="11" width="100">away-xg</monitor>
+    <monitor x="1010" precision="3" y="345" height="60" fontSize="11" width="100">home-xg</monitor>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model depicts a sport resembling ice hockey. All of the players try to put the puck into their opponents' goal while keeping it out of their own goal. The model intends to look at the interactions of different play styles between the teams. You can control how they each play defense, how often they shoot, and their baseline skill level to see what kinds of teams and coaching decisions are effective. Team performance is measured by goals and a few other statistics.
+
+The home team is red and the away team is blue. The black dot represents the puck. The blue squares on each end of the rink are the goals, while the red outline around the outside represents the border of the playing surface.
+
+## HOW IT WORKS
+
+At the start, the players in the center fight for the puck while the rest of their teams fall back. After that, all players take actions depending on who has the puck. When a given team has the puck, their players without it all move towards predetermined destinations near their opponents' goal in order to help on offense. The player with the puck moves toward the goal, while constantly deciding whether or not to shoot or pass. They will shoot if the probability of scoring a goal is above their shooting threshold, or if they are too close to the goal. The probability of scoring a goal is governed by their shooting skill, how close they are to the goal, whether or not any opponents are between them and the goalie,  and whether they have just received the puck from a pass or rebound. Shooters with higher skill give the puck a higher speed when they shoot. When shots are taken, the goalie may or may not deflect the puck. Their chance to save the puck depends just on the shooter's skill, the distance they shot from, and the speed the puck has when it gets to them. The skater with the puck will pass if there is a player on their team closer to the goal that is open, based on how they consider a player open.
+
+For the skaters on the team playing defense, they have specific players they want to guard. If the player they are supposed to guard has the puck, they try and stay with them at whatever distance, governed by their on puck defensive aggression. If their person does not have the puck, where they go depends on the defense type. In man-to-man defense, they stay between their person and the goal; in zone defense they stay between them and the puck. How close they are to their person versus the puck or goal is governed by their off puck defensive alignment.
+
+When no player has the puck after the start, the closest player to the puck on each team chases after it. All of the other players act as they normally would if the single closest player's team had the puck.
+
+When players are very close together, they turn at random to try to avoid each other. You may see two players stuck for a few time steps, as they jostle for the puck, and try to get around each other.
+
+## HOW TO USE IT
+
+There  are a variety of choosers and sliders to control how each team plays. They are each described in turn below.
+
+**`home-team-max-speed-mean`** / **`away-team-max-speed-mean`**: the speed for each player is drawn from a normal distribution. These sliders set the mean of the normal distribution for speed for their respective teams.
+
+**`home-team-max-speed-std-dev`** / **`away-team-max-speed-std-dev`**: these sliders set the standard deviation of the normal distribution for speed for their respective teams.
+
+**`home-team-shooting-mean`** / **`away-team-shooting-mean`**: the shooting ability for each player is drawn from a normal distribution. A player's shooting ability is their baseline probability to make any shot, before other factors. These sliders set the mean of the normal distribution for shooting ability for their respective teams.
+
+**`home-team-shooting-std-dev`** / **`away-team-shooting-std-dev**`: these sliders set the standard deviation of the normal distribution for shooting ability for their respective teams.
+
+**`home-team-shooting-aggressiveness`** / **`away-team-shooting-aggressiveness`**: these sliders set the shooting aggressiveness for each player on their respective teams. The shooting aggressiveness defines a player's shooting threshold. When they think the probability of scoring a goal if they took a shot is higher than their shooting threshold, they will shoot. With an aggressiveness of 90, a player's shooting threshold is 10, so they shoot when their goal probability is more than 10%.
+
+**`home-team-on-puck-defensive-aggression`** / **`away-team-on-puck-defensive-aggression`**: these sliders control how tightly a team plays an opposing player who has the puck. At high levels, they will stay virtually on top of them and try to steal the puck. At lower levels, they keep some distance between them and the player with the puck.
+
+**`home-team-passing-aggressiveness`** / **`away-team-passing-aggressiveness`**: these sliders control how much area a player on a given team considers when deciding who is open to receive a pass. If there is a player from the other team in a cone between the player with the puck and the player they are considering passing to, they won't pass it. At higher levels, players consider a cone with a smaller radius, as they will try to fit passes in tighter windows. At lower levels, they consider a cone with a larger radius, so they are more cautious with their passing.
+
+**`home-team-off-puck-defensive-alignment`** / **`away-team-off-puck-defensive-alignment`**: these sliders control how close players on a given team are to their man they are supposed to defend. At high levels, they stay closer to their man. At lower levels, they are closer to either the puck or their own goal, depending on the style of defense their team is playing.
+
+**`home-steal-%`** / **`away-steal-%`**: these sliders control how likely a player on a given team is to steal the puck when the player with the puck from the other team is in front of them.
+
+**`home-defense-type`** / **`away-defense-type`**: these choosers can be set to either man-to-man or zone. In man-to-man defense, skaters stay between the player they have to defend and their own goal, while in zone defense, they stay between their mark and the puck.
+
+Changing these parameters changes how each team plays. You can experiment with the different combinations of play styles and skills for the teams.
+
+There are are also statistics collected for performance measures. These are briefly summarized below.
+
+**`home-goals`** / **`away-goals`**: the goals scored by each team.
+
+**`home-shots`** / **`away-shots`**: the shots taken by each team.
+
+**`home-sog`** / **`away-sog`**: the shots on goal for each team, or all of the shots that have been directed at the goal.
+
+**`home-xg`** / **`away-xg`**: the expected goals for each team, computed as the addition of all goal probabilities for each shot taken by a team.
+
+## THINGS TO NOTICE
+
+Notice how, with all parameters equal, the results and performance can swing wildly from run to run. This shows the unpredictability inherent in this system, especially when teams use the same play styles and are evenly-matched.
+
+Notice how speed can be more important than shooting ability - being faster to the puck can outweigh being able to shoot it better. This effect is magnified by the fact that almost all play in this model occurs in transition.
+
+## THINGS TO TRY
+
+Experiment with varying the parameters together, and see what combinations of play styles might work for teams. Also, see what play styles might be more effective against other play styles. Results can still vary greatly, but with enough trials, there should be some clear interactions (hint: experiment with both defensive aggression sliders, the defense type, and shooting aggressiveness and see if you find anything interesting).
+
+Experiment with varying the speeds and shooting abilities for teams. See how speed is more important than shooting ability with all else equal.
+
+## EXTENDING THE MODEL
+
+You may notice some players set up in front of the goal and take lots of shots before anyone is able to stop them. See if you can mitigate this behavior and make it easier on the defense.
+
+You could add more complicated goalie behaviors by allowing them to control the puck and pass it to their team.
+
+You could add more complicated offensive behavior by having off-puck players move from their static positions and do something more interesting. You could potentially implement some sort of screening behavior on the goalie, and have that increase the probability of a goal.
+
+## CREDITS AND REFERENCES
+
+Credit to the Gas Lab Gas in a Box model for some code related to puck movement:
+
+* Wilensky, U. (1997). NetLogo GasLab Gas in a Box model. http://ccl.northwestern.edu/netlogo/models/GasLabGasinaBox. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Credit to the Heroes and Cowards model for some code related to player movement:
+
+* Stonedahl, F., Wilensky, U., Rand, W. (2014). NetLogo Heroes and Cowards model. http://ccl.northwestern.edu/netlogo/models/HeroesandCowards. Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Zamborsky, C. (2025).  NetLogo Hockey model.  http://ccl.northwestern.edu/netlogo/models/Hockey.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2025 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This model is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+NetLogo itself is free software for non-commercial use under the terms of the GNU General Public License ([see full license information here](https://ccl.northwestern.edu/netlogo/docs/copyright.html)).
+
+To inquire about commercial licenses for either NetLogo or specific models from the models library, please contact netlogo-commercial-admin@ccl.northwestern.edu.
+
+<!-- 2025 ONLY Cite: Zamborsky, C. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="15">
+      <circle x="203" y="65" marked="true" color="-1" diameter="88" filled="true"></circle>
+      <circle x="70" y="65" marked="true" color="-1" diameter="162" filled="true"></circle>
+      <circle x="150" y="105" marked="true" color="-1" diameter="120" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="218" y="120"></point>
+        <point x="240" y="165"></point>
+        <point x="255" y="165"></point>
+        <point x="278" y="120"></point>
+      </polygon>
+      <circle x="214" y="72" marked="false" color="-1920102913" diameter="67" filled="true"></circle>
+      <rectangle endX="179" startY="223" marked="true" color="-1" endY="298" startX="164" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="45" y="285"></point>
+        <point x="30" y="285"></point>
+        <point x="30" y="240"></point>
+        <point x="15" y="195"></point>
+        <point x="45" y="210"></point>
+      </polygon>
+      <circle x="3" y="83" marked="true" color="-1" diameter="150" filled="true"></circle>
+      <rectangle endX="80" startY="221" marked="true" color="-1" endY="296" startX="65" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="195" y="285"></point>
+        <point x="210" y="285"></point>
+        <point x="210" y="240"></point>
+        <point x="240" y="210"></point>
+        <point x="195" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="276" y="85"></point>
+        <point x="285" y="105"></point>
+        <point x="302" y="99"></point>
+        <point x="294" y="83"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="219" y="85"></point>
+        <point x="210" y="105"></point>
+        <point x="193" y="99"></point>
+        <point x="201" y="83"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="253" y="133"></point>
+        <point x="245" y="131"></point>
+        <point x="245" y="133"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="194"></point>
+        <point x="13" y="197"></point>
+        <point x="30" y="191"></point>
+        <point x="38" y="193"></point>
+        <point x="38" y="205"></point>
+        <point x="20" y="226"></point>
+        <point x="20" y="257"></point>
+        <point x="27" y="265"></point>
+        <point x="38" y="266"></point>
+        <point x="40" y="260"></point>
+        <point x="31" y="253"></point>
+        <point x="31" y="230"></point>
+        <point x="60" y="206"></point>
+        <point x="68" y="198"></point>
+        <point x="75" y="209"></point>
+        <point x="66" y="228"></point>
+        <point x="65" y="243"></point>
+        <point x="82" y="261"></point>
+        <point x="84" y="268"></point>
+        <point x="100" y="267"></point>
+        <point x="103" y="261"></point>
+        <point x="77" y="239"></point>
+        <point x="79" y="231"></point>
+        <point x="100" y="207"></point>
+        <point x="98" y="196"></point>
+        <point x="119" y="201"></point>
+        <point x="143" y="202"></point>
+        <point x="160" y="195"></point>
+        <point x="166" y="210"></point>
+        <point x="172" y="213"></point>
+        <point x="173" y="238"></point>
+        <point x="167" y="251"></point>
+        <point x="160" y="248"></point>
+        <point x="154" y="265"></point>
+        <point x="169" y="264"></point>
+        <point x="178" y="247"></point>
+        <point x="186" y="240"></point>
+        <point x="198" y="260"></point>
+        <point x="200" y="271"></point>
+        <point x="217" y="271"></point>
+        <point x="219" y="262"></point>
+        <point x="207" y="258"></point>
+        <point x="195" y="230"></point>
+        <point x="192" y="198"></point>
+        <point x="210" y="184"></point>
+        <point x="227" y="164"></point>
+        <point x="242" y="144"></point>
+        <point x="259" y="145"></point>
+        <point x="284" y="151"></point>
+        <point x="277" y="141"></point>
+        <point x="293" y="140"></point>
+        <point x="299" y="134"></point>
+        <point x="297" y="127"></point>
+        <point x="273" y="119"></point>
+        <point x="270" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="-1" y="195"></point>
+        <point x="14" y="180"></point>
+        <point x="36" y="166"></point>
+        <point x="40" y="153"></point>
+        <point x="53" y="140"></point>
+        <point x="82" y="131"></point>
+        <point x="134" y="133"></point>
+        <point x="159" y="126"></point>
+        <point x="188" y="115"></point>
+        <point x="227" y="108"></point>
+        <point x="236" y="102"></point>
+        <point x="238" y="98"></point>
+        <point x="268" y="86"></point>
+        <point x="269" y="92"></point>
+        <point x="281" y="87"></point>
+        <point x="269" y="103"></point>
+        <point x="269" y="113"></point>
+      </polygon>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+  <experiments>
+    <experiment name="shooting aggressiveness" repetitions="50" sequentialRunOrder="true" runMetricsEveryStep="false">
+      <setup>setup</setup>
+      <go>go</go>
+      <exitCondition><![CDATA[ticks > 500]]></exitCondition>
+      <metrics>
+        <metric>home-goals</metric>
+        <metric>away-goals</metric>
+        <metric>home-xg</metric>
+        <metric>away-xg</metric>
+      </metrics>
+      <constants>
+        <enumeratedValueSet variable="away-team-shooting-std-dev">
+          <value value="4.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-off-puck-defense-alignment">
+          <value value="70"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-off-puck-defense-alignment">
+          <value value="70"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-passing-aggressiveness">
+          <value value="&quot;low&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-aggressiveness">
+          <value value="&quot;low&quot;"></value>
+          <value value="&quot;medium&quot;"></value>
+          <value value="&quot;high&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-std-dev">
+          <value value="4.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-passing-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-std-dev">
+          <value value="0.3"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-std-dev">
+          <value value="0.3"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-on-puck-defensive-aggression">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-on-puck-defensive-aggression">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+      </constants>
+    </experiment>
+    <experiment name="passing-aggressiveness" repetitions="50" sequentialRunOrder="true" runMetricsEveryStep="false">
+      <setup>setup</setup>
+      <go>go</go>
+      <exitCondition><![CDATA[ticks > 500]]></exitCondition>
+      <metrics>
+        <metric>home-goals</metric>
+        <metric>away-goals</metric>
+        <metric>home-xg</metric>
+        <metric>away-xg</metric>
+      </metrics>
+      <constants>
+        <enumeratedValueSet variable="away-team-shooting-std-dev">
+          <value value="4.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-off-puck-defense-alignment">
+          <value value="70"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-off-puck-defense-alignment">
+          <value value="70"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-passing-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-std-dev">
+          <value value="4.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-passing-aggressiveness">
+          <value value="&quot;low&quot;"></value>
+          <value value="&quot;medium&quot;"></value>
+          <value value="&quot;high&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-std-dev">
+          <value value="0.30000000000000004"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-std-dev">
+          <value value="0.30000000000000004"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-on-puck-defensive-aggression">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-on-puck-defensive-aggression">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+      </constants>
+    </experiment>
+    <experiment name="on-puck-aggression" repetitions="50" sequentialRunOrder="true" runMetricsEveryStep="false">
+      <setup>setup</setup>
+      <go>go</go>
+      <exitCondition><![CDATA[ticks > 500]]></exitCondition>
+      <metrics>
+        <metric>home-goals</metric>
+        <metric>away-goals</metric>
+        <metric>home-xg</metric>
+        <metric>away-xg</metric>
+      </metrics>
+      <constants>
+        <enumeratedValueSet variable="away-team-shooting-std-dev">
+          <value value="4.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-off-puck-defense-alignment">
+          <value value="70"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-off-puck-defense-alignment">
+          <value value="70"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-passing-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-std-dev">
+          <value value="4.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-passing-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-std-dev">
+          <value value="0.30000000000000004"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-std-dev">
+          <value value="0.30000000000000004"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-on-puck-defensive-aggression">
+          <value value="&quot;low&quot;"></value>
+          <value value="&quot;medium&quot;"></value>
+          <value value="&quot;high&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-on-puck-defensive-aggression">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+      </constants>
+    </experiment>
+    <experiment name="off-puck-alignment" repetitions="50" sequentialRunOrder="true" runMetricsEveryStep="false">
+      <setup>setup</setup>
+      <go>go</go>
+      <exitCondition><![CDATA[ticks > 500]]></exitCondition>
+      <metrics>
+        <metric>home-goals</metric>
+        <metric>home-xg</metric>
+        <metric>away-goals</metric>
+        <metric>away-xg</metric>
+      </metrics>
+      <constants>
+        <enumeratedValueSet variable="away-team-shooting-std-dev">
+          <value value="4.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-off-puck-defense-alignment">
+          <value value="70"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-off-puck-defense-alignment">
+          <value value="25"></value>
+          <value value="50"></value>
+          <value value="75"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-passing-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-std-dev">
+          <value value="4.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-passing-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-std-dev">
+          <value value="0.30000000000000004"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-std-dev">
+          <value value="0.30000000000000004"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-on-puck-defensive-aggression">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-on-puck-defensive-aggression">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+      </constants>
+    </experiment>
+    <experiment name="max-speed" repetitions="50" sequentialRunOrder="true" runMetricsEveryStep="false">
+      <setup>setup</setup>
+      <go>go</go>
+      <exitCondition><![CDATA[ticks > 500]]></exitCondition>
+      <metrics>
+        <metric>home-goals</metric>
+        <metric>home-xg</metric>
+        <metric>away-goals</metric>
+        <metric>away-xg</metric>
+      </metrics>
+      <constants>
+        <enumeratedValueSet variable="away-team-shooting-std-dev">
+          <value value="4.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-off-puck-defense-alignment">
+          <value value="70"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-off-puck-defense-alignment">
+          <value value="70"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-passing-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-mean">
+          <value value="2"></value>
+          <value value="2.5"></value>
+          <value value="3"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-std-dev">
+          <value value="4.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-passing-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-std-dev">
+          <value value="0.30000000000000004"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-std-dev">
+          <value value="0.30000000000000004"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-on-puck-defensive-aggression">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-on-puck-defensive-aggression">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+      </constants>
+    </experiment>
+    <experiment name="shooting" repetitions="50" sequentialRunOrder="true" runMetricsEveryStep="false">
+      <setup>setup</setup>
+      <go>go</go>
+      <exitCondition><![CDATA[ticks > 500]]></exitCondition>
+      <metrics>
+        <metric>home-goals</metric>
+        <metric>home-xg</metric>
+        <metric>away-goals</metric>
+        <metric>away-xg</metric>
+      </metrics>
+      <constants>
+        <enumeratedValueSet variable="away-team-shooting-std-dev">
+          <value value="0"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-off-puck-defense-alignment">
+          <value value="70"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-mean">
+          <value value="7"></value>
+          <value value="11"></value>
+          <value value="15"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-off-puck-defense-alignment">
+          <value value="70"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-passing-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-std-dev">
+          <value value="0"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-passing-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-std-dev">
+          <value value="0.30000000000000004"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-std-dev">
+          <value value="0.30000000000000004"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-on-puck-defensive-aggression">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-on-puck-defensive-aggression">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+      </constants>
+    </experiment>
+    <experiment name="max-speed vs. shooting" repetitions="50" sequentialRunOrder="true" runMetricsEveryStep="false">
+      <setup>setup</setup>
+      <go>go</go>
+      <exitCondition><![CDATA[ticks > 500]]></exitCondition>
+      <metrics>
+        <metric>home-goals</metric>
+        <metric>home-xg</metric>
+        <metric>away-goals</metric>
+        <metric>away-xg</metric>
+      </metrics>
+      <constants>
+        <enumeratedValueSet variable="away-team-shooting-std-dev">
+          <value value="0"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-off-puck-defense-alignment">
+          <value value="70"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-off-puck-defense-alignment">
+          <value value="70"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-passing-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-mean">
+          <value value="20"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-mean">
+          <value value="3"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-std-dev">
+          <value value="4.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-passing-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-std-dev">
+          <value value="0.30000000000000004"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-std-dev">
+          <value value="0.30000000000000004"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-on-puck-defensive-aggression">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-on-puck-defensive-aggression">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+      </constants>
+    </experiment>
+    <experiment name="Varying everything" repetitions="50" sequentialRunOrder="true" runMetricsEveryStep="false">
+      <setup>setup</setup>
+      <go>go</go>
+      <exitCondition><![CDATA[ticks > 500]]></exitCondition>
+      <metrics>
+        <metric>home-goals</metric>
+        <metric>away-goals</metric>
+        <metric>home-xg</metric>
+        <metric>away-xg</metric>
+      </metrics>
+      <constants>
+        <enumeratedValueSet variable="away-team-shooting-std-dev">
+          <value value="4.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-off-puck-defense-alignment">
+          <value value="25"></value>
+          <value value="50"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-off-puck-defense-alignment">
+          <value value="25"></value>
+          <value value="50"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-passing-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-aggressiveness">
+          <value value="&quot;low&quot;"></value>
+          <value value="&quot;high&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-std-dev">
+          <value value="4.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-passing-aggressiveness">
+          <value value="&quot;medium&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-std-dev">
+          <value value="0.30000000000000004"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-std-dev">
+          <value value="0.30000000000000004"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-on-puck-defensive-aggression">
+          <value value="&quot;low&quot;"></value>
+          <value value="&quot;high&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-stealing">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-aggressiveness">
+          <value value="&quot;low&quot;"></value>
+          <value value="&quot;high&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-on-puck-defensive-aggression">
+          <value value="&quot;low&quot;"></value>
+          <value value="&quot;high&quot;"></value>
+        </enumeratedValueSet>
+      </constants>
+    </experiment>
+    <experiment name="counting goals" repetitions="100" sequentialRunOrder="true" runMetricsEveryStep="false">
+      <setup>setup</setup>
+      <go>go</go>
+      <exitCondition><![CDATA[ticks > 500]]></exitCondition>
+      <metrics>
+        <metric>home-goals</metric>
+        <metric>away-goals</metric>
+      </metrics>
+      <constants>
+        <enumeratedValueSet variable="away-defense-type">
+          <value value="&quot;man-to-man&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-defense-type">
+          <value value="&quot;man-to-man&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-std-dev">
+          <value value="4.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-off-puck-defense-alignment">
+          <value value="50"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-off-puck-defense-alignment">
+          <value value="50"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-passing-aggressiveness">
+          <value value="50"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-steal-%">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-mean">
+          <value value="11"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-mean">
+          <value value="2.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-aggressiveness">
+          <value value="90"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-shooting-std-dev">
+          <value value="4.5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-passing-aggressiveness">
+          <value value="50"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-steal-%">
+          <value value="5"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-max-speed-std-dev">
+          <value value="0.3"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-max-speed-std-dev">
+          <value value="0.3"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="home-team-on-puck-defensive-aggression">
+          <value value="50"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-shooting-aggressiveness">
+          <value value="90"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="away-team-on-puck-defensive-aggression">
+          <value value="50"></value>
+        </enumeratedValueSet>
+      </constants>
+    </experiment>
+  </experiments>
+</model>
