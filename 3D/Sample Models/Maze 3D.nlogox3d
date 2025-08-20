@@ -1,410 +1,205 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 3D 7.0.0-beta2" snapToGrid="true">
-  <code><![CDATA[patches-own [
-  patch-type ;; inner, surface, or air
-  h-count
-]
-
-globals[
-  ;;visualization constants
-  h4-color h3-color h2-color h1-color
-  anchor-transparency ;;color transparency for anchors
-  hydrogen-transparency ;;color transparency for hydrogen
-  box-size
-  h-size
-  h-total ;; total hydrogen available in patches and free-roaming
-  h-remain ;; remaining hydrogen
-]
-
-breed [hydrogens hydrogen]  ;;hydrogen
-breed [anchors anchor] ;;patch visualization
+<model version="NetLogo 3D 7.0.0-beta2" snapToGrid="false">
+  <code><![CDATA[globals [maze]
 
 to setup
   clear-all
-  set anchor-transparency 161
-
-  ;;Colors for Hydrogen Counts
-  ifelse h4-on?
-    [ set h4-color white ]
-    [ set h4-color 0 ]
-
-  ifelse h3-on?
-    [ set h3-color green ]
-    [ set h3-color 0 ]
-
-  ifelse h2-on?
-    [ set h2-color blue ]
-    [ set h2-color 0 ]
-
-  ifelse h1-on?
-    [ set h1-color red ]
-    [ set h1-color 0 ]
-
-  set hydrogen-transparency 200
-  set box-size 0.30
-  set h-size 0.35
-
-  ;;SETUP PATCHES
-
-  ;; all patches start as air
-  ask patches [ set patch-type "air" ]
-
-  ;;Quick diffuse surface patches
-  ask patches with [
-    (pxcor > min-pxcor and pxcor < max-pxcor) and
-    (pycor > min-pycor and pycor < max-pycor) and
-    (pzcor > min-pzcor and pzcor < max-pzcor)
-  ] [
-    set patch-type "surface"
-  ]
-
-  ;;Inner lattice patches
-  ask patches with [
-    (pxcor > min-pxcor + 1 and pxcor < max-pxcor - 1) and
-    (pycor > min-pycor + 1 and pycor < max-pycor - 1) and
-    (pzcor > min-pzcor + 1 and pzcor < max-pzcor - 1)
-  ] [
-    set patch-type "inner"
-  ]
-
-  ;;Populate anchors
-  ask patches with [ patch-type != "air" ] [
-    sprout-anchors 1 [
-      set shape "square"
-      set color lput anchor-transparency extract-rgb h4-color
-      set size box-size
-      set heading 0
-      set pitch 0
-    ]
-    set h-count 4
-  ]
-
-  ;;Total Hydrogens
-  set h-total ((count patches with [ patch-type != "air" ]) * 3)
-  set h-remain h-total
-
-  ;;Grid Draw
-  if grid-draw [
-    ask patch min-pxcor min-pycor min-pzcor [
-      sprout 1 [
-        set color gray - 2
-
-        ;;Y
-        set heading 0
-        ;;loop setup
-        set xcor xcor - 1.5 set ycor ycor - 0.5 set zcor zcor - 1.5
-        repeat (max-pxcor * 2 + 1) [
-          set zcor zcor + 1
-          repeat (max-pxcor * 2 + 1) [
-            set ycor min-pxcor - 0.5
-            set xcor xcor + 1
-            pen-down fd .25 repeat (max-pxcor * 2) [ pen-up fd .5 pen-down fd .5 ] pen-up fd .5 pen-down fd .25 pen-up ]
-          set xcor xcor + 1
-        ]
-        set xcor xcor + 1
-
-        ;;X
-        set heading 90
-        ;;loop setup
-        set ycor ycor - 1 set zcor min-pzcor - 0.5 - 1
-        repeat (max-pxcor * 2 + 1) [
-          set zcor zcor + 1
-          repeat (max-pxcor * 2 + 1) [
-            set ycor ycor + 1
-            pen-down fd .25 repeat (max-pxcor * 2) [ pen-up fd .5 pen-down fd .5 ] pen-up fd .5 pen-down fd .25 pen-up ]
-          set ycor ycor + 1
-        ]
-
-        ;;Z
-        set pitch 90
-        ;;loop setup
-        set zcor zcor + 1 set xcor xcor - 1
-        repeat (max-pxcor * 2 + 1) [
-          set ycor ycor + 1
-          repeat (max-pxcor * 2 + 1) [
-            set xcor xcor + 1
-            pen-down fd .25 repeat (max-pxcor * 2) [ pen-up fd .5 pen-down fd .5 ] pen-up fd .5 pen-down fd .25 pen-up ]
-          set xcor xcor + 1
-        ]
-
-        ;;kill pen turtle
-        die
-      ]
-    ]
-  ]
+  set maze (sentence
+  ;; This is the shape that the maze will take.
+  ;; It is a 180 degree flip from how it presents on the 3D View Tab.
+"#   ########        #####################"
+"#   ########        #####        ###   ##"
+"#   ###   ##        #####        ###   ##"
+"#   ###   #######   #####   ##   ###   ##"
+"#         #######   #####   ##   ###   ##"
+"#         #######   #####   ##   ###   ##"
+"####   ##########   #####   ##   ###   ##"
+"####   ####                 ##   ###   ##"
+"####   ####                 ##   ###   ##"
+"####   ####   ################   ###   ##"
+"####   ####   ################   ###   ##"
+"####                      ####   ###   ##"
+"####                      ####   ###   ##"
+"#######   #############   ##########   ##"
+"#         #############      #######   ##"
+"#         #############      #######   ##"
+"#   ###             ######   #######   ##"
+"#   ###             ######   #######   ##"
+"#   #############   ######             ##"
+"#   #############   ######             ##"
+"#   ###   #######   ######   ############"
+"#   ###   ##        ####     ######   ###"
+"#   ###   ##        ####     ######   ###"
+"#   ###   ##        ######   ######   ###"
+"#   ###   #######   ######   ######   ###"
+"#         #######   ######            ###"
+"#         #######   ######            ###"
+"####   ##########   ###############   ###"
+"####   ####         ####  #########   ###"
+"####   ####         ####  #########   ###"
+"####   ####   ##########              ###"
+"####   ####   ##########              ###"
+"####   ####           ######   ##########"
+"####   ####           ######   ##########"
+"####   ############   ######   ##########"
+"#         #########   ######            #"
+"#         #########   ######            #"
+"#   ###   #########   ###############   #"
+"#   ###                      ########   #"
+"#   ###                      ########   #"
+"#####################################   #"
+  )
+  draw-maze 0 0 maze
+  ;; Include the starting and endpoints of the maze.
+  starting-point
+  end-maze
   reset-ticks
 end
 
-to go
-
-  ;;Termination %
-  if h-remain < (h-total * end-percent / 100) [
-    ask patch 0 0 0 [ set pcolor red ]
-    stop
+to move-forward
+  ask turtles with [ shape = "circle" ] ; This calls on just the turtles that are circles, not the others, to move.
+   [ ifelse leave-trace?
+      [ pen-down ]
+      [ pen-up ]
+    forward how-far-forward?
+    (ifelse any? (turtle-set turtles-at -1 1 0 turtles-at 1 1 0 turtles-at 0 1 0) with [ shape = "square" ]
+      [ ask turtles with [shape = "circle" ]
+        [ back how-far-forward? user-message "You're going into a wall! Make a different choice." ]
+    ] any? turtles-here with [ shape = "cylinder" ] [
+      user-message "Congratulations! You solved the maze!"
+    ])
   ]
-
-  ;; removing H2 from model
-  ask hydrogens with [ color = yellow ] [ die ]
-
-  ;;Freedom! - Hydrogen desorbs
-  ask patches with [ h-count = 2 ] [
-    if random-float 1.0 < p2to1 [
-      set h-count h-count - 1
-      sprout-hydrogens 1 [
-        set shape "circle"
-        set color lput hydrogen-transparency extract-rgb h1-color
-        set size h-size
-        fd random-float .4 - .8
-      ]
-      ask anchors-here [
-        set color lput anchor-transparency extract-rgb h1-color
-      ]
-    ]
-  ]
-
-  ask patches with [ h-count = 3 ] [
-    if random-float 1.0 < p3to2 [
-      set h-count h-count - 1
-      sprout-hydrogens 1 [
-        set shape "circle"
-        set color lput hydrogen-transparency extract-rgb h2-color
-        set size h-size
-        fd random-float .4 - .8
-      ]
-      ask anchors-here [
-        set color lput anchor-transparency extract-rgb h2-color
-      ]
-    ]
-  ]
-
-  ask patches with [ h-count = 4 ] [
-    if random-float 1.0 < p4to3 [
-      set h-count h-count - 1
-      sprout-hydrogens 1 [
-        set shape "circle"
-        set color lput hydrogen-transparency extract-rgb h3-color
-        set size h-size
-        fd random-float .4 - .8
-      ]
-      ask anchors-here [
-        set color lput anchor-transparency extract-rgb h3-color
-      ]
-    ]
-  ]
-
-  ;;Absorption
-  ask hydrogens [
-    ;;2 to 3 absorption
-    ifelse (h-count = 2) and (random-float 1.0 < p2to3) [
-      set h-count h-count + 1 ;; patch variable
-      ask anchors-here [
-        set color lput anchor-transparency extract-rgb h3-color
-      ]
-      die
-    ] [
-      ;;3 to 4 absorption
-      if ((h-count = 3) and (random-float 1.0 < p3to4)) [
-        set h-count h-count + 1 ;; patch variable
-        ask anchors-here [
-          set color lput anchor-transparency extract-rgb h4-color
-        ]
-        die
-      ]
-    ]
-  ]
-
-  ;; HYDROGEN MOVEMENT
-  ask hydrogens-on patches with [ patch-type = "inner" ] [
-    let norm (count neighbors6 with [ h-count = 1 ]) * red-diffuse + (count neighbors6 with [h-count > 1]) + 0.00000000001
-    let p-red (count neighbors6 with [ h-count = 1 ]) * red-diffuse / norm ;;percent chance to move to red(depleted regions)
-
-    ifelse (random-float 1.0 < p-red) [
-      face one-of neighbors6 with [ h-count = 1 ]
-    ] [
-      ifelse count (neighbors6 with [ h-count > 1 ]) > 0 [
-        face one-of neighbors6 with [ h-count > 1 ]
-      ] [
-        face one-of neighbors6
-      ]
-    ]
-
-    ;; move to neighboring patch, then slightly off-center
-    fd random-float 1.4 - .8
-  ]
-
-  ;; quick-diffuse surface hydrogens
-  ask hydrogens-on patches with [ patch-type != "inner" ] [
-    face one-of neighbors with [ patch-type = "surface" ]
-    fd 1
-  ]
-
-  ;; PAIRING-UP AND LEAVING
-  ;;==============================================================================
-  ask patches with [ patch-type = "surface" ] [
-
-    ;; When there are two hydrogens on one surface lattice patch, combine and leave system
-    if count hydrogens-here > 1 [
-      ask n-of 2 hydrogens-here [
-        set color yellow
-        set size .5
-      ]
-      set h-remain h-remain - 2
-    ]
-  ]
-
   tick
 end
 
 
-; Copyright 2015 Uri Wilensky.
+to move-backward
+  ask turtles with [ shape = "circle" ] ; This calls on just the turtles that are circles, not the others, to move.
+    [ ifelse leave-trace?
+      [ pen-down ]
+      [ pen-up ]
+    back how-far-backward?
+    if any? turtles-here with [ shape = "square" ]
+      [ ask turtles with [ shape = "circle" ]
+        [ forward how-far-backward? user-message "You're going into a wall! Make a different choice." ]
+        if any? turtles-here with [ shape = "cylinder" ]
+      [ user-message "Congratulations! You solved the maze!" ]
+  ]]
+  tick
+end
+
+to turn-right
+  ask turtles with [shape = "circle"]
+  ; This calls on just the turtles that are circles, not the others, to move.
+    [ right 90 ]
+  tick
+end
+
+to turn-left
+  ask turtles with [shape = "circle"]
+  ; This calls on just the turtles that are circles, not the others, to move.
+    [ left 90 ]
+  tick
+end
+
+to draw-maze [x y input-maze] ;; This initates the Maze
+  if item x item y input-maze = "#" ; For each #, create a turtle wall. Skip if a space, not a #.
+    [create-turtles 1 [
+      set shape "square"
+      set size 1.5
+      set color blue
+      set xcor x
+      set ycor y
+      set heading 0 ]]
+  if y = length input-maze - 1 and x = length item y input-maze - 1 [ stop ] ; If the end of the maze, stop building.
+  ; As the maze builder moves across the row, check what row we're in
+  ifelse x < length item y input-maze - 1
+   ; If we are in the same row, set the x-coordinate to the next number (x + 1) to move to the next column
+   [ draw-maze x + 1 y input-maze ]
+  ; If we are at the end of the row, set the y-coordinate to the next number (y + 1) to move to the row
+   [ draw-maze 0 y + 1 input-maze ]
+end
+
+to starting-point ;; Makes the ball that you use to move through the maze.
+  create-turtles 1
+  [ set shape "circle"
+    set color 135
+    setxy 2 -37
+    set heading 0]
+end
+
+to end-maze ;; Makes the endpoint of the maze, a yellow cylinder.
+    create-turtles 1 [
+     set shape "cylinder"
+     set size 1.5
+     set color yellow
+     setxy 38 39
+     set zcor -0.25]
+end
+
+
+; Copyright 2025 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view3d wrappingAllowedZ="true" x="0" wrappingAllowedX="true" y="0" minPycor="-8" height="247" showTickCounter="true" patchSize="12.0" fontSize="10" wrappingAllowedY="true" width="241" tickCounterLabel="ticks" maxPycor="8" updateMode="1" frameRate="30.0" maxPzcor="8" maxPxcor="8" minPxcor="-8" minPzcor="-8"></view3d>
-    <button x="125" y="15" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="85" sizeVersion="0">go</button>
-    <button x="15" y="15" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="90" sizeVersion="0">setup</button>
-    <slider x="235" step=".01" y="25" max="1" display="p4to3" height="33" min="0" direction="Horizontal" default="0.05" variable="p4to3" width="195" sizeVersion="0"></slider>
-    <slider x="235" step=".01" y="60" max="1" display="p3to2" height="33" min="0" direction="Horizontal" default="0.05" variable="p3to2" width="195" sizeVersion="0"></slider>
-    <slider x="235" step="0.01" y="95" max="1" display="p2to1" height="33" min="0" direction="Horizontal" default="0.05" variable="p2to1" width="195" sizeVersion="0"></slider>
-    <plot x="450" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="h" y="140" xMin="0.0" height="145" legend="false" xMax="10.0" yMin="0.0" xAxis="time" display="Total  Hydrogen Count" width="205" sizeVersion="0">
-      <setup></setup>
-      <update></update>
-      <pen interval="1.0" mode="0" display="hydrogens" color="-13345367" legend="true">
-        <setup></setup>
-        <update>plot h-remain</update>
-      </pen>
-    </plot>
-    <slider x="15" step="1" y="95" max="100" display="end-percent" height="33" min="0" direction="Horizontal" default="23.0" variable="end-percent" units="%" width="195" sizeVersion="0"></slider>
-    <slider x="235" step=".01" y="160" max="1" display="p3to4" height="33" min="0" direction="Horizontal" default="0.05" variable="p3to4" width="195" sizeVersion="0"></slider>
-    <slider x="235" step="0.01" y="195" max="1" display="p2to3" height="33" min="0" direction="Horizontal" default="0.05" variable="p2to3" width="195" sizeVersion="0"></slider>
-    <switch x="15" y="295" height="33" on="true" variable="h3-on?" display="h3-on?" width="102" sizeVersion="0"></switch>
-    <switch x="15" y="260" height="33" on="true" variable="h4-on?" display="h4-on?" width="102" sizeVersion="0"></switch>
-    <switch x="120" y="260" height="33" on="true" variable="h2-on?" display="h2-on?" width="102" sizeVersion="0"></switch>
-    <switch x="120" y="295" height="33" on="true" variable="h1-on?" display="h1-on?" width="102" sizeVersion="0"></switch>
-    <slider x="235" step="0.01" y="295" max="2" display="red-diffuse" height="33" min="0" direction="Horizontal" default="0.1" variable="red-diffuse" width="195" sizeVersion="0"></slider>
-    <note x="15" y="225" backgroundDark="0" fontSize="11" width="215" markdown="false" height="30" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Turns on/off the color visualizations
-for the nth free hydrogen</note>
-    <switch x="15" y="175" height="33" on="true" variable="grid-draw" display="grid-draw" width="122" sizeVersion="0"></switch>
-    <monitor x="450" precision="3" y="80" height="45" fontSize="11" display="Fraction of Surface H Remaining" width="205" sizeVersion="0">(sum [h-count - 1] of patches with [patch-type = "surface"]) / (3 * count patches with [patch-type = "surface"])</monitor>
-    <monitor x="450" precision="3" y="25" height="45" fontSize="11" display="Percent of Hydrogen Remaining" width="205" sizeVersion="0">(h-remain / h-total) * 100</monitor>
-    <note x="15" y="145" backgroundDark="0" fontSize="11" width="205" markdown="false" height="30" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Enables or disables
-the grid markings</note>
-    <note x="235" y="10" backgroundDark="0" fontSize="11" width="205" markdown="false" height="26" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Hydrogen Desorption Probabilities</note>
-    <note x="235" y="145" backgroundDark="0" fontSize="11" width="205" markdown="false" height="26" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Hydrogen Absorption Probabilities</note>
-    <note x="235" y="250" backgroundDark="0" fontSize="11" width="210" markdown="false" height="40" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Probability to move to depleted red
-patch vs different colored patch</note>
-    <note x="15" y="60" backgroundDark="0" fontSize="11" width="180" markdown="false" height="30" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Simulation termination %
-(of initial hydrogen)</note>
-    <plot x="450" autoPlotX="true" yMax="10.0" autoPlotY="true" y="310" xMin="0.0" height="150" legend="false" xMax="4.0" yMin="0.0" display="Patch Distribution" width="205" sizeVersion="0">
-      <setup></setup>
-      <update>plot-pen-reset
-set-plot-pen-color h1-color
-plot ifelse-value (h1-on?) [count anchors with [color = lput anchor-transparency extract-rgb h1-color]][0]
-set-plot-pen-color h2-color
-plot ifelse-value (h2-on?) [count anchors with [color = lput anchor-transparency extract-rgb h2-color]][0]
-set-plot-pen-color h3-color
-plot ifelse-value (h3-on?) [count anchors with [color = lput anchor-transparency extract-rgb h3-color]][0]
-set-plot-pen-color black
-plot ifelse-value (h4-on?) [count anchors with [color = lput anchor-transparency extract-rgb h4-color]][0]</update>
-      <pen interval="1.0" mode="1" display="pen-0" color="-7500403" legend="true">
-        <setup></setup>
-        <update></update>
-      </pen>
-    </plot>
+    <view3d wrappingAllowedZ="true" x="0" wrappingAllowedX="true" y="0" minPycor="-40" height="337" showTickCounter="true" patchSize="12.0" fontSize="10" wrappingAllowedY="true" width="336" tickCounterLabel="ticks" maxPycor="0" updateMode="1" frameRate="30.0" maxPzcor="1" maxPxcor="40" minPxcor="0" minPzcor="0"></view3d>
+    <button x="18" y="56" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="182" display="Set Up The Maze">setup</button>
+    <switch x="206" y="54" height="40" on="true" variable="leave-trace?" width="159" display="leave-trace?"></switch>
+    <button x="206" y="102" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="159" display="Clear the Trace">clear-drawing</button>
+    <button x="19" y="103" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="179" display="Start Over!">setup</button>
+    <note x="126" y="26" backgroundDark="0" fontSize="14" width="150" markdown="false" height="18" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Maze Set Up Area</note>
+    <note x="37" y="173" backgroundDark="0" fontSize="11" width="334" markdown="false" height="60" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Try and solve this maze! You are the pink ball in the bottom left, and you want to reach the yellow cylinder in the top right. Use all the buttons at your disposal, and explore the maze in both 2D and 3D!</note>
+    <note x="430" y="102" backgroundDark="0" fontSize="14" width="150" markdown="false" height="18" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Explore 2D versus 3D</note>
+    <button x="415" y="175" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="172" display="Return to 2D View">reset-perspective</button>
+    <button x="415" y="129" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="174" display="Solve the Maze in 3D">follow one-of turtles with [shape = "circle"]</button>
+    <slider x="114" step="1" y="260" max="5" width="172" display="how-far-forward?" height="50" min="1" direction="Horizontal" default="1.0" variable="how-far-forward?"></slider>
+    <button x="24" actionKey="A" y="332" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="98" display="Turn Left">turn-left</button>
+    <slider x="115" step="1" y="403" max="5" width="171" display="how-far-backward?" height="50" min="1" direction="Horizontal" default="1.0" variable="how-far-backward?"></slider>
+    <button x="136" actionKey="W" y="312" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="128" display="Move Forward">move-forward</button>
+    <button x="270" actionKey="D" y="332" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="105" display="Turn Right">turn-right</button>
+    <button x="136" actionKey="S" y="359" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="128" display="Move Backward">move-backward</button>
+    <note x="144" y="237" backgroundDark="0" fontSize="14" width="104" markdown="false" height="18" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Move the Ball!</note>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
-This model simulates hydrogen diffusion through a lattice, in particular, hydrogen desorption from solid state hydrides. These hydrides are hydrogen storage materials that absorb hydrogen at high pressures, and release hydrogen at high temperatures.
+This model shows a maze. You can explore the maze in 2D or 3D. This allows you to explore different perspectives.
 
-This research tool allows us to better understand the kinetics of hydrogen desorption from a lattice, which can aid in the development of candidate hydrogen storage materials for hydrogen fuel cell powered vehicles. These vehicles have the potential to be extremely efficient, zero-emission vehicles and may serve to be a central component in the battle against global warming.
+Perspecitve taking is a type of spatial skill that consists of visualizing and imagining what others see. Spatial skills are important for the fields of science, technology, engineerinrg and mathematics (STEM). For instance, spatial skills are helpful in math activities, such as in activities like reading coordinates, reading a clock, using a ruler, understanding the number line and more. Spatial ability is also related to attainment and achievement in STEM fields.
 
-Diffusion and desorption are complex material behaviors, and these kinetics are not well understood. There are several fundamental parameters involved in these processes:
-
-#### Bond breaking
-Hydrogen atoms are stored on molecular units like BH<sub>4</sub> and AlH<sub>4</sub>, where they are bonded to some central atom like boron or aluminum. In order for hydrogen to diffuse, it must break the bond formed with this central atom. An important factor affecting this process is the strength of the bond, controlled in the model by the hydrogen desorption probabilities sliders.
-
-#### Diffusion through different phases
-As hydrogen desorbs, the underlying crystal structure of the material will change. This in turn affects the movement speed of hydrogen atoms through the material. It is important to model the relative probability of a hydrogen atom moving into a cell depleted of hydrogen, versus a completely full cell.
-
-#### Reabsorption
-There is a probability that if a hydrogen atom travels to a non-full cell, it will form bonds with the central atom in that cell. This reabsorption property is probabilistic and can dramatically affect the desorption rate from the materials.
-
-This model explores the contribution of each of these properties on the desorption and diffusion behavior of candidate hydrogen storage materials. Different materials can be modeled through setting the absorption and desorption probabilities to match the behavior of the material under investigation.
+Spatial skills can be trained, but are not explicitly taught in current K-12 curriculum. This model provides experience in exploring perspective taking and visualization. Such activities can allow for implicit spatial training.
 
 ## HOW IT WORKS
 
-The model begins with a fully saturated lattice with all available hydrogen in compound form.  Hydrogen will diffuse freely through the lattice until they reach the surface of the material, where they must pair off in order to leave the lattice as a H<sub>2</sub> gas molecule. The simulation terminates when the available hydrogen in the model reaches the user-set termination percent.
+Use the buttons to navigate yourself through a maze!
 
-The SETUP button initializes the model with a fully saturated lattice of hydrogen atoms.
-
-The GO button begins the diffusion process.
-The lattice is represented by a series of small cubes marking the center of each lattice molecule. At each tick, hydrogen atoms have the opportunity to break their bonds to the lattice molecule. This behavior is controlled by the HYDROGEN DESORPTION PROBABILITIES sliders which define the probability of a hydrogen atom desorbing based on the number of hydrogen atoms currently bonded with the central atom.  Free hydrogen within the lattice will move to one of its six neighboring patches with equal probability, unless one of them is a depleted (red) patch, where the probability is altered by a factor of RED-DIFFUSE. The hydrogen will continue to desorb/absorb over the course of the model run until it pairs up and leaves the system.
-
-When a free hydrogen atom reach the surface of the lattice, it will still move once per tick, but can only move to other patches on the surface of the material. When it pairs up with another hydrogen, it flashes yellow then is removed from the model.
-
-The color of the cube indicates the amount of available desorbable hydrogen.
-White:&nbsp;&nbsp;XH<sub>4</sub>: fully saturated with 3 potential available hydrogen atoms
-Blue:&nbsp;&nbsp;&nbsp;&nbsp;XH<sub>3</sub>: 2 potential hydrogen to be desorbed
-Green:&nbsp;&nbsp;XH<sub>2</sub>: 1 potential hydrogen to be desorbed
-Red:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XH&nbsp;&nbsp;: fully depleted with no available hydrogen to lose
-
-*This is modeled after LiBH<sub>4</sub>, which follows the reaction LiBH<sub>4</sub> -> LiH+B+3/2H<sub>2</sub>. LiH is a stable compound and does not desorb more hydrogen.
-
-When an atom has desorbed all available hydrogen, it becomes red and "stable". At this stage, it undergoes a "phase change". It is unknown if hydrogen will diffuse through these phases at different speeds, but it is very likely to have a different diffusing speed. Because the XH compound has less hydrogen, it ought to be less dense, and we anticipate the diffusion rate to be slower. In the model, this rate can be controlled by the RED-DIFFUSE slider.
-
-The desorbed hydrogen follow a similar color scheme:
-Blue - first free hydrogen
-Green - second free hydrogen
-Red - third free hydrogen
+In the 2D overhead view, you are able to see the entire maze and are likely able to stop yourself from making too many mistakes. However, in the 3D view, you can only see the ball ahead of you and the openings. This perspective is much more restricted, and requries a lot more planning, visualization and retracing.
 
 ## HOW TO USE IT
 
-The probability for desorption, diffusion, and absorption of free hydrogen can be changed using corresponding sliders. By varying the desorption sliders, one can control the probability for hydrogen atoms to free themselves from the compound at each of the three stages (4->3, 3->2, 2-1). Similarly, the absorption sliders control the probability for hydrogen atoms to be re-absorbed back into molecular form (causing the lattice cube to change color accordingly).
+To set up the maze, click the "Set Up the Maze" button. Use the "Move Forward," "Move Backward," "Turn Right," and "Turn Left" buttons to move the pink sphere at the start of the maze to the end, the yellow cylinder. You can adjust how far forward or backward you want to move, but you will get an error message if your chosen move will take you into a wall.
 
-### Visualization Options
+If you get stuck, you can "Start Over" and that will find you back in the 2D overhead view back at the start. You can also use the "leave-trace?" toggle to leave a drawing of where your pink sphere has already traveled, and use "Clear the Trace" to remove that at any time.
 
-The GRID-DRAW switch enables the user to turn on or off the grid markings for each patch.  By default this is set to off and is generally not recommended for world sizes of larger than 5x5x5.
-
-The four H-On switches enable the user to change the color of the desired hydrogen to dark gray.  This allows the user to focus their attention on one particular stage of diffusion.  For example, turning off the H4,H3,H2 switches will color everything dark gray except for the red depleted lattice patches as well as the final desorbed hydrogen.
-
-### Monitors
-
-Fraction of Surface H Remaining:
-Displays the fraction of desorbable hydrogen (vs. initial) remaining in the surface layer of the lattice.
-
-Percent of Hydrogen Remaining:
-Displays fraction of desorbable hydrogen (vs. initial) remaining in the entire lattice.
-
-Total Hydrogen Count:
-Displays total of both attached and free hydrogens remaining in the system over time.
-
-Patch Distribution:
-Shows the distribution of patches based on how many desorbable hydrogen it are present
+You can solve this maze in either 2D or 3D. 2D is the default orientation, but it is much harder to solve in 3D!
 
 ## THINGS TO NOTICE
 
-One interesting thing to notice about the model is that the Total Hydrogen Count plot will have two distinct slopes. First, there will be a steep decrease near the beginning of the simulation, due to the fact that the desorbed hydrogen atoms near the surface will quickly pair up and leave the system. This will be followed by a linear region of diffusion as the particles regularly leave the system.  Given that the user has allowed for absorption and reabsorption at all stages, as the particles leave the system and desorption and reabsorption continues, the outer region of the lattice may decay to XH1(red) more quickly than the inner region. This is due to the fact that free desorbed hydrogen atoms exit through the surface of the material, while the hydrogen atoms in the central part of the lattice must diffuse more before being able to exit the system. Effectively, the inner lattice patches have greater opportunity to absorb free hydrogen. Changing the sliders can modify the degree to which this effect occurs.
+Notice how changing how far forward or backward effects the choices you can make when you reach a fork or turn in the maze. Be careful about turning right or left, as your main character is a sphere, you will not be able to tell where you are oriented just by looking.
+
+Also, see if using the trace provides assistance in knowing where you reached a dead end, especially when trying to solve in 3D mode.
 
 ## THINGS TO TRY
 
-Setting all hydrogen control parameters to 0.10 will induce a "shell effect," where outer hydrogen atoms leave quickly, and free hydrogen atoms will become trapped in the central region of the lattice.  This is due to a re-absorption probability in combination with a slower relative diffusion rate through depleted cells.
+Adjust how far you move forward or backward and how more flexibility changes the ease in solving the maze.
 
-When the RED-DIFFUSE is increased, the desorption rate decreases dramatically, with nearly linear dependence on this slider. With zero RED-DIFFUSE (0% chance to move to a red patch when there are other patches to move to), we observe many desorbed hydrogen atoms tightly grouped around a small area of non-depleted patches sustained by abnormally high re-absorption rates. Eventually these patches will become depleted, causing an 'explosion' of each of these clusters of free hydrogen atoms.  While this phenomenon is rather unrealistic, 0% RED-DIFFUSE is unrealistic as well.
-
-Absorption also plays a huge role on the rate of hydrogen leaving the system.
-With the absorption sliders set to 0, the simulation runs extremely quickly.
-But with a slight increase of p3to4 and p2to3 to 0.02, the simulation time nearly doubles.
+Mainly, try to solve the maze in both 2D and 3D! It may seem easy to solve in 3D once you solve in 2D, but the different perspective can change your experience.
 
 ## EXTENDING THE MODEL
 
-There are many interesting techniques that are used to accelerate kinetics of desorption that could eventually be modeled by this simulation.
+Try creating your own maze, or randomizing the maze location. You can also try to start at different locations or making the end a new location.
 
-The properties that are being investigated (bond breaking, diffusion speed, etc.) are calculable using first-principles Density Functional Theory methods. Having a built in converter that changed binding energy directly to a bond-breaking probability would allow the model to be greatly extended to model a great number of realistic systems.
+## NETLOGO FEATURES
 
-Additionally, there are several catalytic means that could be implemented into this model. There is a 'magic dust' concept, where the inclusion of a very small amount of catalyst can dramatically reduce desorption time. There is alloy seeding, where the existence of depleted patches nearby promote the formation of similar patches nearby, depleting hydrogen. There is finally a size-effect - it is known that nanoparticles desorb hydrogen at much lower temperatures than bulk materials, but it is not known why - sophisticated size effect models could also be examined.
-
-## CREDITS AND REFERENCES
-
-This project was programmed by Daniel Kim, a graduating senior from the computer science department at Northwestern University as part of Professor Wilensky's Agent-Based Modeling class. It was advised by Wenhao Sun, a graduating senior in the Department of Materials Science and Engineering at Northwestern University.
+The maze is currently strucutured to run off a string input and is fixed. Also, the walls are made of turtles so that they can also be 3D.
 
 ## HOW TO CITE
 
@@ -412,7 +207,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Kim, D. and Wilensky, U. (2015).  NetLogo Hydrogen Diffusion 3D model.  http://ccl.northwestern.edu/netlogo/models/HydrogenDiffusion3D.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Doyle, D.R. (2025).  NetLogo Maze 3D model.  http://ccl.northwestern.edu/netlogo/models/Maze3D.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -420,7 +215,7 @@ Please cite the NetLogo software as:
 
 ## COPYRIGHT AND LICENSE
 
-Copyright 2015 Uri Wilensky.
+Copyright 2025 Uri Wilensky.
 
 ![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
 
@@ -430,7 +225,7 @@ NetLogo itself is free software for non-commercial use under the terms of the GN
 
 To inquire about commercial licenses for either NetLogo or specific models from the models library, please contact netlogo-commercial-admin@ccl.northwestern.edu.
 
-<!-- 2015 Cite: Kim, D. -->]]></info>
+<!-- 2025 ONLY Cite: Doyle, D.R. -->]]></info>
   <turtleShapes>
     <shape name="default" rotatable="true" editableColorIndex="0">
       <polygon color="-1920102913" filled="true" marked="true">
@@ -947,13 +742,6 @@ To inquire about commercial licenses for either NetLogo or specific models from 
         <point x="165" y="90"></point>
       </polygon>
     </shape>
-    <shape name="sheep" rotatable="false" editableColorIndex="0">
-      <rectangle endX="180" startY="225" marked="true" color="-1920102913" endY="285" startX="151" filled="true"></rectangle>
-      <rectangle endX="75" startY="225" marked="true" color="-1920102913" endY="285" startX="47" filled="true"></rectangle>
-      <rectangle endX="210" startY="75" marked="true" color="-1920102913" endY="225" startX="15" filled="true"></rectangle>
-      <circle x="135" y="75" marked="true" color="-1920102913" diameter="150" filled="true"></circle>
-      <circle x="165" y="76" marked="false" color="255" diameter="116" filled="true"></circle>
-    </shape>
     <shape name="square" rotatable="false" editableColorIndex="0">
       <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
     </shape>
@@ -1147,5 +935,5 @@ To inquire about commercial licenses for either NetLogo or specific models from 
       </indicator>
     </shape>
   </linkShapes>
-  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+  <previewCommands>need-to-manually-make-preview-for-this-model</previewCommands>
 </model>

@@ -16,7 +16,7 @@ object LegalInfo {
   val validKeywords = List(
     "MIT", "Wilensky", "specialCE", "MAC", "ONLY", "Steiner",
     "Stroup", "3D", "NIELS", "ConChem", "CC0", "BYSA",
-    "GenEvo", "MTG", "PNoM", "MAM2019", "MAM2021", "CTSTEM")
+    "GenEvo", "MTG", "PNoM", "MAM2019", "MAM2021", "MAM2025", "CTSTEM")
   val hubnetCitation =
     "* Wilensky, U. & Stroup, W. (1999). HubNet. " +
     "http://ccl.northwestern.edu/netlogo/hubnet.html. " +
@@ -211,6 +211,12 @@ case class LegalInfo(model: Model) {
         builder.append("offered by Dr. Uri Wilensky at Northwestern University. For more info, ")
         builder.append("visit http://ccl.northwestern.edu/courses/mam/. ")
         builder.append("Special thanks to Teaching Assistants Jacob Kelter, Leif Rasmussen, and Connor Bain.\n")
+      }
+      if (keywords.contains("MAM2025")) {
+        builder.append("\n")
+        builder.append("This model was developed as part of the Spring 2025 Multi-agent Modeling course ")
+        builder.append("offered by Dr. Uri Wilensky at Northwestern University. ")
+        builder.append("Special thanks to Teaching Assistants Jacob Kelter and Can Gurkan.\n")
       }
       if (keywords.contains("CTSTEM")) {
         builder.append("\n")
