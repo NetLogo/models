@@ -1,0 +1,27 @@
+to-report move [ dist ]
+  fd dist
+  report 0 - dist
+end
+
+to-report turn [ angle ]
+  rt angle
+  report 0
+end
+
+to-report eat-grass
+  if is-grass? [
+    grass-get-eaten
+    report sheep-gain-from-food
+  ]
+  report 0
+end
+
+to-report eat-sheep  ; wolf procedure
+  let prey one-of sheep-here
+  if prey != nobody  [
+    let gain round (wolf-gain-from-food * [ energy ] of prey)
+    ask prey [ sheep-die ]
+    report gain
+  ]
+  report 0
+end

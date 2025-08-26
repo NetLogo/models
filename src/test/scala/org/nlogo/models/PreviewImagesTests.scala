@@ -71,7 +71,8 @@ class PreviewImagesTests extends TestModels {
     "Mandelian Inheritance",
     "Discrete Event Mousetrap",
     "Calorimetry",
-    "Robotic Factory" // `import-drawing` doesn't seem to work as a preview command
+    "Robotic Factory", // `import-drawing` doesn't seem to work as a preview command
+    "Wolf Sheep Predation - Micro-Sims",
   )
   testModels("Models should have manual previews only if needed or permitted") { m =>
     if (manualPreviewNeeded.exists(m.file.getPath.replace("\\", "/").contains))
