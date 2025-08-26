@@ -20,9 +20,9 @@
 extensions [sr]
 
 patches-own [elevation food]
-turtles-own [fitness change_rate]
-breed [lowland_bugs lowland_bug]
-breed [highland_bugs highland_bug]
+turtles-own [fitness change-rate]
+breed [lowland-bugs lowland-bug]
+breed [highland-bugs highland-bug]
 
 to setup
   clear-all
@@ -34,17 +34,17 @@ to setup
     set pcolor elevation / 200
   ]
 
-  create-lowland_bugs 50
+  create-lowland-bugs 50
   [
     move-to one-of patches with [elevation < 300]
-    set change_rate 0.1
+    set change-rate 0.1
     set fitness sr:runresult "rweibull(1,1)" * 0.8
   ]
 
-  create-highland_bugs 50
+  create-highland-bugs 50
   [
     move-to one-of patches with [elevation > 300]
-    set change_rate 0.15
+    set change-rate 0.15
     set fitness sr:runresult "rweibull(1,1)" * 0.2
   ]
 
@@ -52,13 +52,12 @@ to setup
 end
 
 to go
-  ask turtles
-  [
-    set fitness random-float 2.0 *  [food] of patch-here * change_rate
+  ask turtles [
+    set fitness random-float 2.0 *  [food] of patch-here * change-rate
   ]
 
-  sr:set-agent "lowland" lowland_bugs "fitness"
-  sr:set-agent "highland" highland_bugs "fitness"
+  sr:set-agent "lowland" lowland-bugs "fitness"
+  sr:set-agent "highland" highland-bugs "fitness"
 
   sr:run "w <- wilcox.test(lowland$fitness, highland$fitness, exact=FALSE)"
   output-print sr:runresult "w$p.value"
@@ -86,11 +85,11 @@ end
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
-This section could give a general understanding of what the model is trying to show or explain.
+This model demonstrates the usage of the `wilcox.test` function in R, which is used to create box-and-whisker statistical visualizations.
 
 ## HOW IT WORKS
 
-This section could explain what rules the agents use to create the overall behavior of the model.
+The functionality of `wilcox.test` is demonstrated by calculating it on lowland-bugs and highland-bugs and then outputin gand plotting the results.
 
 ## HOW TO USE IT
 
@@ -98,23 +97,15 @@ This section could explain how to use the model, including a description of each
 
 ## THINGS TO NOTICE
 
-This section could give some ideas of things for the user to notice while running the model.
+Click `setup` to initialize the model and then click `go`. Each time `go` is pressed, the turtles calculate their fitness and then the Wilcoxon test is run.
 
 ## THINGS TO TRY
 
-This section could give some ideas of things for the user to try to do (move sliders, switches, etc.) with the model.
-
-## EXTENDING THE MODEL
-
-This section could give some ideas of things to add or change in the procedures tab to make the model more complicated, detailed, accurate, etc.
-
-## NETLOGO FEATURES
-
-This section could point out any especially interesting or unusual features of NetLogo that the model makes use of, particularly in the Procedures tab.  It might also point out places where workarounds were needed because of missing features.
+Try changing constants in the setup procedure and see what happens.
 
 ## RELATED MODELS
 
-This section could give the names of models in the NetLogo Models Library or elsewhere which are of related interest.
+For more examples of the Simple R Extension, see the other example models in the `sr` folder.
 
 ## CREDITS AND REFERENCES
 
