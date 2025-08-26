@@ -41,8 +41,8 @@ to setup
   ;; create 20 turtles at random positions
   create-turtles 20
   [
-    set xcor random-xcor
-    set ycor random-ycor
+    set heading random 360
+    fd random-float (max-pycor - 2)
   ]
 
   reset-ticks
@@ -50,10 +50,9 @@ end
 
 to go
   ;; let the turtles walk around randomly
-  ask turtles
-  [
+  ask turtles [
     right random 360
-    forward random 10
+    forward random 3
   ]
 
   ;; send agent variables into an R data-frame
@@ -68,7 +67,7 @@ to go
   sr:run "K <- Kest(agppp)"
 
   clear-plot
-  update-plots
+  update-plots ; update code is in the plot's update commands
 end
 
 
@@ -76,9 +75,9 @@ end
 ; To the extent possible under law, Uri Wilensky has waived all
 ; copyright and related or neighboring rights to this model.]]></code>
   <widgets>
-    <view x="479" wrappingAllowedX="true" y="57" frameRate="30.0" minPycor="-16" height="334" showTickCounter="true" patchSize="10.0" fontSize="10" wrappingAllowedY="true" width="334" tickCounterLabel="ticks" maxPycor="16" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
+    <view x="455" wrappingAllowedX="true" y="57" frameRate="30.0" minPycor="-16" height="334" showTickCounter="true" patchSize="10.0" fontSize="10" wrappingAllowedY="true" width="334" tickCounterLabel="ticks" maxPycor="16" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
     <button x="7" y="97" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="63">go</button>
-    <plot x="75" autoPlotX="true" yMax="1.0" autoPlotY="true" yAxis="K(r)" y="55" xMin="0.0" height="355" legend="false" xMax="1.0" yMin="0.0" width="353" xAxis="r" display="Ripley's K function">
+    <plot x="75" autoPlotX="true" yMax="1.0" autoPlotY="true" yAxis="K(r)" y="55" xMin="0.0" height="355" legend="true" xMax="1.0" yMin="0.0" width="353" xAxis="r" display="Ripley's K function">
       <setup></setup>
       <update><![CDATA[;; get results from R
 let ripl_k sr:runresult "K$iso"
@@ -94,14 +93,14 @@ foreach ripl
   set-current-plot "Ripley's K function"
   set-current-plot-pen "K(r)"
   plotxy (item 0 ?1) (item 1 ?1)
-  set-current-plot-pen "theo"
+  set-current-plot-pen "theoretical"
   plotxy (item 0 ?1) (item 2 ?1)
 ]]]></update>
       <pen interval="1.0" mode="0" display="K(r)" color="-16777216" legend="true">
         <setup></setup>
         <update></update>
       </pen>
-      <pen interval="1.0" mode="0" display="theo" color="-2674135" legend="true">
+      <pen interval="1.0" mode="0" display="theoretical" color="-2674135" legend="true">
         <setup></setup>
         <update></update>
       </pen>
@@ -111,39 +110,27 @@ foreach ripl
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
-This model demonstrates
+This model demonstrates using the Simple R extension (sr) to run Ripley's K=function to analyze data. Ripley's K-function is used to find out if data are clustered, dispersed or randomly distributed.
 
 ## HOW IT WORKS
 
-This section could explain what rules the agents use to create the overall behavior of the model.
+The agents are basically placed randomly and the Ripleys K is run on their locations. Each time you press `go` they move randomly again and recalculated Ripley's K.
 
 ## HOW TO USE IT
 
-This section could explain how to use the model, including a description of each of the items in the interface tab.
+Press `setup` and then `go`. Sometimes you will get an error "Extension exception: object 'agppp' not found...". In this case, just `setup` and `go` again, as it usually has to do with data being produced randomly which creates an error given how this model is coded.
 
 ## THINGS TO NOTICE
 
-This section could give some ideas of things for the user to notice while running the model.
+Notice the difference between the actual Ripley’s K-function on the data, `R(k)`, and the theoretical value.
 
 ## THINGS TO TRY
 
-This section could give some ideas of things for the user to try to do (move sliders, switches, etc.) with the model.
-
-## EXTENDING THE MODEL
-
-This section could give some ideas of things to add or change in the procedures tab to make the model more complicated, detailed, accurate, etc.
-
-## NETLOGO FEATURES
-
-This section could point out any especially interesting or unusual features of NetLogo that the model makes use of, particularly in the Procedures tab.  It might also point out places where workarounds were needed because of missing features.
+Try changing how the turtles are arranged and see what that does to Ripley's K.
 
 ## RELATED MODELS
 
-This section could give the names of models in the NetLogo Models Library or elsewhere which are of related interest.
-
-## CREDITS AND REFERENCES
-
-This section could contain a reference to the model's URL on the web if it has one, as well as any other necessary credits or references.
+For more examples of the Simple R Extension, see the other example models in the `sr` folder.
 
 <!-- 2025 -->]]></info>
   <turtleShapes>
