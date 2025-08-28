@@ -21,6 +21,10 @@ extensions [sr]
 to test
   clear-all
   sr:setup
+  print-values
+end
+
+to print-values
   ;; get a value from r
   output-print "sr:run..."
   output-print "rnorm(10):"
@@ -59,9 +63,15 @@ to test
 
   output-print "correlation coefficient between xcor and ycor: "
   output-print sr:runresult "cor(agentlist$xcor, agentlist$ycor, method='spearman')"
-
 end
 
+; for testing purposes, sets the random seed to 0 in the R environment
+to test-consistent
+  clear-all
+  sr:setup
+  sr:run "set.seed(0)"
+  print-values
+end
 
 ; Public Domain:
 ; To the extent possible under law, Uri Wilensky has waived all
@@ -801,5 +811,5 @@ For more examples of the Simple R Extension, see the other example models in the
       </indicator>
     </shape>
   </linkShapes>
-  <previewCommands>test</previewCommands>
+  <previewCommands>test-consistent</previewCommands>
 </model>

@@ -32,6 +32,20 @@ to setup
   reset-ticks
 end
 
+; for testing purposes, sets the random seed to 0 in the R environment
+to setup-consistent
+  clear-all
+  sr:setup
+  sr:run "set.seed(0)"
+  ;; create turtles with weight and height randomly from weibull and beta distribution
+  create-turtles 40
+  [
+    set weight sr:runresult "rweibull(1,1)"
+    set height sr:runresult "rbeta(1,1,1)"
+  ]
+  reset-ticks
+end
+
 to go
   tick
   ;; change weight and height of turtles randomly from weibull distribution
@@ -814,5 +828,5 @@ For more examples of the Simple R Extension, see the other example models in the
       </indicator>
     </shape>
   </linkShapes>
-  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+  <previewCommands>setup-consistent repeat 75 [ go ]</previewCommands>
 </model>
