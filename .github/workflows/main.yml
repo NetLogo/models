@@ -5,9 +5,6 @@ on:
   pull_request:
   workflow_dispatch:
 
-env:
-  LIBERICA_URL: https://download.bell-sw.com/java/17.0.3+7/bellsoft-jdk17.0.3+7-linux-amd64-full.tar.gz
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -18,15 +15,14 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
 
-      - uses: olafurpg/setup-scala@v10
+      - uses: actions/setup-java@v5
         with:
-          java-version: liberica@17=tgz+${{ env.LIBERICA_URL }}
-
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
+          distribution: zulu
+          java-version: 21.0.2
+          java-package: jdk+fx
+          cache: sbt
 
       - name: Install R for sr extension
         uses: r-lib/actions/setup-r@v2
@@ -41,6 +37,10 @@ jobs:
           cache-version: 2
 
       - uses: sbt/setup-sbt@v1
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
 
       - name: Install Dependencies
         run: |
