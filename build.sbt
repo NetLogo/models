@@ -7,6 +7,7 @@ scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation", "-Xfatal-warning
 resolvers ++= Seq(
   "Typesafe Repo"   at "https://repo.typesafe.com/typesafe/releases/"
 , "netlogoheadless" at "https://dl.cloudsmith.io/public/netlogo/netlogo/maven/"
+, "jitpack" at "https://jitpack.io"
 )
 
 javaOptions ++= Seq(
