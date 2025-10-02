@@ -1,4 +1,4 @@
-lazy val netLogoVersion = "7.0.0-424b50b"
+lazy val netLogoVersion = "7.0.0-2486d1e"
 
 scalaVersion := "3.7.0"
 
@@ -7,7 +7,6 @@ scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation", "-Xfatal-warning
 resolvers ++= Seq(
   "Typesafe Repo"   at "https://repo.typesafe.com/typesafe/releases/"
 , "netlogoheadless" at "https://dl.cloudsmith.io/public/netlogo/netlogo/maven/"
-, "jitpack" at "https://jitpack.io"
 )
 
 javaOptions ++= Seq(
