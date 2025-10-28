@@ -391,72 +391,12 @@ end
     <button x="5" y="65" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="66" display="setup">setup
 sound:play-note "TRUMPET" 60 62 2
 wait 2</button>
-    <switch x="5" y="105" height="37" on="true" variable="sound?" width="95" display="sound?"></switch>
-    <button x="105" y="105" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="105">go-no-evolve</button>
-    <slider x="5" step="1" y="200" max="200" width="150" display="hit-limit" height="50" min="50" direction="Horizontal" default="120.0" variable="hit-limit"></slider>
-    <slider x="5" step="1" y="255" max="10" width="150" display="num-mutations" height="50" min="1" direction="Horizontal" default="1.0" variable="num-mutations"></slider>
-    <slider x="160" step="0.01" y="200" max="1" width="170" display="hit-density-modifier" height="50" min="0" direction="Horizontal" default="0.5" variable="hit-density-modifier"></slider>
-    <slider x="160" step="1" y="255" max="8" width="170" display="mutation-strength" height="50" min="0" direction="Horizontal" default="1.0" variable="mutation-strength"></slider>
     <switch x="180" y="10" height="50" on="true" variable="shuffle-parts?" width="150" display="shuffle-parts?"></switch>
-    <slider x="5" step="1" y="145" max="200" width="325" display="tempo-bpm" height="50" min="40" direction="Horizontal" default="135.0" variable="tempo-bpm"></slider>
     <button x="215" y="65" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="115" display="go-once">repeat num-chromosomes * 4 [ go ]</button>
-    <button x="215" y="105" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="115" display="go">go</button>
-    <chooser x="55" y="310" height="60" variable="soloer" current="0" width="100" display="soloer">
-      <choice type="double" value="0.0"></choice>
-      <choice type="double" value="1.0"></choice>
-      <choice type="double" value="2.0"></choice>
-      <choice type="double" value="3.0"></choice>
-      <choice type="double" value="4.0"></choice>
-      <choice type="double" value="5.0"></choice>
-      <choice type="double" value="6.0"></choice>
-      <choice type="double" value="7.0"></choice>
-      <choice type="double" value="8.0"></choice>
-      <choice type="double" value="9.0"></choice>
-      <choice type="double" value="10.0"></choice>
-      <choice type="double" value="11.0"></choice>
-      <choice type="double" value="12.0"></choice>
-      <choice type="double" value="13.0"></choice>
-      <choice type="double" value="14.0"></choice>
-      <choice type="double" value="15.0"></choice>
-    </chooser>
-    <switch x="160" y="310" height="60" on="false" variable="solo?" width="100" display="solo?"></switch>
-    <plot x="550" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Number of Hits" y="375" xMin="0.0" height="240" legend="false" xMax="16.0" yMin="0.0" width="315" xAxis="Drummer" display="Hits per Drummer (total)">
-      <setup></setup>
-      <update></update>
-      <pen interval="1.0" mode="1" display="low" color="-2674135" legend="true">
-        <setup></setup>
-        <update>plot-pen-reset
-ask low-drums [ plotxy who hits ]</update>
-      </pen>
-      <pen interval="1.0" mode="1" display="med" color="-10899396" legend="true">
-        <setup></setup>
-        <update>plot-pen-reset
-ask med-drums [plotxy who hits]</update>
-      </pen>
-      <pen interval="1.0" mode="1" display="high" color="-13345367" legend="true">
-        <setup></setup>
-        <update>plot-pen-reset
-ask high-drums [plotxy who hits]</update>
-      </pen>
-    </plot>
-    <plot x="295" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Number of Hits" y="375" xMin="0.0" height="240" legend="false" xMax="10.0" yMin="0.0" width="250" xAxis="Drummer" display="Hits Since Evolution">
-      <setup></setup>
-      <update></update>
-      <pen interval="1.0" mode="1" display="low" color="-2674135" legend="true">
-        <setup></setup>
-        <update>plot-pen-reset
-ask low-drums [ plotxy who hits-since-evolve ]</update>
-      </pen>
-      <pen interval="1.0" mode="1" display="pen-1" color="-10899396" legend="true">
-        <setup></setup>
-        <update>plot-pen-reset ask med-drums [ plotxy who hits-since-evolve ]</update>
-      </pen>
-      <pen interval="1.0" mode="1" display="pen-2" color="-13345367" legend="true">
-        <setup></setup>
-        <update>plot-pen-reset ask high-drums [ plotxy who hits-since-evolve ]</update>
-      </pen>
-    </plot>
-    <plot x="10" autoPlotX="true" yMax="1.0" autoPlotY="true" yAxis="Fitness" y="375" xMin="0.0" height="240" legend="true" xMax="1.0" yMin="0.0" width="280" xAxis="Ticks" display="Average Fitness">
+    <monitor x="690" precision="17" y="112" height="60" fontSize="11" width="100">generations</monitor>
+    <monitor x="690" precision="17" y="175" height="60" fontSize="11" width="100" display="density">precision (count patches with [(pcolor != black) and (pcolor != yellow)] / (count patches)) 3</monitor>
+    <slider x="5" step="1" y="150" max="200" width="325" display="tempo-bpm" height="50" min="40" direction="Horizontal" default="135.0" variable="tempo-bpm"></slider>
+    <plot x="10" autoPlotX="true" yMax="1.0" autoPlotY="true" yAxis="Fitness" y="380" xMin="0.0" height="240" legend="true" xMax="1.0" yMin="0.0" width="280" xAxis="Ticks" display="Average Fitness">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="0" display="all" color="-16777216" legend="true">
@@ -476,8 +416,68 @@ ask low-drums [ plotxy who hits-since-evolve ]</update>
         <update>plot mean [fitness] of high-drums</update>
       </pen>
     </plot>
-    <monitor x="690" precision="17" y="112" height="60" fontSize="11" width="100">generations</monitor>
-    <monitor x="690" precision="17" y="175" height="60" fontSize="11" width="100" display="density">precision (count patches with [(pcolor != black) and (pcolor != yellow)] / (count patches)) 3</monitor>
+    <plot x="295" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Number of Hits" y="380" xMin="0.0" height="240" legend="false" xMax="10.0" yMin="0.0" width="250" xAxis="Drummer" display="Hits Since Evolution">
+      <setup></setup>
+      <update></update>
+      <pen interval="1.0" mode="1" display="low" color="-2674135" legend="true">
+        <setup></setup>
+        <update>plot-pen-reset
+ask low-drums [ plotxy who hits-since-evolve ]</update>
+      </pen>
+      <pen interval="1.0" mode="1" display="pen-1" color="-10899396" legend="true">
+        <setup></setup>
+        <update>plot-pen-reset ask med-drums [ plotxy who hits-since-evolve ]</update>
+      </pen>
+      <pen interval="1.0" mode="1" display="pen-2" color="-13345367" legend="true">
+        <setup></setup>
+        <update>plot-pen-reset ask high-drums [ plotxy who hits-since-evolve ]</update>
+      </pen>
+    </plot>
+    <switch x="160" y="315" height="60" on="false" variable="solo?" width="100" display="solo?"></switch>
+    <chooser x="55" y="315" height="60" variable="soloer" current="0" width="100" display="soloer">
+      <choice type="double" value="0.0"></choice>
+      <choice type="double" value="1.0"></choice>
+      <choice type="double" value="2.0"></choice>
+      <choice type="double" value="3.0"></choice>
+      <choice type="double" value="4.0"></choice>
+      <choice type="double" value="5.0"></choice>
+      <choice type="double" value="6.0"></choice>
+      <choice type="double" value="7.0"></choice>
+      <choice type="double" value="8.0"></choice>
+      <choice type="double" value="9.0"></choice>
+      <choice type="double" value="10.0"></choice>
+      <choice type="double" value="11.0"></choice>
+      <choice type="double" value="12.0"></choice>
+      <choice type="double" value="13.0"></choice>
+      <choice type="double" value="14.0"></choice>
+      <choice type="double" value="15.0"></choice>
+    </chooser>
+    <slider x="160" step="1" y="260" max="8" width="170" display="mutation-strength" height="50" min="0" direction="Horizontal" default="1.0" variable="mutation-strength"></slider>
+    <slider x="160" step="0.01" y="205" max="1" width="170" display="hit-density-modifier" height="50" min="0" direction="Horizontal" default="0.5" variable="hit-density-modifier"></slider>
+    <slider x="5" step="1" y="260" max="10" width="150" display="num-mutations" height="50" min="1" direction="Horizontal" default="1.0" variable="num-mutations"></slider>
+    <slider x="5" step="1" y="205" max="200" width="150" display="hit-limit" height="50" min="50" direction="Horizontal" default="120.0" variable="hit-limit"></slider>
+    <plot x="550" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Number of Hits" y="380" xMin="0.0" height="240" legend="false" xMax="16.0" yMin="0.0" width="315" xAxis="Drummer" display="Hits per Drummer (total)">
+      <setup></setup>
+      <update></update>
+      <pen interval="1.0" mode="1" display="low" color="-2674135" legend="true">
+        <setup></setup>
+        <update>plot-pen-reset
+ask low-drums [ plotxy who hits ]</update>
+      </pen>
+      <pen interval="1.0" mode="1" display="med" color="-10899396" legend="true">
+        <setup></setup>
+        <update>plot-pen-reset
+ask med-drums [plotxy who hits]</update>
+      </pen>
+      <pen interval="1.0" mode="1" display="high" color="-13345367" legend="true">
+        <setup></setup>
+        <update>plot-pen-reset
+ask high-drums [plotxy who hits]</update>
+      </pen>
+    </plot>
+    <switch x="5" y="105" height="40" on="true" variable="sound?" width="95" display="sound?"></switch>
+    <button x="105" y="105" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="105">go-no-evolve</button>
+    <button x="215" y="105" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="115" display="go">go</button>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 

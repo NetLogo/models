@@ -513,29 +513,25 @@ end
     </chooser>
     <slider x="5" step="1" y="257" max="20" width="250" display="atoms-per-column" height="50" min="5" direction="Horizontal" default="13.0" variable="atoms-per-column"></slider>
     <slider x="5" step="1" y="198" max="20" width="250" display="atoms-per-row" height="50" min="5" direction="Horizontal" default="18.0" variable="atoms-per-row"></slider>
-    <slider x="5" step=".1" y="468" max="30" width="250" display="f-app" height="50" min="0" direction="Horizontal" default="5.201" variable="f-app" units="N"></slider>
+    <slider x="5" step=".1" y="468" max="30" width="250" display="f-app" height="50" min="0" direction="Horizontal" default="5.2" variable="f-app" units="N"></slider>
     <slider x="5" step=".001" y="408" max=".4" width="250" display="system-temp" height="50" min="0" direction="Horizontal" default="0.079" variable="system-temp"></slider>
     <button x="37" y="310" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="86">setup</button>
     <button x="135" y="310" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="85">go</button>
     <button x="75" y="360" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="104" display="delete-atoms">delete-atoms</button>
-    <note x="940" y="565" backgroundDark="0" fontSize="11" width="150" markdown="false" height="40" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Color Key
-Links:</note>
-    <note x="950" y="758" backgroundDark="0" fontSize="11" width="260" markdown="false" height="81" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">pinned atoms (do not move): black cross
-atoms affected by an external force:
-black dot, near a white line with
-arrows on the end</note>
-    <note x="950" y="743" backgroundDark="0" fontSize="11" width="285" markdown="false" height="28" textColorDark="-1" textColorLight="-8020277" backgroundLight="0"><![CDATA[high potential energy: light blue (-> white)]]></note>
-    <note x="950" y="722" backgroundDark="0" fontSize="11" width="270" markdown="false" height="24" textColorDark="-1" textColorLight="-14730904" backgroundLight="0">low potential energy: dark blue</note>
-    <note x="940" y="701" backgroundDark="0" fontSize="11" width="155" markdown="false" height="24" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Atoms:</note>
-    <note x="950" y="678" backgroundDark="0" fontSize="11" width="160" markdown="false" height="24" textColorDark="-1" textColorLight="-4079321" backgroundLight="0">high tension: dark yellow</note>
-    <note x="949" y="662" backgroundDark="0" fontSize="11" width="270" markdown="false" height="28" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">low tension: light yellow (+ grey tone)</note>
-    <note x="949" y="643" backgroundDark="0" fontSize="11" width="150" markdown="false" height="24" textColorDark="-1" textColorLight="-7500403" backgroundLight="0">equilibrium: grey</note>
-    <note x="950" y="623" backgroundDark="0" fontSize="11" width="270" markdown="false" height="24" textColorDark="-1" textColorLight="-1069655" backgroundLight="0">low compression: light red (+ grey tone)</note>
-    <note x="950" y="602" backgroundDark="0" fontSize="11" width="175" markdown="false" height="24" textColorDark="-1" textColorLight="-8053223" backgroundLight="0">high compression: dark red</note>
-    <note x="940" y="565" backgroundDark="0" fontSize="11" width="150" markdown="false" height="23" textColorDark="-1" textColorLight="-16777216" backgroundLight="0"></note>
-    <monitor x="935" precision="5" y="505" height="60" fontSize="11" width="145" display="total external force (N)">report-total-ex-force</monitor>
-    <monitor x="1085" precision="5" y="505" height="60" fontSize="11" width="125" display="sample length (rm)">right-edge - left-fl</monitor>
-    <plot x="935" autoPlotX="true" yMax="0.1" autoPlotY="true" yAxis="stress" y="300" xMin="0.0" height="200" legend="false" xMax="0.05" yMin="0.0" width="275" xAxis="strain" display="Stress-Strain Curve - Tension">
+    <chooser x="975" y="7" height="60" variable="lattice-view" current="1" width="185" display="lattice-view">
+      <choice type="string" value="large-atoms"></choice>
+      <choice type="string" value="small-atoms"></choice>
+      <choice type="string" value="hide-atoms"></choice>
+    </chooser>
+    <switch x="5" y="75" height="40" on="true" variable="auto-increment-tension?" width="175" display="auto-increment-tension?"></switch>
+    <note x="15" y="120" backgroundDark="0" fontSize="11" width="150" markdown="false" height="24" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">(^ Tension only)</note>
+    <switch x="5" y="153" height="40" on="false" variable="create-dislocation?" width="159" display="create-dislocation?"></switch>
+    <switch x="975" y="115" height="40" on="true" variable="show-diagonal-right-links?" width="185" display="show-diagonal-right-links?"></switch>
+    <switch x="975" y="70" height="40" on="false" variable="update-atom-color?" width="185" display="update-atom-color?"></switch>
+    <switch x="975" y="160" height="40" on="true" variable="show-diagonal-left-links?" width="185" display="show-diagonal-left-links?"></switch>
+    <switch x="975" y="205" height="40" on="true" variable="show-horizontal-links?" width="185" display="show-horizontal-links?"></switch>
+    <monitor x="965" precision="3" y="250" height="60" fontSize="11" width="210" display="external force per forced atom (N)">report-indiv-ex-force</monitor>
+    <plot x="935" autoPlotX="true" yMax="0.1" autoPlotY="true" yAxis="stress" y="315" xMin="0.0" height="200" legend="false" xMax="0.05" yMin="0.0" width="275" xAxis="strain" display="Stress-Strain Curve - Tension">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="2" display="default" color="-16777216" legend="true">
@@ -543,23 +539,27 @@ arrows on the end</note>
         <update>if force-mode = "Tension" [ plotxy strain stress ]</update>
       </pen>
     </plot>
-    <monitor x="965" precision="3" y="235" height="60" fontSize="11" width="210" display="external force per forced atom (N)">report-indiv-ex-force</monitor>
-    <chooser x="975" y="7" height="60" variable="lattice-view" current="1" width="185" display="lattice-view">
-      <choice type="string" value="large-atoms"></choice>
-      <choice type="string" value="small-atoms"></choice>
-      <choice type="string" value="hide-atoms"></choice>
-    </chooser>
-    <switch x="975" y="70" height="37" on="false" variable="update-atom-color?" width="185" display="update-atom-color?"></switch>
-    <switch x="975" y="190" height="37" on="true" variable="show-horizontal-links?" width="185" display="show-horizontal-links?"></switch>
-    <switch x="975" y="150" height="37" on="true" variable="show-diagonal-left-links?" width="185" display="show-diagonal-left-links?"></switch>
-    <switch x="975" y="110" height="37" on="true" variable="show-diagonal-right-links?" width="185" display="show-diagonal-right-links?"></switch>
-    <note x="1220" y="510" backgroundDark="0" fontSize="11" width="145" markdown="false" height="72" textColorDark="-1" textColorLight="-16777216" backgroundLight="0"><![CDATA[<- in terms of the
+    <monitor x="935" precision="5" y="520" height="60" fontSize="11" width="145" display="total external force (N)">report-total-ex-force</monitor>
+    <note x="1220" y="525" backgroundDark="0" fontSize="11" width="145" markdown="false" height="72" textColorDark="-1" textColorLight="-16777216" backgroundLight="0"><![CDATA[<- in terms of the
 equilibrium interatomic
 distance between
 two atoms (rm)]]></note>
-    <switch x="5" y="75" height="37" on="true" variable="auto-increment-tension?" width="175" display="auto-increment-tension?"></switch>
-    <note x="15" y="120" backgroundDark="0" fontSize="11" width="150" markdown="false" height="24" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">(^ Tension only)</note>
-    <switch x="5" y="153" height="37" on="false" variable="create-dislocation?" width="159" display="create-dislocation?"></switch>
+    <monitor x="1085" precision="5" y="520" height="60" fontSize="11" width="125" display="sample length (rm)">right-edge - left-fl</monitor>
+    <note x="940" y="580" backgroundDark="0" fontSize="11" width="150" markdown="false" height="23" textColorDark="-1" textColorLight="-16777216" backgroundLight="0"></note>
+    <note x="950" y="617" backgroundDark="0" fontSize="11" width="175" markdown="false" height="24" textColorDark="-1" textColorLight="-8053223" backgroundLight="0">high compression: dark red</note>
+    <note x="950" y="638" backgroundDark="0" fontSize="11" width="270" markdown="false" height="24" textColorDark="-1" textColorLight="-1069655" backgroundLight="0">low compression: light red (+ grey tone)</note>
+    <note x="949" y="658" backgroundDark="0" fontSize="11" width="150" markdown="false" height="24" textColorDark="-1" textColorLight="-7500403" backgroundLight="0">equilibrium: grey</note>
+    <note x="949" y="677" backgroundDark="0" fontSize="11" width="270" markdown="false" height="28" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">low tension: light yellow (+ grey tone)</note>
+    <note x="950" y="693" backgroundDark="0" fontSize="11" width="160" markdown="false" height="24" textColorDark="-1" textColorLight="-4079321" backgroundLight="0">high tension: dark yellow</note>
+    <note x="940" y="716" backgroundDark="0" fontSize="11" width="155" markdown="false" height="24" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Atoms:</note>
+    <note x="950" y="737" backgroundDark="0" fontSize="11" width="270" markdown="false" height="24" textColorDark="-1" textColorLight="-14730904" backgroundLight="0">low potential energy: dark blue</note>
+    <note x="950" y="758" backgroundDark="0" fontSize="11" width="285" markdown="false" height="28" textColorDark="-1" textColorLight="-8020277" backgroundLight="0"><![CDATA[high potential energy: light blue (-> white)]]></note>
+    <note x="950" y="773" backgroundDark="0" fontSize="11" width="260" markdown="false" height="81" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">pinned atoms (do not move): black cross
+atoms affected by an external force:
+black dot, near a white line with
+arrows on the end</note>
+    <note x="940" y="580" backgroundDark="0" fontSize="11" width="150" markdown="false" height="40" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Color Key
+Links:</note>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
