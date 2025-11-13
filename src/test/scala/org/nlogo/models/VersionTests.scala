@@ -33,10 +33,7 @@ class VersionTests extends TestModels {
     )
   }
 
-  val acceptedVersions =
-    Set("7.0.2")
-      .map { "NetLogo " + (if (Version.is3D) "3D " else "") + _ }
-  testModels("Version should be one of " + acceptedVersions.mkString(", ")) {
-    Option(_).map(_.version.trim).filterNot(acceptedVersions.contains)
+  testModels(s"Version should be ${Version.version}") { model =>
+    Option(model.version.trim).filter(_ != Version.version)
   }
 }
