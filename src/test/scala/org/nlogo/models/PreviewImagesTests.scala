@@ -4,8 +4,10 @@ import java.io.File
 
 import org.apache.commons.io.FileUtils.readFileToString
 import org.apache.commons.io.FilenameUtils.removeExtension
+
 import org.nlogo.api.PreviewCommands.Manual
 import org.nlogo.core.Model
+import org.nlogo.util.PathUtils
 
 class PreviewImagesTests extends TestModels {
 
@@ -20,7 +22,7 @@ class PreviewImagesTests extends TestModels {
 
   val ignoredLines = readFileToString(new File(".gitignore"), "UTF-8").linesIterator.toSeq
   val ignored = ignoredLines.toSet
-  def isInGitIgnore(m: Model) = ignored.contains(m.previewFile.getPath.drop(1).replace("\\", "/"))
+  def isInGitIgnore(m: Model) = ignored.contains(PathUtils.standardize(m.previewFile.getPath.drop(1)))
 
   val manualPreviewNeeded = Set(
     "HubNet", "/sound/", "/ls/", "GoGo", "Arduino"
@@ -75,7 +77,7 @@ class PreviewImagesTests extends TestModels {
     "Wolf Sheep Predation - Micro-Sims",
   )
   testModels("Models should have manual previews only if needed or permitted") { m =>
-    if (manualPreviewNeeded.exists(m.file.getPath.replace("\\", "/").contains))
+    if (manualPreviewNeeded.exists(PathUtils.standardize(m.file.getPath).contains))
       if (m.previewCommands != Manual)
         Some("should need manual preview")
       else
