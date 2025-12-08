@@ -1,0 +1,1991 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0.0" snapToGrid="false">
+  <code><![CDATA[;; ============================================================================
+;; TOWER DEFENSE - Complex Adaptive System Model
+;; ============================================================================
+;; A tower defense model where stationary towers defend against waves of
+;; enemies approaching from all sides. The model demonstrates emergent
+;; behavior arising from local agent interactions.
+
+;; ============================================================================
+;; BREED DEFINITIONS
+;; ============================================================================
+
+breed [ towers tower ]
+breed [ enemies enemy ]
+breed [ bullets bullet ]
+
+;; ============================================================================
+;; AGENT PROPERTIES
+;; ============================================================================
+
+towers-own [
+  tower-type        ; type of tower (basic, fast, long-range)
+  attack-range      ; how far tower can shoot
+  fire-rate         ; shots per time period
+  damage-per-shot   ; damage dealt per attack
+  tower-health      ; health points
+  max-health        ; maximum health
+  cooldown          ; ticks until can fire again
+  kills             ; enemies destroyed by this tower
+]
+
+enemies-own [
+  enemy-type        ; type of enemy (fast, tough, balanced)
+  enemy-health      ; health points
+  max-enemy-health  ; maximum health
+  enemy-speed       ; movement speed
+  enemy-damage      ; damage dealt to towers
+  target-tower      ; current target tower
+  spawn-side        ; which side enemy spawned from
+  attack-cooldown   ; ticks remaining before can attack again
+]
+
+bullets-own [
+  bullet-damage     ; damage this bullet deals
+  bullet-speed      ; movement speed
+  target-enemy      ; enemy this bullet is targeting
+  lifetime          ; ticks before bullet disappears
+]
+
+;; ============================================================================
+;; GLOBAL VARIABLES
+;; ============================================================================
+
+globals [
+  total-enemies-spawned
+  total-enemies-destroyed
+  total-towers-destroyed
+  game-over?
+  tick-counter
+  
+  ;; Stats by type
+  fast-enemies-destroyed
+  tough-enemies-destroyed
+  balanced-enemies-destroyed
+  
+  ;; Tower type counts
+  basic-tower-count
+  fast-tower-count
+  longrange-tower-count
+]
+
+;; ============================================================================
+;; SETUP PROCEDURES
+;; ============================================================================
+
+to setup
+  clear-all
+  reset-ticks
+  
+  ;; Initialize globals
+  set total-enemies-spawned 0
+  set total-enemies-destroyed 0
+  set total-towers-destroyed 0
+  set game-over? false
+  set tick-counter 0
+  set fast-enemies-destroyed 0
+  set tough-enemies-destroyed 0
+  set balanced-enemies-destroyed 0
+  
+  ;; Set up environment
+  setup-patches
+  
+  ;; Place towers
+  setup-towers
+  
+  ;; Update displays
+  update-monitors
+end
+
+to setup-patches
+  ;; Create a flat green battlefield background (like inspiration model)
+  ask patches [
+    set pcolor green + 2
+  ]
+end
+
+to setup-towers
+  ;; Calculate tower type distribution
+  let basic-count round (num-towers * basic-tower-percent / 100)
+  let fast-count round (num-towers * fast-tower-percent / 100)
+  let longrange-count num-towers - basic-count - fast-count
+  
+  ;; Ensure non-negative counts
+  if longrange-count < 0 [ set longrange-count 0 ]
+  
+  set basic-tower-count basic-count
+  set fast-tower-count fast-count
+  set longrange-tower-count longrange-count
+  
+  ;; Place towers in strategic positions
+  ;; Use a grid pattern with some randomization
+  let tower-positions []
+  
+  ;; Create a defensive perimeter
+  if tower-placement-strategy = "defensive-ring" [
+    set tower-positions get-ring-positions num-towers 8
+  ]
+  
+  if tower-placement-strategy = "clustered-center" [
+    set tower-positions get-clustered-positions num-towers
+  ]
+  
+  if tower-placement-strategy = "grid" [
+    set tower-positions get-grid-positions num-towers
+  ]
+  
+  if tower-placement-strategy = "random" [
+    set tower-positions get-random-positions num-towers
+  ]
+  
+  ;; Create towers at positions
+  let pos-index 0
+  
+  ;; Place basic towers
+  repeat basic-count [
+    if pos-index < length tower-positions [
+      let pos item pos-index tower-positions
+      create-tower-at (item 0 pos) (item 1 pos) "basic"
+      set pos-index pos-index + 1
+    ]
+  ]
+  
+  ;; Place fast towers
+  repeat fast-count [
+    if pos-index < length tower-positions [
+      let pos item pos-index tower-positions
+      create-tower-at (item 0 pos) (item 1 pos) "fast"
+      set pos-index pos-index + 1
+    ]
+  ]
+  
+  ;; Place long-range towers
+  repeat longrange-count [
+    if pos-index < length tower-positions [
+      let pos item pos-index tower-positions
+      create-tower-at (item 0 pos) (item 1 pos) "longrange"
+      set pos-index pos-index + 1
+    ]
+  ]
+end
+
+to create-tower-at [x y type-name]
+  create-towers 1 [
+    setxy x y
+    set tower-type type-name
+    set kills 0
+    set cooldown 0
+    
+    ;; Set attributes based on tower type
+    ;; Visual styling inspired by reference model
+    if tower-type = "basic" [
+      set shape "circle"
+      set color blue
+      set size 2
+      set attack-range 8
+      set fire-rate 30  ;; cooldown ticks between shots
+      set damage-per-shot 15
+      set tower-health 100
+      set max-health 100
+    ]
+    
+    if tower-type = "fast" [
+      set shape "square"
+      set color yellow
+      set size 2
+      set attack-range 6
+      set fire-rate 15   ;; shoots faster
+      set damage-per-shot 8
+      set tower-health 80
+      set max-health 80
+    ]
+    
+    if tower-type = "longrange" [
+      set shape "house"
+      set color red
+      set size 2
+      set attack-range 12
+      set fire-rate 50  ;; shoots slower
+      set damage-per-shot 35
+      set tower-health 120
+      set max-health 120
+    ]
+  ]
+end
+
+;; ============================================================================
+;; TOWER PLACEMENT STRATEGIES
+;; ============================================================================
+
+to-report get-ring-positions [n radius]
+  let positions []
+  let angle-step 360 / n
+  repeat n [
+    let angle length positions * angle-step
+    let x radius * cos angle
+    let y radius * sin angle
+    ;; Ensure within world bounds
+    if abs x < max-pxcor - 1 and abs y < max-pycor - 1 [
+      set positions lput (list x y) positions
+    ]
+  ]
+  report positions
+end
+
+to-report get-clustered-positions [n]
+  let positions []
+  repeat n [
+    let x random-float 10 - 5
+    let y random-float 10 - 5
+    set positions lput (list x y) positions
+  ]
+  report positions
+end
+
+to-report get-grid-positions [n]
+  let positions []
+  let grid-size ceiling sqrt n
+  let spacing (max-pxcor * 1.5) / (grid-size + 1)
+  
+  let num-placed 0
+  let row 0
+  while [num-placed < n] [
+    let col 0
+    while [col < grid-size and num-placed < n] [
+      let x (col - grid-size / 2) * spacing
+      let y (row - grid-size / 2) * spacing
+      if abs x < max-pxcor - 2 and abs y < max-pycor - 2 [
+        set positions lput (list x y) positions
+        set num-placed num-placed + 1
+      ]
+      set col col + 1
+    ]
+    set row row + 1
+  ]
+  report positions
+end
+
+to-report get-random-positions [n]
+  let positions []
+  repeat n [
+    let x random-float (max-pxcor * 1.6) - max-pxcor * 0.8
+    let y random-float (max-pycor * 1.6) - max-pycor * 0.8
+    ;; Keep away from edges
+    if abs x < max-pxcor - 2 and abs y < max-pycor - 2 [
+      set positions lput (list x y) positions
+    ]
+  ]
+  report positions
+end
+
+;; ============================================================================
+;; MAIN LOOP
+;; ============================================================================
+
+to go
+  if game-over? [ stop ]
+  
+  ;; Reset patches to base color
+  ask patches [ set pcolor green + 2 ]
+  
+  ;; Spawn enemies
+  spawn-enemies
+  
+  ;; Update agents
+  ask enemies [ enemy-behavior ]
+  ask towers [ tower-behavior ]
+  ask bullets [ bullet-behavior ]
+  
+  ;; Check game over conditions
+  check-game-over
+  
+  ;; Update displays
+  update-monitors
+  
+  tick
+  set tick-counter ticks
+end
+
+;; ============================================================================
+;; ENEMY SPAWNING
+;; ============================================================================
+
+to spawn-enemies
+  ;; Check if we've reached the maximum enemy spawn limit
+  if max-enemies-spawn > 0 and total-enemies-spawned >= max-enemies-spawn [
+    ;; Stop spawning once limit reached
+    stop
+  ]
+  
+  ;; Spawn enemies based on spawn rate (percentage chance per tick)
+  ;; Spawn multiple enemies if spawn rate is high
+  let spawn-chance enemy-spawn-rate
+  
+  ;; Spawn 1-3 enemies depending on spawn rate
+  if random 100 < spawn-chance [
+    spawn-enemy
+  ]
+  
+  ;; Additional spawns for higher spawn rates
+  if spawn-chance > 25 and random 100 < (spawn-chance - 25) [
+    spawn-enemy
+  ]
+  
+  if spawn-chance > 35 and random 100 < (spawn-chance - 35) [
+    spawn-enemy
+  ]
+end
+
+to spawn-enemy
+  ;; Check if we've reached the maximum enemy spawn limit
+  if max-enemies-spawn > 0 and total-enemies-spawned >= max-enemies-spawn [
+    ;; Don't spawn if limit reached
+    stop
+  ]
+  
+  ;; Choose random side to spawn from
+  let side one-of ["top" "bottom" "left" "right"]
+  let spawn-x 0
+  let spawn-y 0
+  
+  ;; Set spawn position based on side
+  if side = "top" [
+    set spawn-x random-xcor
+    set spawn-y max-pycor - 1
+  ]
+  if side = "bottom" [
+    set spawn-x random-xcor
+    set spawn-y min-pycor + 1
+  ]
+  if side = "left" [
+    set spawn-x min-pxcor + 1
+    set spawn-y random-ycor
+  ]
+  if side = "right" [
+    set spawn-x max-pxcor - 1
+    set spawn-y random-ycor
+  ]
+  
+  ;; Determine enemy type based on distribution
+  let rand random 100
+  let type-name ""
+  
+  if rand < fast-enemy-percent [
+    set type-name "fast"
+  ]
+  if rand >= fast-enemy-percent and rand < (fast-enemy-percent + tough-enemy-percent) [
+    set type-name "tough"
+  ]
+  if type-name = "" [
+    set type-name "balanced"
+  ]
+  
+  ;; Create enemy
+  create-enemies 1 [
+    setxy spawn-x spawn-y
+    set enemy-type type-name
+    set spawn-side side
+    set target-tower nobody
+    
+    ;; Set attributes based on enemy type
+    ;; Using "person" shape for zombie-like appearance (inspired by reference model)
+    if enemy-type = "fast" [
+      set shape "person"
+      set color red
+      set size 1.5
+      set enemy-speed 0.3  ;; Reduced from 1.5
+      set enemy-health 30 * enemy-health-multiplier
+      set max-enemy-health enemy-health
+      set enemy-damage 5
+      set attack-cooldown 0
+    ]
+    
+    if enemy-type = "tough" [
+      set shape "person"
+      set color orange
+      set size 1.8
+      set enemy-speed 0.15  ;; Reduced from 0.5
+      set enemy-health 120 * enemy-health-multiplier  ;; Increased from 100
+      set max-enemy-health enemy-health
+      set enemy-damage 15
+      set attack-cooldown 0
+    ]
+    
+    if enemy-type = "balanced" [
+      set shape "person"
+      set color yellow
+      set size 1.5
+      set enemy-speed 0.2  ;; Reduced from 1.0
+      set enemy-health 60 * enemy-health-multiplier  ;; Increased from 50
+      set max-enemy-health enemy-health
+      set enemy-damage 10
+      set attack-cooldown 0
+    ]
+  ]
+  
+  set total-enemies-spawned total-enemies-spawned + 1
+end
+
+;; ============================================================================
+;; ENEMY BEHAVIOR
+;; ============================================================================
+
+to enemy-behavior
+  ;; Update attack cooldown
+  if attack-cooldown > 0 [
+    set attack-cooldown attack-cooldown - 1
+  ]
+  
+  ;; Find nearest tower
+  if any? towers [
+    set target-tower min-one-of towers [distance myself]
+    
+    if target-tower != nobody [
+      ;; Move toward target
+      face target-tower
+      forward enemy-speed
+      
+      ;; Check if close enough to attack
+      if distance target-tower < 2 and attack-cooldown = 0 [
+        attack-tower
+        set attack-cooldown 30  ;; Wait 30 ticks before next attack
+      ]
+    ]
+  ]
+  
+  ;; Update health display (visual feedback)
+  update-enemy-color
+end
+
+to attack-tower
+  ;; Deal damage to tower
+  if target-tower != nobody and member? target-tower towers [
+    ask target-tower [
+      set tower-health tower-health - [enemy-damage] of myself
+      
+      ;; Check if tower is destroyed
+      if tower-health <= 0 [
+        set total-towers-destroyed total-towers-destroyed + 1
+        die
+      ]
+    ]
+  ]
+end
+
+to update-enemy-color
+  ;; Update color based on health and danger status (inspired by reference model)
+  if max-enemy-health > 0 [
+    let health-percent enemy-health / max-enemy-health
+    
+    ;; Check if in danger (within tower range)
+    let in-danger? any? towers with [distance myself <= attack-range]
+    
+    ;; Scale color by health
+    if enemy-type = "fast" [
+      ifelse in-danger? [
+        set color scale-color red health-percent 0 1.2  ;; Brighter when in danger
+      ] [
+        set color scale-color red health-percent 0 1.5  ;; Darker when safe
+      ]
+    ]
+    if enemy-type = "tough" [
+      ifelse in-danger? [
+        set color scale-color orange health-percent 0 1.2
+      ] [
+        set color scale-color orange health-percent 0 1.5
+      ]
+    ]
+    if enemy-type = "balanced" [
+      ifelse in-danger? [
+        set color scale-color yellow health-percent 0 1.2
+      ] [
+        set color scale-color yellow health-percent 0 1.5
+      ]
+    ]
+  ]
+end
+
+;; ============================================================================
+;; TOWER BEHAVIOR
+;; ============================================================================
+
+to tower-behavior
+  ;; Update cooldown
+  if cooldown > 0 [
+    set cooldown cooldown - 1
+  ]
+  
+  ;; Check if under attack
+  let under-attack? any? enemies in-radius 2
+  
+  ;; Look for enemies in range
+  let targets enemies in-radius attack-range
+  
+  if any? targets and cooldown = 0 [
+    ;; Select target (nearest enemy)
+    let target min-one-of targets [distance myself]
+    
+    if target != nobody [
+      ;; Fire projectile
+      fire-at target
+      set cooldown fire-rate
+    ]
+  ]
+  
+  ;; Update tower visual appearance
+  update-tower-appearance under-attack?
+end
+
+to fire-at [target-enemy-agent]
+  ;; Create bullet/projectile (visual style from reference model)
+  hatch-bullets 1 [
+    set bullet-damage [damage-per-shot] of myself
+    set bullet-speed 0.5  ;; Reduced from 1.5 for better visibility
+    set target-enemy target-enemy-agent
+    set lifetime 100  ;; Increased from 50 to allow longer travel time
+    set shape "circle"
+    set size 0.5
+    
+    ;; Color projectile based on tower type (like reference model)
+    let source-type [tower-type] of myself
+    if source-type = "basic" [ set color cyan ]
+    if source-type = "fast" [ set color yellow ]
+    if source-type = "longrange" [ set color orange ]
+    
+    ;; Face target
+    if target-enemy != nobody [
+      face target-enemy
+    ]
+  ]
+end
+
+to update-tower-appearance [is-under-attack]
+  ;; Update color based on health (inspired by reference model)
+  if max-health > 0 [
+    let health-percent tower-health / max-health
+    
+    ;; Darken color as health decreases
+    if tower-type = "basic" [
+      set color scale-color blue health-percent 0 1
+    ]
+    if tower-type = "fast" [
+      set color scale-color yellow health-percent 0 1
+    ]
+    if tower-type = "longrange" [
+      set color scale-color red health-percent 0 1
+    ]
+  ]
+  
+  ;; Pulse when under attack (visual feedback from reference model)
+  ifelse is-under-attack [
+    set size 2.5
+  ] [
+    set size 2
+  ]
+  
+  ;; Show tower range if enabled (like reference model)
+  if show-tower-range? [
+    ask patches in-radius attack-range [
+      if pcolor = green + 2 [
+        set pcolor green + 1
+      ]
+    ]
+  ]
+end
+
+;; ============================================================================
+;; BULLET BEHAVIOR
+;; ============================================================================
+
+to bullet-behavior
+  ;; Update lifetime
+  set lifetime lifetime - 1
+  
+  if lifetime <= 0 [
+    die
+  ]
+  
+  ;; Check if target still exists and is valid
+  if target-enemy != nobody [
+    if not member? target-enemy enemies [
+      set target-enemy nobody
+    ]
+  ]
+  
+  ;; Move toward target or straight ahead
+  if target-enemy != nobody [
+    face target-enemy
+  ]
+  
+  ;; Move forward
+  forward bullet-speed
+  
+  ;; Check if out of bounds
+  if abs xcor > max-pxcor or abs ycor > max-pycor [
+    die
+    stop
+  ]
+  
+  ;; Check for collision with enemies
+  let hit-enemies enemies-here
+  if any? hit-enemies [
+    let target-hit one-of hit-enemies
+    ask target-hit [
+      set enemy-health enemy-health - [bullet-damage] of myself
+      
+      ;; Check if enemy is destroyed
+      if enemy-health <= 0 [
+        ;; Record kill
+        set total-enemies-destroyed total-enemies-destroyed + 1
+        
+        ;; Track by type
+        if enemy-type = "fast" [
+          set fast-enemies-destroyed fast-enemies-destroyed + 1
+        ]
+        if enemy-type = "tough" [
+          set tough-enemies-destroyed tough-enemies-destroyed + 1
+        ]
+        if enemy-type = "balanced" [
+          set balanced-enemies-destroyed balanced-enemies-destroyed + 1
+        ]
+        
+        die
+      ]
+    ]
+    die  ;; bullet disappears on hit
+  ]
+end
+
+;; ============================================================================
+;; GAME STATE
+;; ============================================================================
+
+to check-game-over
+  ;; Game over if all towers destroyed
+  if not any? towers [
+    set game-over? true
+    user-message (word "DEFEAT! All towers destroyed.\n"
+                       "Survived: " ticks " ticks\n"
+                       "Enemies destroyed: " total-enemies-destroyed "\n"
+                       "Enemies spawned: " total-enemies-spawned)
+    stop
+  ]
+  
+  ;; Victory: max enemies spawned and all enemies destroyed
+  if max-enemies-spawn > 0 and total-enemies-spawned >= max-enemies-spawn and not any? enemies [
+    set game-over? true
+    user-message (word "VICTORY! All enemies defeated!\n"
+                       "Ticks: " ticks "\n"
+                       "Enemies destroyed: " total-enemies-destroyed "\n"
+                       "Towers remaining: " count towers "\n"
+                       "Towers destroyed: " total-towers-destroyed)
+    stop
+  ]
+  
+  ;; Timeout: stop after maximum ticks
+  if ticks >= max-simulation-ticks [
+    set game-over? true
+    ;; Always show final status when time runs out
+    ifelse max-enemies-spawn > 0 and total-enemies-spawned >= max-enemies-spawn and not any? enemies [
+      ;; Victory achieved
+      user-message (word "VICTORY! All enemies defeated!\n"
+                         "Ticks: " ticks "\n"
+                         "Enemies destroyed: " total-enemies-destroyed "\n"
+                         "Towers remaining: " count towers "\n"
+                         "Towers destroyed: " total-towers-destroyed)
+    ] [
+      ;; Time ran out - show status
+      user-message (word "TIME'S UP!\n"
+                         "Ticks: " ticks "\n"
+                         "Enemies destroyed: " total-enemies-destroyed " / " total-enemies-spawned "\n"
+                         "Enemies remaining: " count enemies "\n"
+                         "Towers remaining: " count towers)
+    ]
+    stop
+  ]
+end
+
+to update-monitors
+  ;; Monitors are updated automatically by NetLogo
+  ;; This procedure can be used for additional updates if needed
+end
+
+;; ============================================================================
+;; ANALYSIS HELPERS
+;; ============================================================================
+
+to-report towers-alive
+  report count towers
+end
+
+to-report enemies-alive
+  report count enemies
+end
+
+to-report average-tower-health
+  ifelse any? towers [
+    report mean [tower-health] of towers
+  ] [
+    report 0
+  ]
+end
+
+to-report kill-rate
+  ifelse total-enemies-spawned > 0 [
+    report (total-enemies-destroyed / total-enemies-spawned) * 100
+  ] [
+    report 0
+  ]
+end
+
+to-report enemies-remaining
+  ;; Report how many enemies are left to spawn (0 if unlimited mode)
+  ifelse max-enemies-spawn > 0 [
+    let remaining (max-enemies-spawn - total-enemies-spawned)
+    report ifelse-value (remaining > 0) [remaining] [0]
+  ] [
+    report 0  ;; Unlimited mode
+  ]
+end]]></code>
+  <widgets>
+    <view x="210" wrappingAllowedX="false" y="20" frameRate="30.0" minPycor="-14" height="430" showTickCounter="true" patchSize="15.0" fontSize="10" wrappingAllowedY="false" width="761" tickCounterLabel="ticks" maxPycor="13" updateMode="1" maxPxcor="24" minPxcor="-25"></view>
+    <note x="20" y="5" backgroundDark="0" fontSize="12" width="150" markdown="false" height="18" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Controls</note>
+    <button x="15" y="28" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="73" display="Setup">setup</button>
+    <button x="95" y="28" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="73" display="Go">go</button>
+    <note x="20" y="73" backgroundDark="0" fontSize="11" width="150" markdown="false" height="18" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Tower Settings</note>
+    <slider x="15" step="1" y="96" max="20" width="172" display="num-towers" height="50" min="3" direction="Horizontal" default="15.0" variable="num-towers"></slider>
+    <slider x="15" step="5" y="153" max="100" width="172" display="basic-tower-percent" height="50" min="0" direction="Horizontal" default="30.0" variable="basic-tower-percent" units="%"></slider>
+    <slider x="15" step="5" y="210" max="100" width="172" display="fast-tower-percent" height="50" min="0" direction="Horizontal" default="20.0" variable="fast-tower-percent" units="%"></slider>
+    <chooser x="15" y="267" height="60" variable="tower-placement-strategy" current="1" width="172" display="tower-placement-strategy">
+      <choice type="string" value="defensive-ring"></choice>
+      <choice type="string" value="clustered-center"></choice>
+      <choice type="string" value="grid"></choice>
+      <choice type="string" value="random"></choice>
+    </chooser>
+    <note x="20" y="337" backgroundDark="0" fontSize="11" width="150" markdown="false" height="18" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Enemy Settings</note>
+    <slider x="15" step="1" y="357" max="50" width="172" display="enemy-spawn-rate" height="50" min="5" direction="Horizontal" default="5.0" variable="enemy-spawn-rate" units="%"></slider>
+    <slider x="15" step="0.1" y="414" max="3.0" width="172" display="enemy-health-multiplier" height="50" min="0.5" direction="Horizontal" default="0.8" variable="enemy-health-multiplier"></slider>
+    <slider x="15" step="5" y="471" max="100" width="172" display="fast-enemy-percent" height="50" min="0" direction="Horizontal" default="40.0" variable="fast-enemy-percent" units="%"></slider>
+    <slider x="15" step="5" y="528" max="100" width="172" display="tough-enemy-percent" height="50" min="0" direction="Horizontal" default="20.0" variable="tough-enemy-percent" units="%"></slider>
+    <slider x="15" step="10" y="585" max="500" width="172" display="max-enemies-spawn" height="50" min="0" direction="Horizontal" default="120.0" variable="max-enemies-spawn"></slider>
+    <note x="20" y="645" backgroundDark="0" fontSize="11" width="150" markdown="false" height="18" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Other Settings</note>
+    <slider x="15" step="100" y="665" max="5000" width="172" display="max-simulation-ticks" height="50" min="500" direction="Horizontal" default="2000.0" variable="max-simulation-ticks"></slider>
+    <switch x="15" y="722" height="40" on="false" variable="show-tower-range?" width="172" display="show-tower-range?"></switch>
+    <note x="995" y="5" backgroundDark="0" fontSize="12" width="150" markdown="false" height="18" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Game Statistics</note>
+    <monitor x="990" precision="0" y="28" height="60" fontSize="11" width="100" display="Towers Alive">count towers</monitor>
+    <monitor x="990" precision="0" y="98" height="60" fontSize="11" width="100" display="Enemies Alive">count enemies</monitor>
+    <monitor x="990" precision="0" y="168" height="60" fontSize="11" width="100" display="Total Spawned">total-enemies-spawned</monitor>
+    <monitor x="990" precision="0" y="238" height="60" fontSize="11" width="100" display="Remaining to Spawn">enemies-remaining</monitor>
+    <monitor x="990" precision="0" y="308" height="60" fontSize="11" width="100" display="Total Destroyed">total-enemies-destroyed</monitor>
+    <monitor x="990" precision="0" y="378" height="60" fontSize="11" width="100" display="Ticks">ticks</monitor>
+    <monitor x="990" precision="1" y="448" height="60" fontSize="11" width="100" display="Kill Rate %">precision kill-rate 1</monitor>
+    <monitor x="1105" precision="1" y="28" height="60" fontSize="11" width="115" display="Avg Tower Health">precision average-tower-health 1</monitor>
+    <monitor x="1105" precision="0" y="98" height="60" fontSize="11" width="115" display="Fast Destroyed">fast-enemies-destroyed</monitor>
+    <monitor x="1105" precision="0" y="168" height="60" fontSize="11" width="115" display="Tough Destroyed">tough-enemies-destroyed</monitor>
+    <monitor x="1105" precision="0" y="238" height="60" fontSize="11" width="115" display="Balanced Destroyed">balanced-enemies-destroyed</monitor>
+    <monitor x="1105" precision="0" y="308" height="60" fontSize="11" width="115" display="Towers Destroyed">total-towers-destroyed</monitor>
+    <plot x="990" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Count" y="518" xMin="0.0" height="196" legend="true" xMax="10.0" yMin="0.0" width="305" xAxis="Time" display="Population Over Time">
+      <setup></setup>
+      <update></update>
+      <pen interval="1.0" mode="0" display="Towers" color="-13345367" legend="true">
+        <setup></setup>
+        <update>plot count towers</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="Enemies" color="-2674135" legend="true">
+        <setup></setup>
+        <update>plot count enemies</update>
+      </pen>
+    </plot>
+    <plot x="210" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Count" y="485" xMin="0.0" height="175" legend="false" xMax="3.0" yMin="0.0" width="415" xAxis="Enemy Type" display="Enemies Destroyed by Type">
+      <setup></setup>
+      <update></update>
+      <pen interval="1.0" mode="1" display="Fast" color="-2674135" legend="true">
+        <setup></setup>
+        <update>plot-pen-reset
+set-plot-pen-color red
+plotxy 0 fast-enemies-destroyed</update>
+      </pen>
+      <pen interval="1.0" mode="1" display="Tough" color="-955883" legend="true">
+        <setup></setup>
+        <update>plot-pen-reset
+set-plot-pen-color orange
+plotxy 1 tough-enemies-destroyed</update>
+      </pen>
+      <pen interval="1.0" mode="1" display="Balanced" color="-1184463" legend="true">
+        <setup></setup>
+        <update>plot-pen-reset
+set-plot-pen-color yellow
+plotxy 2 balanced-enemies-destroyed</update>
+      </pen>
+    </plot>
+    <plot x="645" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Total Kills" y="485" xMin="0.0" height="175" legend="false" xMax="10.0" yMin="0.0" width="300" xAxis="Time" display="Cumulative Kills">
+      <setup></setup>
+      <update></update>
+      <pen interval="1.0" mode="0" display="default" color="-16777216" legend="true">
+        <setup></setup>
+        <update>plot total-enemies-destroyed</update>
+      </pen>
+    </plot>
+    <note x="210" y="675" backgroundDark="0" fontSize="14" width="170" markdown="false" height="28" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Tower Configuration</note>
+    <note x="210" y="695" backgroundDark="0" fontSize="11" width="180" markdown="false" height="40" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Basic (Blue Circle): Balanced
+Fast (Yellow Square): Quick fire
+Long-range (Red House): Sniper</note>
+  </widgets>
+  <info>## WHAT IS IT?
+
+This is a **Tower Defense** model that demonstrates a complex adaptive system where defensive towers must protect against waves of enemies approaching from all sides of the battlefield. The model explores how local interactions between individual agents (towers attacking enemies, enemies targeting towers) lead to emergent global patterns of defense success or failure.
+
+## THE QUESTION
+
+**How do different tower configurations and parameters affect the system's ability to defend against waves of enemies?**
+
+Specifically:
+- What mix of tower types is most effective for a given number of towers?
+- How does enemy spawn rate affect survival time?
+- What emergent patterns arise from the local interactions between towers and enemies?
+- Are there threshold effects or phase transitions between successful defense and rapid collapse?
+
+## AGENTS
+
+### Towers (Stationary Defenders)
+There are three types of towers:
+
+1. **Basic Towers** (Blue Circles)
+   - Range: 8 units
+   - Fire Rate: 30 ticks between shots
+   - Damage: 15 per shot
+   - Health: 100
+   - Role: Balanced all-around defense
+
+2. **Fast Towers** (Yellow Squares)
+   - Range: 6 units
+   - Fire Rate: 15 ticks between shots (fastest)
+   - Damage: 8 per shot
+   - Health: 80
+   - Role: Rapid fire for multiple weak enemies
+
+3. **Long-Range Towers** (Red Houses)
+   - Range: 12 units
+   - Fire Rate: 50 ticks between shots (slowest)
+   - Damage: 35 per shot
+   - Health: 120
+   - Role: Sniper-style long-range interception
+
+### Enemies (Mobile Attackers)
+Enemies appear as person-shaped zombies:
+
+1. **Fast Enemies** (Red Person)
+   - Speed: 0.3 units/tick
+   - Health: 30 (× multiplier)
+   - Damage: 5
+   - Strategy: Rush towers quickly
+   - Visual: Bright red when in tower range, darker when safe
+
+2. **Tough Enemies** (Orange Person)
+   - Speed: 0.15 units/tick
+   - Health: 120 (× multiplier)
+   - Damage: 15
+   - Strategy: Tank damage, deal heavy blows
+   - Visual: Orange color scales with health
+
+3. **Balanced Enemies** (Yellow Person)
+   - Speed: 0.2 units/tick
+   - Health: 60 (× multiplier)
+   - Damage: 10
+   - Strategy: Middle ground approach
+   - Visual: Yellow color scales with health
+
+### Projectiles (Bullets)
+- Created by towers to deliver damage
+- Travel at speed 0.5 units/tick
+- Home in on target enemies
+- Color matches firing tower: Cyan (basic), Yellow (fast), Orange (long-range)
+- Disappear on impact or after 100 ticks
+
+## HOW IT WORKS
+
+### Initialization
+1. The battlefield is set up with a flat green background
+2. Towers are placed according to the selected strategy (ring, clustered, grid, or random)
+3. Tower types are distributed based on the percentage sliders
+
+### Main Loop (Each Tick)
+1. **Enemy Spawning**: New enemies spawn from random sides based on spawn rate
+2. **Enemy Behavior**: Each enemy identifies the nearest tower and moves toward it; upon reaching a tower, it attacks
+3. **Tower Behavior**: Each tower scans for enemies within range; if found and weapon is off cooldown, it fires a bullet
+4. **Bullet Behavior**: Bullets track their targets and deal damage on collision
+5. **Destruction**: Enemies die when health reaches 0; towers die when health reaches 0
+6. **Game Over**: Simulation ends when all towers are destroyed or max ticks reached
+
+## HOW TO USE IT
+
+### Basic Controls
+1. **Setup**: Initialize the model with your chosen parameters
+2. **Go**: Run the simulation continuously
+3. Adjust the speed slider to control simulation speed
+
+### Key Parameters
+
+**Tower Configuration:**
+- `num-towers`: Total number of towers (3-20)
+- `basic-tower-percent`: Percentage of basic towers (0-100%)
+- `fast-tower-percent`: Percentage of fast towers (0-100%)
+- Remaining towers become long-range towers
+- `tower-placement-strategy`: How towers are arranged
+  - Defensive Ring: Towers form a perimeter
+  - Clustered Center: Towers group near center
+  - Grid: Evenly spaced grid pattern
+  - Random: Random positions
+
+**Enemy Configuration:**
+- `enemy-spawn-rate`: Probability of enemy spawning each tick (5-50%)
+  - Higher values spawn multiple enemies per tick
+  - Recommended: 20-30% for balanced gameplay
+- `enemy-health-multiplier`: Scales all enemy health (0.5-3.0×)
+- `fast-enemy-percent`: Percentage of fast enemies (0-100%)
+- `tough-enemy-percent`: Percentage of tough enemies (0-100%)
+- Remaining enemies are balanced type
+- `max-enemies-spawn`: Maximum total enemies to spawn (0-500)
+  - Set to 0 for unlimited spawning (continuous waves)
+  - Set to positive number for finite wave mode with victory condition
+  - Victory achieved when all spawned enemies are destroyed
+
+**Other:**
+- `max-simulation-ticks`: Maximum simulation duration (500-5000)
+- `show-tower-range?`: Toggle to visualize tower attack ranges (darkens patches within range)
+
+### Monitors
+- **Towers Alive**: Current number of active towers
+- **Enemies Alive**: Current number of enemies on the field
+- **Total Spawned**: Cumulative enemies spawned
+- **Total Destroyed**: Cumulative enemies killed
+- **Kill Rate %**: Percentage of spawned enemies destroyed
+- **Avg Tower Health**: Average health of remaining towers
+- **Type-specific Destroys**: Kills by enemy type
+- **Towers Destroyed**: Towers lost
+
+### Plots
+1. **Population Over Time**: Shows tower and enemy counts over time
+2. **Enemies Destroyed by Type**: Bar chart of kills by enemy type
+3. **Cumulative Kills**: Total enemies destroyed over time
+
+## THINGS TO TRY
+
+1. **Balanced Defense**: Try 40% basic, 30% fast, 30% long-range with medium spawn rate (15%)
+
+2. **Range vs. Rate**: Compare:
+   - All long-range towers (slow, powerful, far-reaching)
+   - All fast towers (quick, weak, close-range)
+   - Mixed strategy
+
+3. **Placement Strategy**: Test each placement strategy with the same parameters. Does clustering help or hurt?
+
+4. **Difficulty Scaling**: Gradually increase spawn rate and health multiplier. At what point does defense collapse?
+
+5. **Extreme Scenarios**:
+   - Very few towers (3-5) with maximum range
+   - Many towers (15-20) with poor placement
+   - All tough enemies vs. all fast enemies
+
+6. **Phase Transitions**: Find the critical spawn rate where the system transitions from successful defense to rapid failure
+
+7. **Finite Wave Mode**: Set max-enemies-spawn to 100-200 for a defined challenge:
+   - Can you achieve victory with minimal tower losses?
+   - What's the minimum number of towers needed to win?
+   - Test different tower mixes for wave completion efficiency
+
+## THINGS TO NOTICE
+
+### Visual Feedback
+
+1. **Tower Colors**: Towers darken as they take damage, providing instant health feedback
+2. **Tower Pulsing**: Towers grow larger (pulse) when enemies are within 2 units - visual "under attack" indicator
+3. **Enemy Color Changes**: Enemies appear brighter when within tower range (danger) and darker when safe
+4. **Projectile Colors**: Bullet colors match their source tower type (cyan, yellow, or orange)
+5. **Health Scaling**: Both towers and enemies use color intensity to show current health percentage
+
+### Emergent Patterns
+
+1. **Dynamic Front Lines**: Enemies naturally form "fronts" where they engage tower fire, creating emergent battle lines
+
+2. **Focus Fire**: Multiple towers targeting the same enemy can lead to overkill, wasting damage
+
+3. **Bottlenecks**: Enemy waves from different sides can converge, creating high-density attack zones
+
+4. **Tower Vulnerability**: Once one tower falls, enemies can penetrate deeper, accelerating collapse
+
+5. **Type Effectiveness**: Fast enemies may slip through slow-firing tower defenses; tough enemies may absorb too much firepower
+
+6. **Placement Sensitivity**: Small changes in tower position can significantly affect coverage and survival time
+
+### System Behavior
+
+- The system exhibits **threshold effects**: small parameter changes can cause dramatic shifts in outcome
+- **Local interactions** (individual tower-enemy engagements) produce **global outcomes** (defense success/failure)
+- **Path dependence**: early enemy waves can weaken towers, making later waves more dangerous
+- **Resource allocation**: distributing tower types is a constrained optimization problem
+
+## EXTENDING THE MODEL
+
+Possible extensions:
+1. Add tower upgrade mechanics (cost/benefit tradeoffs)
+2. Implement enemy pathfinding (smart routing around towers)
+3. Add special abilities (slow effects, area damage, shields)
+4. Create wave-based spawning with difficulty progression
+5. Add terrain features (obstacles, chokepoints)
+6. Implement tower targeting strategies (nearest, weakest, strongest)
+7. Add resource collection and tower building during simulation
+8. Create multiple "bases" to defend
+
+## NETLOGO FEATURES
+
+This model demonstrates:
+- **Breeds**: Multiple agent types (towers, enemies, bullets)
+- **Agent properties**: Individual attributes for each agent
+- **Local sensing**: Agents detect nearby agents using `in-radius`
+- **Agent creation**: Dynamic creation of enemies and bullets
+- **Targeted movement**: Bullets home in on enemies
+- **Conditional behavior**: Different actions based on agent state
+- **Aggregation**: Global statistics from individual actions
+- **Visualization**: Color coding to show health status
+
+## COMPLEX ADAPTIVE SYSTEM ASPECTS
+
+This model exemplifies a **Complex Adaptive System** because:
+
+1. **Multiple Interacting Agents**: Towers, enemies, and bullets all interact based on proximity and state
+
+2. **Simple Local Rules**: 
+   - Enemies: "Move toward nearest tower and attack"
+   - Towers: "Shoot nearest enemy in range"
+   - Bullets: "Track target and damage on collision"
+
+3. **Emergent Global Behavior**: 
+   - Defense patterns emerge from individual decisions
+   - Survival time is not predetermined but emerges from interactions
+   - "Front lines" form naturally where enemies meet tower fire
+
+4. **Adaptation**: 
+   - Enemies continuously retarget as towers are destroyed
+   - System responds to parameter changes in non-obvious ways
+
+5. **Non-linearity**: 
+   - Small changes in spawn rate or tower count can cause dramatic outcome shifts
+   - Losing one tower can cascade into rapid total collapse
+
+6. **Self-organization**: 
+   - Enemy distribution patterns self-organize based on spawn locations and tower placement
+   - Bullet density naturally increases in threatened areas
+
+## CREDITS AND REFERENCES
+
+This model was created as a demonstration of complex adaptive systems in the context of tower defense mechanics, a popular game genre that naturally exhibits emergent behavior from simple rules.
+
+**Credits:**
+
+- Arman Ossi Loko - https://github.com/armanossiloko (armanossiloko@gmail.com)
+- Azemina Magrdzija (azemina.magrdzija@edu.fit.ba)
+- Almer Hodzic (almer.hodzic@edu.fit.ba)
+- Edin Sehovic (edin.sehovic@edu.fit.ba)
+
+**Model created**: 2025
+**Platform**: NetLogo
+**Purpose**: Educational exploration of complex adaptive systems</info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="15">
+      <circle x="203" y="65" marked="true" color="-1" diameter="88" filled="true"></circle>
+      <circle x="70" y="65" marked="true" color="-1" diameter="162" filled="true"></circle>
+      <circle x="150" y="105" marked="true" color="-1" diameter="120" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="218" y="120"></point>
+        <point x="240" y="165"></point>
+        <point x="255" y="165"></point>
+        <point x="278" y="120"></point>
+      </polygon>
+      <circle x="214" y="72" marked="false" color="-1920102913" diameter="67" filled="true"></circle>
+      <rectangle endX="179" startY="223" marked="true" color="-1" endY="298" startX="164" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="45" y="285"></point>
+        <point x="30" y="285"></point>
+        <point x="30" y="240"></point>
+        <point x="15" y="195"></point>
+        <point x="45" y="210"></point>
+      </polygon>
+      <circle x="3" y="83" marked="true" color="-1" diameter="150" filled="true"></circle>
+      <rectangle endX="80" startY="221" marked="true" color="-1" endY="296" startX="65" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="195" y="285"></point>
+        <point x="210" y="285"></point>
+        <point x="210" y="240"></point>
+        <point x="240" y="210"></point>
+        <point x="195" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="276" y="85"></point>
+        <point x="285" y="105"></point>
+        <point x="302" y="99"></point>
+        <point x="294" y="83"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="219" y="85"></point>
+        <point x="210" y="105"></point>
+        <point x="193" y="99"></point>
+        <point x="201" y="83"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="253" y="133"></point>
+        <point x="245" y="131"></point>
+        <point x="245" y="133"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="194"></point>
+        <point x="13" y="197"></point>
+        <point x="30" y="191"></point>
+        <point x="38" y="193"></point>
+        <point x="38" y="205"></point>
+        <point x="20" y="226"></point>
+        <point x="20" y="257"></point>
+        <point x="27" y="265"></point>
+        <point x="38" y="266"></point>
+        <point x="40" y="260"></point>
+        <point x="31" y="253"></point>
+        <point x="31" y="230"></point>
+        <point x="60" y="206"></point>
+        <point x="68" y="198"></point>
+        <point x="75" y="209"></point>
+        <point x="66" y="228"></point>
+        <point x="65" y="243"></point>
+        <point x="82" y="261"></point>
+        <point x="84" y="268"></point>
+        <point x="100" y="267"></point>
+        <point x="103" y="261"></point>
+        <point x="77" y="239"></point>
+        <point x="79" y="231"></point>
+        <point x="100" y="207"></point>
+        <point x="98" y="196"></point>
+        <point x="119" y="201"></point>
+        <point x="143" y="202"></point>
+        <point x="160" y="195"></point>
+        <point x="166" y="210"></point>
+        <point x="172" y="213"></point>
+        <point x="173" y="238"></point>
+        <point x="167" y="251"></point>
+        <point x="160" y="248"></point>
+        <point x="154" y="265"></point>
+        <point x="169" y="264"></point>
+        <point x="178" y="247"></point>
+        <point x="186" y="240"></point>
+        <point x="198" y="260"></point>
+        <point x="200" y="271"></point>
+        <point x="217" y="271"></point>
+        <point x="219" y="262"></point>
+        <point x="207" y="258"></point>
+        <point x="195" y="230"></point>
+        <point x="192" y="198"></point>
+        <point x="210" y="184"></point>
+        <point x="227" y="164"></point>
+        <point x="242" y="144"></point>
+        <point x="259" y="145"></point>
+        <point x="284" y="151"></point>
+        <point x="277" y="141"></point>
+        <point x="293" y="140"></point>
+        <point x="299" y="134"></point>
+        <point x="297" y="127"></point>
+        <point x="273" y="119"></point>
+        <point x="270" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="-1" y="195"></point>
+        <point x="14" y="180"></point>
+        <point x="36" y="166"></point>
+        <point x="40" y="153"></point>
+        <point x="53" y="140"></point>
+        <point x="82" y="131"></point>
+        <point x="134" y="133"></point>
+        <point x="159" y="126"></point>
+        <point x="188" y="115"></point>
+        <point x="227" y="108"></point>
+        <point x="236" y="102"></point>
+        <point x="238" y="98"></point>
+        <point x="268" y="86"></point>
+        <point x="269" y="92"></point>
+        <point x="281" y="87"></point>
+        <point x="269" y="103"></point>
+        <point x="269" y="113"></point>
+      </polygon>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+  <experiments>
+    <experiment name="tower-mix-experiment" repetitions="5" sequentialRunOrder="true" runMetricsEveryStep="false">
+      <setup>setup</setup>
+      <go>go</go>
+      <metrics>
+        <metric>ticks</metric>
+        <metric>total-enemies-destroyed</metric>
+        <metric>total-towers-destroyed</metric>
+        <metric>kill-rate</metric>
+      </metrics>
+      <constants>
+        <enumeratedValueSet variable="num-towers">
+          <value value="10"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="basic-tower-percent">
+          <value value="0"></value>
+          <value value="33"></value>
+          <value value="50"></value>
+          <value value="100"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="fast-tower-percent">
+          <value value="0"></value>
+          <value value="33"></value>
+          <value value="50"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="enemy-spawn-rate">
+          <value value="15"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="tower-placement-strategy">
+          <value value="&quot;defensive-ring&quot;"></value>
+        </enumeratedValueSet>
+      </constants>
+    </experiment>
+    <experiment name="spawn-rate-experiment" repetitions="10" sequentialRunOrder="true" runMetricsEveryStep="false">
+      <setup>setup</setup>
+      <go>go</go>
+      <metrics>
+        <metric>ticks</metric>
+        <metric>total-enemies-destroyed</metric>
+        <metric>kill-rate</metric>
+      </metrics>
+      <constants>
+        <enumeratedValueSet variable="enemy-spawn-rate">
+          <value value="5"></value>
+          <value value="10"></value>
+          <value value="15"></value>
+          <value value="20"></value>
+          <value value="25"></value>
+          <value value="30"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="num-towers">
+          <value value="10"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="basic-tower-percent">
+          <value value="40"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="fast-tower-percent">
+          <value value="30"></value>
+        </enumeratedValueSet>
+      </constants>
+    </experiment>
+  </experiments>
+</model>
