@@ -82,7 +82,8 @@ class InfoTabsTests extends TestModels {
   }
 
   val codeTestsExceptions = Set(
-    "Example HubNet" // because the code block in it uses procedure names that don't exist
+    "Example HubNet", // because the code block in it uses procedure names that don't exist
+    "Boxplot Example" // sr extension example that includes R code
   )
   testModels("Code blocks should only include NetLogo code") { model =>
     val parser = {
