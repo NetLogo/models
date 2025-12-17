@@ -2010,6 +2010,24 @@ This activity and associated models and materials were created as part of the pr
     <monitor x="7" precision="3" y="179" height="49" fontSize="11" display="current choice" width="107" sizeVersion="0"></monitor>
     <button x="158" y="234" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="81" display="1"></button>
   </hubNetClient>
-  <previewCommands>need-to-manually-make-preview-for-this-model</previewCommands>
+  <previewCommands><![CDATA[startup
+repeat 5 [ __hubnet-create-client ]
+while [ count players < 5 ] [ listen-clients wait 0.1 ]
+repeat 75 [
+  update-system
+  update-scores-and-strategies
+  advance-system
+  update-choices
+  update-success-list
+  set score-list map [ t -> [ score ] of t ] sort turtles
+  update-plots
+  let scores [ score ] of turtles
+  ask turtles [ move max scores min scores ]
+  ask players [
+    set chosen-sides? false
+    update-client
+  ]
+  tick
+]]]></previewCommands>
   <citation year1="2004"></citation>
 </model>
