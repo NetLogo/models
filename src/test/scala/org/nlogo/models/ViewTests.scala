@@ -35,12 +35,10 @@ class ViewTests extends TestModels {
   }
 
 
-  val viewSizeIssueModels = Set(
-    // These really shouldn't be excepted from this test though I must be honest, I don't actually
+  val viewSizeIssueModels = Set("Interstitial Diffusion")
+    // There really shouldn't be any exceeptions from this test though I must be honest, I don't actually
     // understand what this test does. They should be revisited in the future to actually
-    // fix the underlying issue. -- CB 2025-12-16
-    "Hockey", "Cyclic CA", "Chladni Figures", "Interstitial Diffusion"
-  )
+    // fix the underlying issue. -- CB 2025-12-17
   testModels("Saved view size must match size computed from the saved patch size and screen-edge-x/y") {
     // finds models whose graphics windows' saved sizes don't match the size you should get if you
     // compute from the saved patch size and screen-edge-x/y
