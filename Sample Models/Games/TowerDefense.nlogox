@@ -246,23 +246,55 @@ end
 to-report get-grid-positions [n]
   let positions []
   let grid-size ceiling sqrt n
-  let spacing (max-pxcor * 1.5) / (grid-size + 1)
+  ;; Calculate spacing to ensure positions fit within world bounds
+  ;; Use 80% of available space to keep away from edges
+  let available-width (max-pxcor - 2) * 1.6
+  let available-height (max-pycor - 2) * 1.6
+  let spacing-x available-width / (grid-size + 1)
+  let spacing-y available-height / (grid-size + 1)
   
   let num-placed 0
   let row 0
-  while [num-placed < n] [
+  let max-iterations n * 10  ;; Safety limit to prevent infinite loops
+  let iterations 0
+  
+  while [num-placed < n and iterations < max-iterations] [
     let col 0
     while [col < grid-size and num-placed < n] [
-      let x (col - grid-size / 2) * spacing
-      let y (row - grid-size / 2) * spacing
+      ;; Calculate position centered around origin
+      let x (col - (grid-size - 1) / 2) * spacing-x
+      let y (row - (grid-size - 1) / 2) * spacing-y
+      
+      ;; Ensure within bounds
       if abs x < max-pxcor - 2 and abs y < max-pycor - 2 [
         set positions lput (list x y) positions
         set num-placed num-placed + 1
       ]
       set col col + 1
+      set iterations iterations + 1
     ]
     set row row + 1
+    
+    ;; If we've filled the grid but still need more positions, expand
+    if row >= grid-size and num-placed < n [
+      set row 0
+      set grid-size grid-size + 1
+      ;; Recalculate spacing with new grid size
+      set spacing-x available-width / (grid-size + 1)
+      set spacing-y available-height / (grid-size + 1)
+    ]
   ]
+  
+  ;; If we still don't have enough positions, fill with random valid positions
+  while [num-placed < n] [
+    let x random-float (max-pxcor * 1.6) - max-pxcor * 0.8
+    let y random-float (max-pycor * 1.6) - max-pycor * 0.8
+    if abs x < max-pxcor - 2 and abs y < max-pycor - 2 [
+      set positions lput (list x y) positions
+      set num-placed num-placed + 1
+    ]
+  ]
+  
   report positions
 end
 
@@ -757,7 +789,7 @@ end]]></code>
     <slider x="15" step="1" y="96" max="20" width="172" display="num-towers" height="50" min="3" direction="Horizontal" default="15.0" variable="num-towers"></slider>
     <slider x="15" step="5" y="153" max="100" width="172" display="basic-tower-percent" height="50" min="0" direction="Horizontal" default="30.0" variable="basic-tower-percent" units="%"></slider>
     <slider x="15" step="5" y="210" max="100" width="172" display="fast-tower-percent" height="50" min="0" direction="Horizontal" default="20.0" variable="fast-tower-percent" units="%"></slider>
-    <chooser x="15" y="267" height="60" variable="tower-placement-strategy" current="1" width="172" display="tower-placement-strategy">
+    <chooser x="15" y="267" height="60" variable="tower-placement-strategy" current="2" width="172" display="tower-placement-strategy">
       <choice type="string" value="defensive-ring"></choice>
       <choice type="string" value="clustered-center"></choice>
       <choice type="string" value="grid"></choice>
@@ -1082,16 +1114,26 @@ This model exemplifies a **Complex Adaptive System** because:
 
 This model was created as a demonstration of complex adaptive systems in the context of tower defense mechanics, a popular game genre that naturally exhibits emergent behavior from simple rules.
 
-**Credits:**
-
-- Arman Ossi Loko (arman.ossiloko@edu.fit.ba, armanossiloko@gmail.com) - https://github.com/armanossiloko/
-- Azemina Magrdžija (azemina.magrdzija@edu.fit.ba)
-- Almer Hodžić (almer.hodzic@edu.fit.ba)
-- Edin Šehović (edin.sehovic@edu.fit.ba)
-
 **Model created**: 2025
 **Platform**: NetLogo
-**Purpose**: Educational exploration of complex adaptive systems</info>
+**Purpose**: Educational exploration of complex adaptive systems
+
+### Student Team
+
+This project was developed by:
+
+- **Arman Ossi Loko**
+  - Email: arman.ossiloko@edu.fit.ba, armanossiloko@gmail.com
+  - GitHub: https://github.com/armanossiloko/
+
+- **Azemina Magrdžija**
+  - Email: azemina.magrdzija@edu.fit.ba
+
+- **Almer Hodžić**
+  - Email: almer.hodzic@edu.fit.ba
+
+- **Edin Šehović**
+  - Email: edin.sehovic@edu.fit.ba</info>
   <turtleShapes>
     <shape name="default" rotatable="true" editableColorIndex="0">
       <polygon color="-1920102913" filled="true" marked="true">
