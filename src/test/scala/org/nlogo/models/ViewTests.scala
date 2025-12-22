@@ -34,6 +34,7 @@ class ViewTests extends TestModels {
       .filterNot(_.view.frameRate == 30)
   }
 
+
   testModels("Saved view size must match size computed from the saved patch size and screen-edge-x/y") {
     // finds models whose graphics windows' saved sizes don't match the size you should get if you
     // compute from the saved patch size and screen-edge-x/y

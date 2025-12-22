@@ -4,6 +4,7 @@ import java.io.File
 import java.util.Calendar
 
 import org.nlogo.core.Model
+import org.nlogo.util.PathUtils
 
 /*
  * See https://github.com/NetLogo/models/wiki/%22Notarizing%22-models
@@ -114,7 +115,7 @@ case class LegalInfo(model: Model) {
   val acknowledgment: Option[String] = {
     val iabm = """.*\/IABM Textbook\/chapter ([0-9])\/.*""".r
     val altViz = """.*\/Alternative Visualizations/(.*) - .*""".r
-    model.file.getPath.replace("\\", "/") match {
+    PathUtils.standardize(model.file.getPath) match {
       case iabm(chapter) =>
         Vector("Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight")
           .lift(chapter.toInt)
