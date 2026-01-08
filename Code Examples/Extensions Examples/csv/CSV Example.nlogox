@@ -2,9 +2,19 @@
 <model version="NetLogo 7.0.3" snapToGrid="true">
   <code>extensions [ csv ]
 
+globals [ target-file-path ]
+
 to setup
   clear-all
   file-close-all ; Close any files open from last run
+
+  ; use the home-directory primitive to set a target path
+  ; of `turtles.csv` where ever your home directory is!
+  ; if you've never used this primitive before, you can run it
+  ; in the command center to see what folder NetLogo thinks is your
+  ; user's home folder on your operating system.
+  set target-file-path (word home-directory "/turtles.csv")
+
   reset-ticks
 end
 
@@ -21,19 +31,19 @@ end
 to write-turtles-to-csv
   ; we use the `of` primitive to make a list of lists and then
   ; use the csv extension to write that list of lists to a file.
-  csv:to-file "turtles.csv" [ (list xcor ycor size color heading) ] of turtles
+  csv:to-file target-file-path [ (list xcor ycor size color heading) ] of turtles
 end
 
 ; procedure to read some turtle properties from a file
 to read-turtles-from-csv
   file-close-all ; close all open files
 
-  if not file-exists? "turtles.csv" [
-    user-message "No file 'turtles.csv' exists! Try pressing WRITE-TURTLES-TO-CSV."
+  if not file-exists? target-file-path [
+    user-message "No file 'turtles.csv' exists in your home directory! Try pressing WRITE-TURTLES-TO-CSV."
     stop
   ]
 
-  file-open "turtles.csv" ; open the file with the turtle data
+  file-open target-file-path ; open the file with the turtle data
 
   ; We'll read all the data in a single loop
   while [ not file-at-end? ] [
@@ -61,17 +71,19 @@ end
     <button x="10" y="10" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="190">setup</button>
     <button x="10" y="152" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="190">write-turtles-to-csv</button>
     <button x="10" y="107" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="190">generate-turtles</button>
-    <note x="50" y="62" backgroundDark="0" fontSize="14" width="200" markdown="false" height="31" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Reading/Writing
-Turtle Data
-</note>
     <button x="10" y="242" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="190">read-turtles-from-csv</button>
     <button x="10" y="197" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="190">ask turtles [ die ]</button>
+    <note x="45" y="55" backgroundDark="0" fontSize="14" width="200" markdown="false" height="45" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Reading/Writing
+Turtle Data
+</note>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
 This model shows how to use NetLogo's `csv` extension to load data from and write data to data to CSV files. This allows users to easily output data (e.g. value of turtle variables, result of calculations, etc.) to a standard CSV file.
 
 ## THINGS TO NOTICE
+
+We use the `home-directory` primitive to define a global variable called `target-file-path` where the "turtles.csv" file will be written to / read from. See the CODE tab for more details.
 
 The GENERATE-TURTLES button just creates 100 random turtles. The user can then use the WRITE-TURTLES-TO-CSV button to save the `xcor`, `ycor`, `size`, `color` and `heading` of each turtle into a CSV file called `turtles.csv`.
 
