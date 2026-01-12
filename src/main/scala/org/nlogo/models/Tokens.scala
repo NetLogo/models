@@ -56,7 +56,7 @@ class Tokens(model: Model) {
   // Note: this works for 3D models, but the 3D primitives don't
   // get properly typed as `Reporter` or `Command` by `Colorizer.Namer`. We'd need
   // to use a Namer that rely on `ThreeDTokenMapper` when needed. NP 2016-05-16
-  def primitiveTokenNames: Seq[String] = allTokens
+  def primitiveTokenNames: Seq[String] = (widgetTokens ++ codeTokens ++ plotTokens)
     .filter(t => t.tpe == Reporter || t.tpe == Command)
     .map(_.text)
 }
