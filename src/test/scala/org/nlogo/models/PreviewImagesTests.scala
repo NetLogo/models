@@ -27,6 +27,10 @@ class PreviewImagesTests extends TestModels {
   val manualPreviewNeeded = Set(
     "HubNet", "/sound/", "/ls/", "GoGo", "Arduino"
   )
+  val manualPreviewExceptions = Set(
+    "Gridlock HubNet",
+    "Public Good HubNet"
+  )
   val manualPreviewPermitted = Set(
     "Table Example",
     "Info Tab Example",
@@ -77,7 +81,9 @@ class PreviewImagesTests extends TestModels {
     "Wolf Sheep Predation - Micro-Sims",
   )
   testModels("Models should have manual previews only if needed or permitted") { m =>
-    if (manualPreviewNeeded.exists(PathUtils.standardize(m.file.getPath).contains))
+    val path = PathUtils.standardize(m.file.getPath)
+
+    if (manualPreviewNeeded.exists(path.contains) && !manualPreviewExceptions.exists(path.contains))
       if (m.previewCommands != Manual)
         Some("should need manual preview")
       else
