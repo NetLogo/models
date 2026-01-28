@@ -27,7 +27,7 @@ class ButtonTests extends TestModels {
       ).contains(model.name))
   }.par.toMap
 
-  def run(model: Model, button: Button): Try[World] = Try {
+  private def run(model: Model, button: Button): Try[Double] = Try {
     withWorkspace(model) { ws =>
       button.source.foreach { source =>
         val code = button.buttonKind match {
@@ -49,7 +49,7 @@ class ButtonTests extends TestModels {
           .filterNot(_.getMessage.endsWith("You can't get user input headless."))
           .foreach(throw _)
       }
-      ws.world
+      ws.world.ticks
     }
   }
 
@@ -74,7 +74,7 @@ class ButtonTests extends TestModels {
           modelButtons <- buttons.get(model)
           if modelButtons.exists(_.disableUntilTicksStart)
           enabledButtons = modelButtons.filterNot(_.disableUntilTicksStart)
-          if !enabledButtons.exists(b => run(model, b).filter(_.ticks != -1).isSuccess)
+          if !enabledButtons.exists(b => run(model, b).filter(_ != -1).isSuccess)
         } yield ""
     }
 }
