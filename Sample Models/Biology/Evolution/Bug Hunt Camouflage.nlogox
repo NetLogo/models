@@ -31,12 +31,13 @@ globals [
   max-number-of-brightness      ;; scaling value for initial histograms
   avg-red-gene                  ;; mean avg-red-gene
   avg-init-red-gene             ;; mean avg-red-gene  initial value
-  avg-green-gene                  ;; mean avg-green-gene
-  avg-init-green-gene             ;; mean avg-green-gene  initial value
-  avg-blue-gene                  ;; mean avg-blue-gene
-  avg-init-blue-gene             ;; mean avg-blue-gene  initial value
+  avg-green-gene                ;; mean avg-green-gene
+  avg-init-green-gene           ;; mean avg-green-gene  initial value
+  avg-blue-gene                 ;; mean avg-blue-gene
+  avg-init-blue-gene            ;; mean avg-blue-gene  initial value
   vector-difference
 
+  last-advance                  ;; track tick advance for timer resolution
 ]
 
 
@@ -58,7 +59,9 @@ end
 
 
 to go
-  reset-timer
+  if last-advance != 0 [
+    reset-timer
+  ]
   grow-bugs
   eat-bugs
   reproduce-bugs
@@ -68,7 +71,8 @@ to go
   ;; we don't only want to count the time that passes while the GO
   ;; button is actually down, so that's why we do RESET-TIMER above,
   ;; so we can measure how time has actually been spent in GO.
-  tick-advance timer
+  set last-advance timer
+  tick-advance last-advance
 
   ;; plotting takes time, so only plot 10 times a second
   every 0.1 [ calculate-gene-metrics update-plots ]
