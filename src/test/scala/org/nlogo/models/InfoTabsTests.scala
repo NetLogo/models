@@ -102,7 +102,7 @@ class InfoTabsTests extends TestModels {
         val program = ws.world.program
         val alreadyDefined =
           program.globals ++ program.turtlesOwn ++ program.patchesOwn ++ program.linksOwn ++
-            ws.procedures.keySet ++ program.breeds.keys ++ program.linkBreeds.keys ++
+            ws.procedures.keySet.map(_._1) ++ program.breeds.keys ++ program.linkBreeds.keys ++
             program.breeds.values.flatMap(_.owns) ++ program.linkBreeds.values.flatMap(_.owns)
 
         def getErrors(node: Node): Seq[(String, String)] =
