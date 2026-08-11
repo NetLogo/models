@@ -340,6 +340,14 @@ to-report check-for-min-price [ value ]
   report precision ifelse-value value < min-price [min-price] [value] 2
 end
 
+to-report guarded-metric [ metric-op agents ]
+  report ifelse-value count agents > 0 [
+    (runresult metric-op agents)
+  ] [
+    "<no agents>"
+  ]
+end
+
 
 ; Copyright 2017 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
@@ -1393,7 +1401,7 @@ To inquire about commercial licenses for either NetLogo or specific models from 
   </linkShapes>
   <previewCommands>setup repeat 75 [ go ]</previewCommands>
   <experiments>
-    <experiment name="Sample Experiment" repetitions="1" sequentialRunOrder="true" runMetricsEveryStep="false">
+    <experiment name="Sample Experiment" repetitions="3" sequentialRunOrder="true" runMetricsEveryStep="false" timeLimit="3000">
       <setup>setup</setup>
       <go>go</go>
       <metrics>
@@ -1401,43 +1409,38 @@ To inquire about commercial licenses for either NetLogo or specific models from 
         <metric>average-price</metric>
         <metric>sum [money] of buyers</metric>
         <metric>sum [money] of sellers</metric>
-        <metric><![CDATA[mean [asking-price] of sellers with [items-for-sale > 0]]]></metric>
-        <metric><![CDATA[min [asking-price] of sellers with [items-for-sale > 0]]]></metric>
-        <metric><![CDATA[max [asking-price] of sellers with [items-for-sale > 0]]]></metric>
-        <metric><![CDATA[mean [willing-to-pay] of buyers with [want-to-buy > 0]]]></metric>
-        <metric><![CDATA[min [willing-to-pay] of buyers with [want-to-buy > 0]]]></metric>
-        <metric><![CDATA[max [willing-to-pay] of buyers with [want-to-buy > 0]]]></metric>
+        <metric><![CDATA[guarded-metric [[ts] -> mean [asking-price] of ts] (sellers with [items-for-sale > 0])]]></metric>
+        <metric><![CDATA[guarded-metric [[ts] -> min [asking-price] of ts] (sellers with [items-for-sale > 0])]]></metric>
+        <metric><![CDATA[guarded-metric [[ts] -> max [asking-price] of ts] (sellers with [items-for-sale > 0])]]></metric>
+        <metric><![CDATA[guarded-metric [[ts] -> mean [willing-to-pay] of ts] (buyers with [want-to-buy > 0])]]></metric>
+        <metric><![CDATA[guarded-metric [[ts] -> min [willing-to-pay] of ts] (buyers with [want-to-buy > 0])]]></metric>
+        <metric><![CDATA[guarded-metric [[ts] -> max [willing-to-pay] of ts] (buyers with [want-to-buy > 0])]]></metric>
       </metrics>
       <constants>
-        <enumeratedValueSet variable="nosy-neighbor">
-          <value value="false"></value>
+        <enumeratedValueSet variable="supply-amount">
+          <value value="&quot;high&quot;"></value>
+          <value value="&quot;low&quot;"></value>
         </enumeratedValueSet>
-        <enumeratedValueSet variable="randomize-starting-demand">
-          <value value="true"></value>
+        <enumeratedValueSet variable="demand-amount">
+          <value value="&quot;high&quot;"></value>
+          <value value="&quot;low&quot;"></value>
         </enumeratedValueSet>
-        <enumeratedValueSet variable="starting-asking-price">
-          <value value="100"></value>
+        <enumeratedValueSet variable="supply-distribution">
+          <value value="&quot;concentrated&quot;"></value>
+          <value value="&quot;even&quot;"></value>
         </enumeratedValueSet>
-        <enumeratedValueSet variable="randomize-starting-supply">
-          <value value="true"></value>
+        <enumeratedValueSet variable="demand-distribution">
+          <value value="&quot;concentrated&quot;"></value>
+          <value value="&quot;even&quot;"></value>
         </enumeratedValueSet>
-        <enumeratedValueSet variable="starting-supply">
-          <value value="96"></value>
+        <enumeratedValueSet variable="seller-behavior">
+          <value value="&quot;normal&quot;"></value>
+          <value value="&quot;mix of all&quot;"></value>
         </enumeratedValueSet>
-        <enumeratedValueSet variable="starting-money">
-          <value value="500"></value>
+        <enumeratedValueSet variable="buyer-behavior">
+          <value value="&quot;normal&quot;"></value>
+          <value value="&quot;mix of all&quot;"></value>
         </enumeratedValueSet>
-        <enumeratedValueSet variable="starting-demand">
-          <value value="96"></value>
-        </enumeratedValueSet>
-        <enumeratedValueSet variable="starting-willing-to-pay">
-          <value value="3"></value>
-        </enumeratedValueSet>
-        <enumeratedValueSet variable="purchase-choice">
-          <value value="&quot;buyer&quot;"></value>
-        </enumeratedValueSet>
-        <steppedValueSet variable="buyer-sensitivity" first="5" step="5" last="25"></steppedValueSet>
-        <steppedValueSet variable="seller-sensitivity" first="5" step="5" last="25"></steppedValueSet>
       </constants>
     </experiment>
   </experiments>
