@@ -1,0 +1,1949 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.1.0-internal1" snapToGrid="true">
+  <code><![CDATA[
+;; A general one-dimensional cellular automata model.
+;;
+;; Each cell has one of NUM-STATES (k) states.  The next state of a cell is
+;; determined by the 2 * RADIUS + 1 cells centered above it, so a rule is a
+;; lookup table with k ^ (2r + 1) entries.
+
+
+globals [
+  rule-array     ;; the rule currently being run: a list of RULE-SIZE state
+  ;; values in Wolfram order, so the first entry is the output
+  ;; for the highest-numbered neighborhood (every cell in state
+  ;; k - 1) and the last entry is the output for all zeros.
+  ;; SETUP rebuilds this from the RULE-SOURCE chooser.
+  rule-lookup    ;; RULE-ARRAY reversed, so it can be indexed directly by
+  ;; neighborhood number.  Rebuilt by SETUP.
+  rule-number    ;; the rule number of whatever is in RULE-ARRAY, cached here
+  ;; by SET-RULE.  The RULE NUMBER monitor reads this rather
+  ;; than recomputing it, which for a large table would mean
+  ;; folding the whole thing several times a second.  It is
+  ;; only meaningful while the rule matches the current k and r
+  ;; and the numbering is still exact -- RULE-NUMBER-DISPLAY
+  ;; checks both before reporting it.
+  current-row    ;; the row holding the newest generation
+  gone?          ;; has GO reached the bottom of the world at least once?
+
+  rule-table-shown?  ;; is the view currently given over to the rule table?
+
+  ;; bookkeeping for mouse painting
+  mouse-was-down?
+  paint-brush    ;; the state a drag smears
+  last-painted   ;; last patch touched during a drag
+]
+
+patches-own [
+  cell-state     ;; this cell's state, 0 .. num-states - 1
+]
+
+;; runs once when the model is opened
+to startup
+  set current-row max-pycor
+  set gone? false
+  set mouse-was-down? false
+  set last-painted nobody
+  set rule-array []
+  set rule-table-shown? false
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; The rule
+;;
+;; The RULE-SOURCE chooser is the single place that decides where the rule
+;; comes from, and SETUP is the single moment it is applied.  Nothing else
+;; changes the rule behind your back, so the widgets cannot disagree.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; how many neighborhoods a rule has to cover, for the current k and r
+to-report rule-size
+  report round (num-states ^ (2 * radius + 1))
+end
+
+;; The largest rule this model will build.  The sliders alone cannot keep
+;; RULE-SIZE small (k=10 with r=6 is 10^13), so every procedure that creates a
+;; rule has to check this.  A rule is also written into the INPUT-RULE box as
+;; text, and a box holding hundreds of thousands of numbers will hang the
+;; NetLogo interface, so this is a hard limit, not a hint.
+to-report max-rule-entries
+  report 10000
+end
+
+to-report rule-too-big?
+  report rule-size > max-rule-entries
+end
+
+to warn-rule-too-big
+  user-message (word
+  "k=" num-states " and r=" radius " would need a rule table with "
+  rule-size " entries.\n\n"
+  "This model handles up to " max-rule-entries ".\n\n"
+  "Lower NUM-STATES or RADIUS, then press SETUP again.")
+end
+
+;; is LST a usable rule for the current k and r?
+to-report rule-list-ok? [ lst ]
+  if not is-list? lst [ report false ]
+  if length lst != rule-size [ report false ]
+  report empty? filter [ s ->
+    not is-number? s or s != floor s or s < 0 or s >= num-states ] lst
+end
+
+to-report rule-ok?
+  report rule-list-ok? rule-array
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Rule numbers
+;;
+;; Read the rule table as a single base-k numeral, most significant digit
+;; first, and you get the number these automata are named by: for k=2 and
+;; r=1, [0 0 0 1 1 1 1 0] is 30, i.e. Wolfram's Rule 30.
+;;
+;; NetLogo numbers are doubles, so the numbering is only exact while
+;; k ^ rule-size stays below 2^53.  That covers k=2 r=1 (256 rules), k=3 r=1
+;; and k=2 r=2; past that the count of rules exceeds what can be counted
+;; exactly and the model works in tables only.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to-report rule-number-exact?
+  report num-states ^ rule-size < 2 ^ 53
+end
+
+to-report highest-rule-number
+  report num-states ^ rule-size - 1
+end
+
+;; the number of the rule currently in RULE-ARRAY
+to-report current-rule-number
+  let n 0
+  foreach rule-array [ s -> set n n * num-states + s ]
+  report n
+end
+
+;; the rule table for rule number N
+to-report rule-from-number [ n ]
+  let digits []
+  let remaining n
+  let j 0
+  while [ j < rule-size ] [
+    set digits fput (remaining mod num-states) digits
+    set remaining floor (remaining / num-states)
+    set j j + 1
+  ]
+  report digits
+end
+
+;; shown in the RULE NUMBER monitor
+to-report rule-number-display
+  if not rule-ok? [ report "--" ]
+  if not rule-number-exact? [ report "too large" ]
+  report rule-number
+end
+
+;; The rule box also accepts a rule number written with a leading "#", so
+;; "#110" summons Rule 110 without needing its table.
+to read-rule-box-as-number
+  if not rule-number-exact? [
+    user-message (word
+    "Rule numbers only work while the rules can be counted exactly.\n\n"
+    "k=" num-states " and r=" radius " give " num-states "^" rule-size
+    " rules, which is past what NetLogo can hold exactly.\n\n"
+    "Write the rule out as a table instead.")
+    stop
+  ]
+  let after-hash substring input-rule
+  (position "#" input-rule + 1) (length input-rule)
+  let digits parse-rule-text after-hash
+  if not is-list? digits [
+    user-message (word
+    "Couldn't read a rule number after the \"#\".\n\n"
+    "Write it in plain decimal, for example:  #110")
+    stop
+  ]
+  let n 0
+  foreach digits [ d -> set n n * 10 + d ]
+  if n > highest-rule-number [
+    user-message (word
+    "Rule " n " is out of range.\n\n"
+    "With k=" num-states " and r=" radius " the rule numbers run from 0 to "
+    highest-rule-number ".")
+    stop
+  ]
+  set-rule rule-from-number n
+end
+
+;; The one place that writes RULE-ARRAY, and the last line of defence against
+;; dumping an enormous list into the INPUT-RULE widget.
+to set-rule [ new-rule ]
+  if length new-rule > max-rule-entries [ warn-rule-too-big stop ]
+  set rule-array new-rule
+  set input-rule (word rule-array)
+  ;; keep the rule number in step, so it tracks presets, loads and table clicks
+  if rule-ok? and rule-number-exact? [ set rule-number current-rule-number ]
+end
+
+;; Fill RULE-ARRAY according to the RULE-SOURCE chooser.  Leaves RULE-ARRAY
+;; unusable (and explains why) if it cannot.
+to build-rule
+  (ifelse
+  rule-source = "random"        [ make-random-rule ]
+  rule-source = "from rule box"    [ read-rule-box ]
+  ;; anything else names a preset, which sets k and r as well as the rule
+  [ load-preset rule-source ])
+end
+
+to make-random-rule
+  set rule-array []
+  if rule-too-big? [ warn-rule-too-big stop ]
+  set-rule n-values rule-size [ i -> random num-states ]
+end
+
+;; parse the rule box; a preset you loaded earlier is sitting there, so this
+;; is also how you tweak a preset by hand
+;; Read the rule box in either form: the list "[0 0 0 1 1 1 1 0]" or the
+;; compact "00011110".  k is at most 10, so every state is a single digit and
+;; the two forms carry the same information; brackets, commas and whitespace
+;; are just separators.  Reports FALSE if anything else turns up.
+to-report parse-rule-text [ txt ]
+  let result []
+  let ok? true
+  let i 0
+  while [ i < length txt ] [
+    let ch item i txt
+    let d position ch ["0" "1" "2" "3" "4" "5" "6" "7" "8" "9"]
+    ifelse is-number? d
+    [ set result lput d result ]
+    [ if not member? ch ["[" "]" "," " " "\n" "\t" "\r"] [ set ok? false ] ]
+    set i i + 1
+  ]
+  if not ok? or empty? result [ report false ]
+  report result
+end
+
+;; Reads the rule box, which holds either a table or a "#" rule number.
+to read-rule-box
+  set rule-array []
+  if rule-too-big? [ warn-rule-too-big stop ]
+  ifelse member? "#" input-rule
+  [ read-rule-box-as-number ]
+  [ read-rule-box-as-table ]
+end
+
+to read-rule-box-as-table
+  let parsed parse-rule-text input-rule
+  if not is-list? parsed [
+    user-message (word
+    "Couldn't read the rule box.\n\n"
+    "It should be states written either way:\n\n"
+    "  [0 0 0 1 1 1 1 0]\n  00011110\n\n"
+    "or a rule number with a leading #, for example:  #30")
+    stop
+  ]
+  ifelse rule-list-ok? parsed
+  [ set-rule parsed ]
+  [ user-message (word
+    "The rule box doesn't fit the current settings.\n\n"
+    "It needs exactly " rule-size " states from 0 to " (num-states - 1)
+    " (k=" num-states ", r=" radius "), but you gave " length parsed ".\n\n"
+    "Or set RULE-SOURCE to \"random\" or a preset.") ]
+end
+
+;; presets set k, r and the rule together, so they always agree
+to load-preset [ name ]
+  set rule-array []
+  (ifelse
+  name = "Rule 30"  [ install-rule 2 1 [0 0 0 1 1 1 1 0] ]
+  name = "Rule 90"  [ install-rule 2 1 [0 1 0 1 1 0 1 0] ]
+  name = "Rule 110" [ install-rule 2 1 [0 1 1 0 1 1 1 0] ]
+  name = "Rule 184" [ install-rule 2 1 [1 0 1 1 1 0 0 0] ]
+  name = "3-state example" [
+    install-rule 3 1 [2 0 1 2 2 1 0 1 2 1 2 0 2 1 0 1 0 2 0 2 1 2 0 1 1 2 0] ]
+  [ user-message (word "There is no preset called " name ".") ])
+end
+
+;; A preset owns k and r as well as the rule, so it moves those sliders.  The
+;; rule also lands in the rule box, ready to be edited with RULE-SOURCE set
+;; to "from rule box".
+to install-rule [ k r new-rule ]
+  set num-states k
+  set radius r
+  set-rule new-rule
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; The clickable rule table
+;;
+;; EDIT RULE TABLE gives the view over to a diagram per neighborhood: the
+;; 2r+1 cells that get read, with the state they produce drawn underneath the
+;; centre one.  Click that lower block to step the output through the states.
+;; The table IS the rule, so editing it is editing the rule -- the rule box
+;; keeps up as you click, and RULE-SOURCE switches to "from rule box" so
+;; SETUP runs what you drew.
+;;
+;; Cases appear in rule box order: the first diagram is the first entry of the
+;; box (every neighbor in state k-1) and the last is the all-zero one.
+;;
+;; This generalizes CA 1D Elementary's SHOW-RULES, which draws the same
+;; diagrams for the fixed k=2, r=1 case.  Here the block size is chosen to fit
+;; whatever k and r are set, and the blocks are live rather than a picture.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; cells read per neighborhood
+to-report case-cells
+  report 2 * radius + 1
+end
+
+;; A case is CASE-CELLS blocks wide and 2 blocks tall; one block of space is
+;; left to its right and below, so cases do not run together.
+to-report case-width [ b ]
+  report (case-cells + 1) * b
+end
+
+to-report case-height [ b ]
+  report 3 * b
+end
+
+;; the smallest block still worth aiming a mouse at
+to-report min-table-block
+  report 2
+end
+
+;; The rule table stops being a usable editor well before it stops fitting:
+;; past this many cases the blocks are only a few pixels across.  Bigger rules
+;; can still be built, run, saved and loaded -- just not drawn.
+to-report max-editable-entries
+  report 1024
+end
+
+to warn-not-editable
+  user-message (word
+  "This rule has " rule-size " neighborhoods, and the rule table can show "
+  "up to " max-editable-entries ".\n\n"
+  "Lower NUM-STATES or RADIUS to edit it by hand, or edit the rule box "
+  "directly with RULE-SOURCE set to \"from rule box\".")
+end
+
+to-report rule-table-cols [ b ]
+  if b < 1 [ report 0 ]        ;; guard: CASE-WIDTH 0 would divide by zero
+  report floor (world-width / case-width b)
+end
+
+;; would the whole table fit in a square world W cells across, at block size B?
+to-report table-fits? [ w b ]
+  if b < 1 [ report false ]
+  let cols floor (w / case-width b)
+  let rows floor (w / case-height b)
+  report cols > 0 and rows > 0 and cols * rows >= rule-size
+end
+
+to-report rule-table-fits? [ b ]
+  report table-fits? world-width b
+end
+
+;; The largest block size (in patches) that shows every case at once, or 0 if
+;; the table will not fit even at the smallest size worth clicking on.
+to-report rule-table-block
+  let b 8
+  while [ b >= min-table-block ] [
+    if rule-table-fits? b [ report b ]
+    set b b - 1
+  ]
+  report 0
+end
+
+;; The smallest GRID-SIZE whose world can hold the whole table, or 0 if even
+;; the largest world cannot.  EDIT RULE TABLE grows the world to this rather
+;; than refusing to show a table that merely needs more room; SETUP puts the
+;; world back to GRID-SIZE afterwards.
+to-report grid-size-for-rule-table
+  let n grid-size
+  while [ n <= 256 ] [
+    if table-fits? (2 * n + 1) min-table-block [ report n ]
+    set n n + 1
+  ]
+  report 0
+end
+
+;; the base-k digits of neighborhood N, most significant (leftmost cell) first
+to-report neighborhood-digits [ n ]
+  let digits []
+  let remaining n
+  let j 0
+  while [ j < case-cells ] [
+    set digits fput (remaining mod num-states) digits
+    set remaining floor (remaining / num-states)
+    set j j + 1
+  ]
+  report digits
+end
+
+;; paint a B-by-B block of patches in state S, with its top-left at BX BY
+to draw-block [ bx by b s ]
+  ;; note: ox / oy rather than dx / dy, which are NetLogo primitives
+  let ox 0
+  while [ ox < b ] [
+    let oy 0
+    while [ oy < b ] [
+      let px bx + ox
+      let py by - oy
+      if px >= min-pxcor and px <= max-pxcor and
+      py >= min-pycor and py <= max-pycor [
+        ask patch px py [ set cell-state s update-color ]
+      ]
+      set oy oy + 1
+    ]
+    set ox ox + 1
+  ]
+end
+
+;; where case I starts, given block size B and column count COLS
+to-report case-x [ i b cols ]
+  report min-pxcor + (i mod cols) * case-width b
+end
+
+to-report case-y [ i b cols ]
+  report max-pycor - (floor (i / cols)) * case-height b
+end
+
+to draw-rule-case [ i b cols ]
+  let x0 case-x i b cols
+  let y0 case-y i b cols
+  ;; RULE-ARRAY runs from the highest neighborhood down to the all-zero one
+  let j 0
+  foreach neighborhood-digits (rule-size - 1 - i) [ d ->
+    draw-block (x0 + j * b) y0 b d
+    set j j + 1
+  ]
+  ;; the output, under the centre cell
+  draw-block (x0 + radius * b) (y0 - b) b (item i rule-array)
+end
+
+to draw-rule-table
+  if rule-size > max-editable-entries [ warn-not-editable stop ]
+  let b rule-table-block
+  if b = 0 [
+    user-message (word
+    "There are " rule-size " neighborhoods, which will not fit in the view "
+    "at a size you could click on.\n\n"
+    "Lower NUM-STATES or RADIUS, or raise GRID-SIZE, then try again.")
+    stop
+  ]
+  ask patches [ set cell-state 0 set pcolor gray - 2 ]
+  let cols rule-table-cols b
+  let i 0
+  while [ i < rule-size ] [
+    draw-rule-case i b cols
+    set i i + 1
+  ]
+  set rule-table-shown? true
+end
+
+;; Handle a click at MX MY.  Takes the coordinates rather than reading the
+;; mouse, so it can be exercised without one.
+to click-rule-table [ mx my b cols ]
+  let cw case-width b
+  let ch case-height b
+  let col floor ((mx - min-pxcor) / cw)
+  let row floor ((max-pycor - my) / ch)
+  if col < 0 or col >= cols or row < 0 [ stop ]
+  let i row * cols + col
+  if i < 0 or i >= rule-size or i >= length rule-array [ stop ]
+
+  ;; only the output block is editable; the neighborhood above it is a label
+  let lx (mx - min-pxcor) - col * cw
+  let ly (max-pycor - my) - row * ch
+  if lx < radius * b or lx >= (radius + 1) * b [ stop ]
+  if ly < b or ly >= 2 * b [ stop ]
+
+  set-rule replace-item i rule-array ((item i rule-array + 1) mod num-states)
+  set rule-source "from rule box"    ;; so SETUP runs the edited rule
+  draw-block (case-x i b cols + radius * b) (case-y i b cols - b) b (item i rule-array)
+end
+
+;; Forever button: draw the table once, then watch for clicks.
+to edit-rule-table
+  ;; A slider may have moved since the table was drawn, in which case the rule
+  ;; on screen is not a rule for the current k and r any more.  Drop the table
+  ;; and rebuild it below rather than indexing into a stale RULE-ARRAY.
+  if rule-table-shown? and not rule-ok? [ set rule-table-shown? false ]
+
+  if not rule-table-shown? [
+    if rule-size > max-editable-entries [ warn-not-editable stop ]
+    if not rule-ok? [ build-rule ]          ;; need a rule before it can be drawn
+    if not rule-ok? [ stop ]                ;; BUILD-RULE explained why not
+    let needed grid-size-for-rule-table
+    if needed = 0 [
+      user-message (word
+      "There are " rule-size " neighborhoods, which will not fit in the view "
+      "even at the largest world size.\n\n"
+      "Lower NUM-STATES or RADIUS to edit this rule by hand.")
+      stop
+    ]
+    ;; give the table the room it needs; SETUP restores GRID-SIZE
+    if needed > grid-size [ resize-grid needed ]
+    draw-rule-table
+    if not rule-table-shown? [ stop ]       ;; it still did not fit
+  ]
+  let b rule-table-block
+  if b = 0 [ set rule-table-shown? false stop ]
+  let cols rule-table-cols b
+  ifelse mouse-inside? and mouse-down? [
+    ;; one click, one step -- dragging across the table must not cycle cells
+    if not mouse-was-down? [ click-rule-table (round mouse-xcor) (round mouse-ycor) b cols ]
+    set mouse-was-down? true
+  ] [
+    set mouse-was-down? false
+  ]
+  display
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Saving and loading rules
+;;
+;; A saved rule is one NetLogo list, so FILE-READ recovers it in a single
+;; call and the file stays readable by eye:
+;;
+;;   [
+;;     ["format" "CA1D-rule"]
+;;     ["version" 1]
+;;     ["states" 2]
+;;     ["radius" 1]
+;;     ["rule" [0 0 0 1 1 1 1 0]]
+;;   ]
+;;
+;; k and r travel with the rule, because a rule means nothing without them.
+;; Loading fills in the rule box and points RULE-SOURCE at it, so a loaded
+;; rule arrives the same way a preset does and SETUP runs it.
+;;
+;; The buttons only choose a path; the work happens in WRITE-RULE-FILE and
+;; READ-RULE-FILE, which take one, so they can be tested without a dialog.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to-report rule-file-version
+  report 1
+end
+
+;; look up a ["key" value] pair in a loaded rule file
+to-report field-of [ data key ]
+  if not is-list? data [ report 0 ]
+  let hit filter [ pair ->
+    is-list? pair and length pair = 2 and first pair = key ] data
+  ifelse empty? hit [ report 0 ] [ report last first hit ]
+end
+
+to save-rule
+  if not rule-ok? [
+    user-message (word
+    "There is no rule to save yet.\n\n"
+    "Press SETUP first -- that is when the rule gets built -- then save.")
+    stop
+  ]
+  let path user-new-file
+  if not is-string? path [ stop ]      ;; the user cancelled
+  write-rule-file path
+end
+
+to write-rule-file [ path ]
+  carefully [
+    ;; FILE-OPEN appends to an existing file, so start from a clean one
+    if file-exists? path [ file-delete path ]
+    file-open path
+    file-print "["
+    file-print "  [\"format\" \"CA1D-rule\"]"
+    file-print (word "  [\"version\" " rule-file-version "]")
+    file-print (word "  [\"states\" " num-states "]")
+    file-print (word "  [\"radius\" " radius "]")
+    file-print (word "  [\"rule\" " rule-array "]")
+    file-print "]"
+    file-close
+  ] [
+    carefully [ file-close ] [ ]
+    user-message (word "Could not save the rule.\n\n" error-message)
+  ]
+end
+
+to load-rule
+  let path user-file
+  if not is-string? path [ stop ]      ;; the user cancelled
+  read-rule-file path
+end
+
+to read-rule-file [ path ]
+  let data 0
+  carefully [
+    file-open path
+    set data file-read
+    file-close
+  ] [
+    carefully [ file-close ] [ ]
+    user-message (word "Could not read that file.\n\n" error-message)
+    stop
+  ]
+  install-rule-file data
+end
+
+;; Check a loaded file completely before changing anything, so a bad file
+;; leaves the model exactly as it was.
+to install-rule-file [ data ]
+  if not is-list? data [
+    user-message "That file doesn't contain a CA 1D rule." stop
+  ]
+  if field-of data "format" != "CA1D-rule" [
+    user-message "That doesn't look like a CA 1D rule file." stop
+  ]
+  let v field-of data "version"
+  if v != rule-file-version [
+    user-message (word
+    "That file is version " v ", and this model reads version "
+    rule-file-version ".")
+    stop
+  ]
+
+  let k field-of data "states"
+  let r field-of data "radius"
+  let saved field-of data "rule"
+  if not (is-number? k and is-number? r and is-list? saved) [
+    user-message "That rule file is missing its states, radius or rule." stop
+  ]
+  if k < 2 or r < 1 or k != floor k or r != floor r [
+    user-message (word "That rule file has an impossible k=" k " or r=" r ".")
+    stop
+  ]
+  let wanted round (k ^ (2 * r + 1))
+  if length saved != wanted [
+    user-message (word
+    "That rule file is inconsistent: k=" k " and r=" r " need " wanted
+    " entries, but the rule has " length saved ".")
+    stop
+  ]
+  if wanted > max-rule-entries [
+    user-message (word
+    "That rule needs " wanted " entries; this model handles up to "
+    max-rule-entries ".")
+    stop
+  ]
+  if not empty? (filter [ s ->
+    not is-number? s or s != floor s or s < 0 or s >= k ] saved) [
+    user-message (word "That rule contains a state outside 0 to " (k - 1) ".")
+    stop
+  ]
+
+  install-rule k r saved
+  set rule-source "from rule box"   ;; so SETUP runs what was just loaded
+  user-message (word
+  "Loaded a k=" k ", r=" r " rule (" wanted " entries).\n\n"
+  "RULE-SOURCE is now \"from rule box\" -- press SETUP to run it.")
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Setup
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to resize-grid [ n ]
+  let half max list 4 n            ;; never let the world collapse to nothing
+  resize-world (- half) half (- half) half
+  set-patch-size (11.5 * 50) / (2 * half + 1)
+end
+
+;; Note: SETUP deliberately does not use CLEAR-ALL, because CLEAR-ALL would
+;; reset the globals, including the rule it has just built.
+to setup
+  if num-states < 2 [ user-message "Number of states must be at least 2." stop ]
+  if radius < 1 [ user-message "Radius must be at least 1." stop ]
+
+  build-rule                ;; whatever RULE-SOURCE says
+  if not rule-ok? [ stop ]  ;; BUILD-RULE has already explained the problem
+
+  clear-patches
+  clear-turtles
+  clear-drawing
+
+  set rule-lookup reverse rule-array   ;; index directly by neighborhood number
+  resize-grid grid-size
+  set current-row max-pycor
+  set gone? false
+  set mouse-was-down? false
+  set last-painted nobody
+  set rule-table-shown? false   ;; the view goes back to being the CA
+
+  set-initial-conditions
+  reset-ticks
+end
+
+to set-initial-conditions
+  ask patches with [ pycor = current-row ] [ set cell-state 0 update-color ]
+  (ifelse
+  initial-condition = "single cell" [
+    ask patch 0 current-row [ set cell-state num-states - 1 update-color ]
+  ]
+  initial-condition = "random" [
+    ask patches with [ pycor = current-row ] [
+      if random-float 100 < density
+      [ set cell-state 1 + random (num-states - 1) ]
+      update-color
+    ]
+  ]
+  initial-condition = "blank" [
+    ;; leave the row empty on purpose -- draw it yourself with PAINT CELLS
+  ]
+  initial-condition = "from text" [
+    apply-initial-text
+  ])
+end
+
+;; Read the initial-condition box into the current row.  The list is centered
+;; in the row and padded with zeros, so it does not have to be world-width long.
+to apply-initial-text
+  carefully [
+    let parsed read-from-string input-initial-condition
+    ifelse is-list? parsed and not empty? parsed and
+    empty? (filter [ s -> not is-number? s or s != floor s or
+      s < 0 or s >= num-states ] parsed)
+    [
+      let start-x (- floor (length parsed / 2))
+      let i 0
+      foreach parsed [ s ->
+        let px start-x + i
+        if px >= min-pxcor and px <= max-pxcor
+        [ ask patch px current-row [ set cell-state s update-color ] ]
+        set i i + 1
+      ]
+    ] [
+      user-message (word
+      "Couldn't use that initial condition.\n\n"
+      "It should be a list of whole numbers from 0 to " (num-states - 1)
+      ", for example:\n\n[0 1 0 2 0]\n\n"
+      "It gets centered in the top row, so it does not have to fill "
+      "the whole width.")
+    ]
+  ] [
+    user-message (word
+    "Couldn't read that initial condition.\n\n"
+    "It should be a list in square brackets, for example:\n\n[0 1 0 2 0]")
+  ]
+end
+
+;; Start a new run from the row currently at the bottom of the world.
+to setup-continue
+  if busy-with-rule-table? [ stop ]
+  if not gone? [ stop ]   ;; make sure go has already been called
+  ;; copy cell states from the current row to a list
+  let patch-list map [ p -> [ cell-state ] of p ] sort patches with [ pycor = current-row ]
+
+  clear-patches
+  set current-row max-pycor   ;; reset current row
+  set gone? false
+
+  ask patches with [ pycor = current-row ] [
+    set cell-state item (pxcor + max-pxcor) patch-list  ;; copy states to top row
+    update-color
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Drawing the initial condition by hand
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Forever button.  Click a cell in the current row to step it to the next
+;; state (and around to 0 again); drag to smear that state along the row.
+to paint-cells
+  if busy-with-rule-table? [ stop ]
+  ifelse mouse-inside? and mouse-down? [
+    let mx round mouse-xcor
+    let my round mouse-ycor
+    if my = current-row and mx >= min-pxcor and mx <= max-pxcor [
+      let p patch mx my
+      ifelse not mouse-was-down? [
+        ;; a fresh click: advance this cell, and remember what it became
+        ask p [ set cell-state (cell-state + 1) mod num-states update-color ]
+        set paint-brush [ cell-state ] of p
+        set last-painted p
+      ] [
+        ;; still dragging: smear the brush state onto new cells
+        if p != last-painted [
+          ask p [ set cell-state paint-brush update-color ]
+          set last-painted p
+        ]
+      ]
+    ]
+    set mouse-was-down? true
+  ] [
+    set mouse-was-down? false
+    set last-painted nobody
+  ]
+  display
+end
+
+;; Reports true (and says so) when the view is the rule table rather than the
+;; CA, so the row-editing buttons cannot act on a world that is not the CA.
+to-report busy-with-rule-table?
+  if not rule-table-shown? [ report false ]
+  user-message (word
+  "The view is showing the rule table, not the CA.\n\n"
+  "Press SETUP first.")
+  report true
+end
+
+to clear-row
+  if busy-with-rule-table? [ stop ]
+  ask patches with [ pycor = current-row ] [ set cell-state 0 update-color ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Runtime Procedures
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Run one generation of the CA
+to go
+  if rule-table-shown? [
+    user-message (word
+    "The view is showing the rule table, not the CA.\n\n"
+    "Press SETUP to run with the rule you have drawn.")
+    stop                        ;; stops the forever button, so this shows once
+  ]
+  if current-row <= min-pycor [
+    ifelse auto-continue? [
+      set gone? true
+      display    ;; ensure everything gets drawn before we clear it
+      setup-continue
+    ] [
+      ifelse gone?
+      [ setup-continue ]       ;; a run has already been completed, so continue
+      [ set gone? true stop ]  ;; otherwise just stop
+    ]
+  ]
+
+  ;; Calculate next row
+  let next-row current-row - 1
+
+  ;; For each cell in the next row, compute its state based on the rule
+  ask patches with [ pycor = next-row ] [
+    set cell-state compute-next-state pxcor current-row
+    update-color
+  ]
+
+  set current-row next-row
+  tick
+end
+
+;; Compute the next state for a cell based on its neighborhood
+;; x-pos: x-coordinate of the cell
+;; y-pos: y-coordinate of the current row (where we read the neighborhood from)
+to-report compute-next-state [ x-pos y-pos ]
+  ;; Build the neighborhood (from left to right).  The world wraps in x, so
+  ;; PATCH handles the boundary for us.
+  let neighborhood map [ i ->
+    [ cell-state ] of patch (x-pos + i) y-pos ] (range (- radius) (radius + 1))
+
+  report item (compute-rule-index neighborhood) rule-lookup
+end
+
+;; Compute the index into the rule lookup from a neighborhood
+;; neighborhood: list of states from left to right
+;; index = sum(state[i] * k ^ (n - 1 - i)), where n is the neighborhood size
+to-report compute-rule-index [ neighborhood ]
+  let index 0
+  foreach neighborhood [ state-val ->
+    set index index * num-states + state-val
+  ]
+  report index
+end
+
+to update-color  ;; patch procedure
+  ifelse num-states = 2 [
+    ;; Binary: black and white
+    set pcolor ifelse-value (cell-state = 0) [ black ] [ white ]
+  ] [
+    ;; More states: give each one its own hue
+    let color-list [black orange blue yellow green violet cyan red brown pink magenta]
+    set pcolor item (cell-state mod length color-list) color-list
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Utility Procedures
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to-report get-current-row-state
+  report map [ p -> [ cell-state ] of p ] sort patches with [ pycor = current-row ]
+end
+
+;; copy the current row into the initial-condition box, so it can be kept
+to copy-row-to-text
+  if busy-with-rule-table? [ stop ]
+  set input-initial-condition (word get-current-row-state)
+end
+
+]]></code>
+  <widgets>
+    <view x="215" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-64" height="567" showTickCounter="true" patchSize="4.5" fontSize="10" wrappingAllowedY="false" width="567" tickCounterLabel="ticks" maxPycor="64" updateMode="1" maxPxcor="64" minPxcor="-64"></view>
+    <note x="10" y="10" backgroundDark="0" fontSize="12" width="195" markdown="false" height="26" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">1. WORLD AND STATES </note>
+    <note x="10" y="200" backgroundDark="0" fontSize="12" width="195" markdown="false" height="20" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">2. RULE  </note>
+    <chooser x="10" y="225" height="60" variable="rule-source" current="0" width="195" display="rule-source">
+      <choice type="string" value="random"></choice>
+      <choice type="string" value="from rule box"></choice>
+      <choice type="string" value="Rule 30"></choice>
+      <choice type="string" value="Rule 90"></choice>
+      <choice type="string" value="Rule 110"></choice>
+      <choice type="string" value="Rule 184"></choice>
+      <choice type="string" value="3-state example"></choice>
+    </chooser>
+    <monitor x="10" precision="17" y="290" height="60" fontSize="10" width="195" display="rule number">rule-number-display</monitor>
+    <note x="10" y="435" backgroundDark="0" fontSize="12" width="195" markdown="false" height="20" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">3. INITIAL CONDITION</note>
+    <slider x="10" step="1" y="35" max="10" width="195" display="num-states" height="50" min="2" direction="Horizontal" default="3.0" variable="num-states"></slider>
+    <slider x="10" step="1" y="90" max="6" width="195" display="radius" height="50" min="1" direction="Horizontal" default="1.0" variable="radius"></slider>
+    <slider x="10" step="1" y="145" max="256" width="195" display="grid-size" height="50" min="8" direction="Horizontal" default="64.0" variable="grid-size"></slider>
+    <button x="10" y="355" height="35" disableUntilTicks="false" forever="true" kind="Observer" width="195" display="edit rule table">edit-rule-table</button>
+    <chooser x="10" y="460" height="60" variable="initial-condition" current="0" width="195" display="initial-condition">
+      <choice type="string" value="single cell"></choice>
+      <choice type="string" value="random"></choice>
+      <choice type="string" value="blank"></choice>
+      <choice type="string" value="from text"></choice>
+    </chooser>
+    <slider x="10" step="1" y="525" max="100" width="195" display="density" height="50" min="0" direction="Horizontal" default="25.0" variable="density" units="%"></slider>
+    <note x="10" y="580" backgroundDark="0" fontSize="12" width="195" markdown="false" height="20" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">4. RUN</note>
+    <button x="10" y="645" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="96" display="paint cells">paint-cells</button>
+    <button x="110" y="645" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="96" display="clear row">clear-row</button>
+    <switch x="10" y="685" height="40" on="false" variable="auto-continue?" width="195" display="auto-continue?"></switch>
+    <note x="215" y="680" backgroundDark="0" fontSize="11" width="470" markdown="false" height="20" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Top row, used when INITIAL-CONDITION is "from text". It is centered in the row, so it need not fill the whole width.</note>
+    <input x="215" multiline="true" y="705" height="70" variable="input-initial-condition" type="string" width="470">[0 1 0 1 1 0 0 1 0]</input>
+    <button x="10" y="605" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="95">setup</button>
+    <button x="110" y="605" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="95">go</button>
+    <note x="215" y="585" backgroundDark="0" fontSize="11" width="470" markdown="false" height="20" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Rule table in Wolfram order (last entry is the all-0 neighborhood). Any of these work: [0 0 0 1 1 1 1 0]   00011110   #30. Presets, LOAD RULE and the rule table fill this in for you.</note>
+    <input x="215" multiline="true" y="605" height="70" variable="input-rule" type="string" width="470">[0 0 0 1 0 1 0 0 2 2 2 0 1 2 2 1 1 0 0 2 0 2 2 1 1 2 0]</input>
+    <monitor x="690" precision="17" y="585" height="60" fontSize="10" width="120" display="rule size">rule-size</monitor>
+    <monitor x="690" precision="17" y="650" height="60" fontSize="11" width="120" display="# of possible rules">(word num-states " ^ " rule-size)</monitor>
+    <button x="690" y="715" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="120" display="copy row to box">copy-row-to-text</button>
+    <button x="10" y="395" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="96" display="save rule">save-rule</button>
+    <button x="110" y="395" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="96" display="load rule">load-rule</button>
+  </widgets>
+  <info><![CDATA[
+## WHAT IS IT?
+
+This is a model of one-dimensional cellular automata. A 1D cellular automaton is a row of cells, each holding one of a small number of states, which all update together in step: every cell looks at itself and its nearest neighbors, and a rule says what it becomes next. Each new row is drawn below the one that produced it, so the picture on screen is a history, with time running downwards.
+
+Elementary 1D cellular automata models have two states and a neighborhood of three cells, which gives the 256 "elementary" rules that Stephen Wolfram catalogued. This model generalizes that. The number of states and the size of the neighborhood are both adjustable, so the same machinery covers the elementary rules, the three-color rules, and much larger families with arbitrary number of states and neighbors. Widening either one enlarges the space of possible rules very quickly.
+
+Cellular automata are studied because extremely simple local rules can produce behavior that looks incredibly complex. Some rules settle into blank or striped uniformity, some repeat forever, some produce nested triangular patterns, and a few produce output that passes statistical tests for randomness despite being completely determined.
+
+
+## HOW IT WORKS
+
+Every cell holds a state, written as a whole number from 0 up to one less than the number of states. State 0 is shown in black; the others each get their own color. In the two-state case the cells are simply black and white.
+
+To work out what a cell becomes, the model looks at a block of cells centered above it. The radius says how far that block reaches to either side, so a radius of 1 reads three cells, a radius of 2 reads five, and in general the neighborhood is twice the radius plus one cell wide. The leftmost and rightmost cells of a row are treated as neighbors of each other, so the row wraps around like a ring.
+
+The rule is a lookup table. It has one entry for every neighborhood that could possibly occur, and that entry gives the state the cell below becomes. With two states and radius 1 there are eight possible neighborhoods, so the table has eight entries. With three states and radius 2 there are 243. In general the table has as many entries as the number of states raised to the power of the neighborhood width, which is what the `rule size` monitor reports.
+
+### How a rule is represented
+
+The entries are listed in a fixed order, so a bare list of numbers is enough to specify the whole rule. The order counts the neighborhoods downwards, starting from the one where every cell is in the highest state and ending with the one where every cell is 0. For two states and radius 1, that reads:
+
+    neighborhood    111   110   101   100   011   010   001   000
+    becomes          0     0     0     1     1     1     1     0
+
+That table is Rule 30. Written as a list it is [0 0 0 1 1 1 1 0], and because every state is a single digit it can equally be written 00011110. The model accepts either form, and also tolerates commas.
+
+To see which entry applies to a given neighborhood, read the neighborhood itself as a numeral in base "number of states", most significant digit on the left. The neighborhood 100 is the numeral 4, and the entries are listed from highest numeral down to 0, so 100 is matched by the fifth entry from the right, which is 1. The cell below a 1-0-0 neighborhood therefore turns on.
+
+### Rule numbers
+
+Reading the whole list of outputs as a single numeral, again in base "number of states", gives the rule a number. The outputs above are 00011110, which in base 2 is 30, which is why this automaton is called Rule 30. The same arithmetic works for any number of states: with three states the outputs are digits in base 3, and the rule number counts through all the three-state rules.
+
+The rule number is a compact name for a rule, but it only stays usable while the rules can be counted exactly. There are as many rules as the number of states raised to the power of the table size, which the `# of possible rules` monitor shows. With two states and radius 1 that is 2^8, a comfortable 256. With four states and radius 1 it is 4^64, a number far too large to hold exactly, and the rule number monitor reports "too large". Rules that big are still perfectly usable; they simply have to be handled as tables rather than as numbers.
+
+### The model run
+
+The top row is the initial condition. Every row after it is computed from the row above by applying the rule to each cell in parallel. When the bottom of the screen is reached the run stops, or continues from the top using the last row as its new starting point.
+
+
+## HOW TO USE IT
+
+The interface is arranged in four numbered groups, and works top to bottom.
+
+### 1. World and states
+
+`num-states` is how many states a cell can hold. Set to 2 you get the familiar black-and-white automata; higher values add more colors.
+
+`radius` is how far a cell looks to either side, which determines the neighborhood of each cell. The `radius` and `num-states` determines the size of the rule table, shown in the `rule size` monitor, and the number of possible rules, shown next to it.
+
+`grid size` sets how wide the world is, and therefore how many cells a row holds and how many rows fit on screen. A larger world shows finer detail but draws smaller cells.
+
+### 2. Rule
+
+`rule-source` decides where the rule comes from, and it is applied on `setup`. The rule doesn't change after `setup` is pressed.
+
+- random builds a fresh random rule every time you press `setup`.
+- from rule box reads whatever is written in the rule box below the view.
+- the remaining choices are named example rules. These set `num-states` and `radius` to match, since a rule means nothing without them, and they fill the rule box in so you can see and edit what they contain.
+
+The rule box takes a table in either form, [0 0 0 1 1 1 1 0] or 00011110, or a rule number written with a leading hash, such as #110. The hash form is the quickest way to call up a rule you know by name, and it only works while the rule number is exact.
+
+The `rule number` monitor names the rule currently loaded, or reports "too large" when there are too many rules to count exactly.
+
+`edit rule table` draws the rule in the view: one small diagram per neighborhood, showing the cells that get read with the state they produce underneath. Click that lower block to step it through the states, and the rule box and rule number follow along as you click. The view is given over to the table while this is running, so press `setup` when you are done to go back to the automaton. If the table needs more room than `grid-size` allows, the world is enlarged to fit and `setup` puts it back. Very large tables cannot be drawn usefully and are refused.
+
+`save rule` and `load rule` write and read a rule as a small text file. The number of states and the radius travel with the rule, so loading one sets those for you and puts the rule in the box ready to run.
+
+### 3. Initial condition
+
+`initial-condition` chooses the top row: a single cell in the highest state at the center, a random row, a blank row to draw on yourself, or the contents of the initial condition box below the view.
+
+`density` is the percentage of cells that start in a non-zero state when the random setting is used.
+
+The initial condition box takes a list of states. It is centered in the row and padded with zeros, so it does not have to be as wide as the world.
+
+### 4. Run
+
+`setup` builds the rule, sizes the world, and lays down the top row.
+
+`go` runs the automaton. Pressed again after reaching the bottom, it continues from the top using the last row.
+
+`paint cells` lets you draw the top row by hand: click a cell to step it to the next state, or drag to smear that state along the row. `clear row` empties it again. Painting also works partway through a run, so you can disturb an automaton while it is going.
+
+`auto-continue?` makes the run carry on from the top automatically instead of stopping at the bottom.
+
+`copy row to box` writes the row currently being computed into the initial condition box, so a pattern you have painted or arrived at can be kept and used again.
+
+
+## THINGS TO NOTICE
+
+Start with Rule 30 from a single cell. The left side of the pattern is regular and striped while the right side looks disordered, all from one rule and one starting cell.
+
+Rule 90 from a single cell draws a Sierpinski triangle. Nothing in the rule mentions triangles, and nothing tells the cells how large the pattern should be.
+
+Compare a single starting cell with a random starting row for the same rule. Some rules produce much the same texture either way; others depend entirely on how they began.
+
+Watch how quickly the number of possible rules grows. Two states and radius 1 gives 256 of them. Adding one state, or one cell of radius, makes the count astronomically larger, which is why it is difficult to explore all the possible rules when the the number of states and radius are large.
+
+Some rules erase themselves within a few rows, ending in a blank or uniformly colored screen. Interesting behavior is rarer than uninteresting behavior, and rarer still as the number of states grows.
+
+The two edges of the world are joined, so a pattern that runs off one side reappears on the other. Wide patterns eventually collide with themselves.
+
+
+## THINGS TO TRY
+
+Type #110 into the rule box with two states and radius 1, and run it from a random row. Rule 110 is known to be capable of universal computation.
+
+Work through a handful of the 256 elementary rules by number and sort them by what they do: dying out, repeating, nesting, or looking random. Rules 0, 4, 90, 30 and 110 are useful landmarks.
+
+Set the number of states to 3 and pick random rules repeatedly. How many do you have to try before finding one that neither dies nor fills the screen with noise?
+
+Open `edit rule table` on Rule 30, change a single entry, and run it. Some entries barely matter and others change the picture completely. Which are which, and can you predict it before running?
+
+Draw a top row by hand with `paint cells`: two cells a little apart, then run a rule and watch what happens where the two patterns meet.
+
+Save a rule you like, change the sliders around, then load it back. The saved file carries the number of states and radius with it.
+
+Increase the radius to 2 with two states and look for rules that behave differently from anything reachable with radius 1.
+
+Use the random initial condition and vary `density`. Does a rule that looks chaotic from a dense start behave the same way from a sparse one?
+
+
+## EXTENDING THE MODEL
+
+Add rule families. A totalistic rule makes the outcome depend only on the sum of the neighborhood rather than on which cell holds which state, so it needs far fewer numbers to describe: seven instead of twenty-seven for three states and radius 1. That is a small enough set to explore exhaustively, and it would also make the rule table drawable for much larger neighborhoods, since it would need one diagram per sum rather than one per neighborhood.
+
+Add a way to mutate the rule currently running, changing a few entries at a time. Interesting rules tend to have interesting neighbors, so nudging a good rule is a far better search than drawing new ones at random.
+
+Add Langton's lambda parameter: build random rules in which a chosen fraction of the neighborhoods produce a non-zero state. Sweeping that fraction upwards takes the behavior from frozen, through repeating and complex, to chaotic.
+
+Let the initial condition be drawn at any world size by magnifying it, in the same way the rule table draws its cells as blocks rather than single cells.
+
+Classical cellular automata run on an infinite row, while this one joins the two ends into a ring. How would you get closer to an infinite row, and how would you tell the difference?
+
+Let the rule change as the automaton runs, or let different parts of the row follow different rules.
+
+Make the automaton two-dimensional, so that each cell reads the cells around it in a plane rather than along a line.
+
+
+## NETLOGO FEATURES
+
+The rule table is drawn in the ordinary view rather than in a separate window. Each cell of each diagram is a block of patches rather than a single patch, which is what makes the diagrams large enough to click on. Mouse handling uses `mouse-down?` together with `mouse-xcor` and `mouse-ycor`, comparing against the previous state of the mouse so that one click counts once and a drag is told apart from a click.
+
+Because the rule table sometimes needs more room than the automaton does, the world is resized while it is on screen and restored on the next `setup`. This is also why several buttons refuse to act while the table is showing: the world on screen is not the automaton at that moment.
+
+`setup` deliberately avoids `clear-all`, which would reset the rule it has just built along with everything else, and clears only what needs clearing.
+
+A saved rule is written as a single list, so reading it back takes one call to `file-read` with no parsing. Since opening a file for writing appends to it, the model deletes any existing file first, which otherwise produces a doubled and unreadable file on the second save.
+
+
+## RELATED MODELS
+
+CA 1D Elementary explores the 256 two-state, radius 1 rules, with switches for the eight cases instead of a table.
+
+CA 1D Totalistic explores the 2,187 three-state totalistic rules, where the outcome depends on the sum of the neighborhood.
+
+CA 1D Rule 30, CA 1D Rule 90, CA 1D Rule 110 and CA 1D Rule 250 each show a single well-known rule.
+
+CA Stochastic applies rules with a probability rather than with certainty.
+
+CA Continuous allows cell states to vary continuously instead of in discrete steps.
+
+Life is a two-dimensional cellular automaton.
+
+
+## CREDITS AND REFERENCES
+
+The first cellular automaton was conceived by John von Neumann in the late 1940s, following a suggestion by Stanislaw Ulam, and was completed and documented by Arthur Burks. John Conway's Game of Life brought two-dimensional automata to a wide audience in the 1970s. Chris Langton, Tom Toffoli and Stephen Wolfram carried out much of the foundational work on classification in the following decade, and Wolfram's numbering of the 256 elementary rules is the scheme this model generalizes.
+
+Langton, C. 1984. Self-reproduction in cellular automata. Physica D 10, 134-144.
+
+Langton, C. 1990. Computation at the edge of chaos: phase transitions and emergent computation. Physica D 42, 12-37.
+
+Wolfram, S. 1986. Theory and Applications of Cellular Automata. World Scientific.
+
+Wolfram, S. 2002. A New Kind of Science. Wolfram Media, Champaign, IL.
+
+Cook, M. 2004. Universality in elementary cellular automata. Complex Systems 15, 1-40.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Gurkan, C. and Wilensky, U. (2026).  NetLogo CA 1D General model. [link].  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="15">
+      <circle x="203" y="65" marked="true" color="-1" diameter="88" filled="true"></circle>
+      <circle x="70" y="65" marked="true" color="-1" diameter="162" filled="true"></circle>
+      <circle x="150" y="105" marked="true" color="-1" diameter="120" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="218" y="120"></point>
+        <point x="240" y="165"></point>
+        <point x="255" y="165"></point>
+        <point x="278" y="120"></point>
+      </polygon>
+      <circle x="214" y="72" marked="false" color="-1920102913" diameter="67" filled="true"></circle>
+      <rectangle endX="179" startY="223" marked="true" color="-1" endY="298" startX="164" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="45" y="285"></point>
+        <point x="30" y="285"></point>
+        <point x="30" y="240"></point>
+        <point x="15" y="195"></point>
+        <point x="45" y="210"></point>
+      </polygon>
+      <circle x="3" y="83" marked="true" color="-1" diameter="150" filled="true"></circle>
+      <rectangle endX="80" startY="221" marked="true" color="-1" endY="296" startX="65" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="195" y="285"></point>
+        <point x="210" y="285"></point>
+        <point x="210" y="240"></point>
+        <point x="240" y="210"></point>
+        <point x="195" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="276" y="85"></point>
+        <point x="285" y="105"></point>
+        <point x="302" y="99"></point>
+        <point x="294" y="83"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="219" y="85"></point>
+        <point x="210" y="105"></point>
+        <point x="193" y="99"></point>
+        <point x="201" y="83"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="253" y="133"></point>
+        <point x="245" y="131"></point>
+        <point x="245" y="133"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="194"></point>
+        <point x="13" y="197"></point>
+        <point x="30" y="191"></point>
+        <point x="38" y="193"></point>
+        <point x="38" y="205"></point>
+        <point x="20" y="226"></point>
+        <point x="20" y="257"></point>
+        <point x="27" y="265"></point>
+        <point x="38" y="266"></point>
+        <point x="40" y="260"></point>
+        <point x="31" y="253"></point>
+        <point x="31" y="230"></point>
+        <point x="60" y="206"></point>
+        <point x="68" y="198"></point>
+        <point x="75" y="209"></point>
+        <point x="66" y="228"></point>
+        <point x="65" y="243"></point>
+        <point x="82" y="261"></point>
+        <point x="84" y="268"></point>
+        <point x="100" y="267"></point>
+        <point x="103" y="261"></point>
+        <point x="77" y="239"></point>
+        <point x="79" y="231"></point>
+        <point x="100" y="207"></point>
+        <point x="98" y="196"></point>
+        <point x="119" y="201"></point>
+        <point x="143" y="202"></point>
+        <point x="160" y="195"></point>
+        <point x="166" y="210"></point>
+        <point x="172" y="213"></point>
+        <point x="173" y="238"></point>
+        <point x="167" y="251"></point>
+        <point x="160" y="248"></point>
+        <point x="154" y="265"></point>
+        <point x="169" y="264"></point>
+        <point x="178" y="247"></point>
+        <point x="186" y="240"></point>
+        <point x="198" y="260"></point>
+        <point x="200" y="271"></point>
+        <point x="217" y="271"></point>
+        <point x="219" y="262"></point>
+        <point x="207" y="258"></point>
+        <point x="195" y="230"></point>
+        <point x="192" y="198"></point>
+        <point x="210" y="184"></point>
+        <point x="227" y="164"></point>
+        <point x="242" y="144"></point>
+        <point x="259" y="145"></point>
+        <point x="284" y="151"></point>
+        <point x="277" y="141"></point>
+        <point x="293" y="140"></point>
+        <point x="299" y="134"></point>
+        <point x="297" y="127"></point>
+        <point x="273" y="119"></point>
+        <point x="270" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="-1" y="195"></point>
+        <point x="14" y="180"></point>
+        <point x="36" y="166"></point>
+        <point x="40" y="153"></point>
+        <point x="53" y="140"></point>
+        <point x="82" y="131"></point>
+        <point x="134" y="133"></point>
+        <point x="159" y="126"></point>
+        <point x="188" y="115"></point>
+        <point x="227" y="108"></point>
+        <point x="236" y="102"></point>
+        <point x="238" y="98"></point>
+        <point x="268" y="86"></point>
+        <point x="269" y="92"></point>
+        <point x="281" y="87"></point>
+        <point x="269" y="103"></point>
+        <point x="269" y="113"></point>
+      </polygon>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>
