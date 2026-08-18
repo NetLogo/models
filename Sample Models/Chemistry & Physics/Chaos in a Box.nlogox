@@ -30,7 +30,7 @@ breed [ obstacles obstacle ]
 breed [ balls ball ]
 
 ; General setup procedure
-; It takes two anonymous procedures: the first configures obstacles, the second configures the ball.
+; It takes two arrow procedures: the first configures obstacles, the second configures the ball.
 ; See SETUP-RANDOM, SETUP-PERIODIC-X, and SETUP-PERIODIC-QUILT for examples.
 to setup [ obstacle-placement ball-placement ]
   clear-all
@@ -42,13 +42,13 @@ to setup [ obstacle-placement ball-placement ]
     set color grey - 3
     ; First, set the size of the obstacle so that it fits in the world and doesn't take up all the space
     set size max list 1 random-float (0.75 * min list world-width world-height)
-    run obstacle-placement ; run the anonymous procedure to place the obstacle
+    run obstacle-placement ; run the arrow procedure to place the obstacle
   ]
 
   set-default-shape balls "circled-default"
   create-balls 1 [
     set color red
-    run ball-placement ; run the anonymous procedure to place the ball
+    run ball-placement ; run the arrow procedure to place the ball
     if two-balls? [
       hatch 1 [
         set heading random 360
@@ -400,15 +400,15 @@ Currently, balls do not collide against each other. Can you make it so they do? 
 
 This model uses a number of advanced techniques:
 
-First, anonymous procedures are used to make the SETUP procedure very flexible with respect to the placement of the balls and obstacles. For example, SETUP-PERIODIC-QUILT uses the following code:
+First, arrow procedures are used to make the SETUP procedure very flexible with respect to the placement of the balls and obstacles. For example, SETUP-PERIODIC-QUILT uses the following code:
 
 ```
 setup [-> setxy 0 8 set size 1 ] [-> setxy 0 7 facexy -8 -6 ]
 ```
 
-The first anonymous procedure configures the obstacle and the second configures the ball.
+The first arrow procedure configures the obstacle and the second configures the ball.
 
-The FOREACH-AGENT procedure shows how you can use anonymous procedures to create your own control structures in NetLogo. FOREACH-AGENT works like FOREACH, but operates on agentsets instead of lists.
+The FOREACH-AGENT procedure shows how you can use arrow procedures to create your own control structures in NetLogo. FOREACH-AGENT works like FOREACH, but operates on agentsets instead of lists.
 
 Second, because of the chaotic nature of this system, the collisions between objects must be handled very precisely. Because the balls move by taking steps of size SPEED each tick, the location the ball is in when it hits another object won't be the same as if the ball had been moving continuously. This error can, for instance, make what should be periodic configurations chaotic. To correct for this, the model uses a technique called [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) to get very close to the exact location of collision very quickly. While binary search is a general algorithm, not a NetLogo feature, this model shows how you can implement a spatial binary search in NetLogo. In addition, because the ATAN reporter can introduce small imprecisions, this model rounds the heading of the ball after collisions with obstacles to the nearest 100,000th of a degree.
 
