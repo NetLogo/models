@@ -25,7 +25,7 @@ object Notarizer {
         InfoTabParts.CopyrightAndLicense.name -> legal.copyrightAndLicence
       )
     ).filter(_._2.nonEmpty)
-    val newInfo = InfoTabParts.fromSections(newSections, infoTabParts.legalSnippet).content
+    val newInfo = InfoTabParts.fromSections(newSections).content
     val newCode = legal.code
 
     val writer = new StringWriter
