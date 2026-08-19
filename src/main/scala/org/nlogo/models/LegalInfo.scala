@@ -3,7 +3,7 @@ package org.nlogo.models
 import java.io.File
 import java.util.Calendar
 
-import org.nlogo.core.Model
+import org.nlogo.core.{ Model, XMLElement }
 import org.nlogo.util.PathUtils
 
 /*
@@ -12,8 +12,6 @@ import org.nlogo.util.PathUtils
  */
 
 object LegalInfo {
-  val pattern =
-    """<!-- (\d\d\d\d)( \d\d\d\d)?(( \w+)*)( Cite: .*)? -->""".r
   val validKeywords = List(
     "MIT", "Wilensky", "specialCE", "MAC", "ONLY", "Steiner",
     "Stroup", "3D", "NIELS", "ConChem", "CC0", "BYSA",
@@ -36,15 +34,16 @@ case class LegalInfo(model: Model) {
 
   val infoTabParts = model.infoTabParts
 
-  val (year: Int, year2: Option[Int], keywords: List[String], cite: String) = {
-    val(y1, y2, keys, cite) = infoTabParts.legalSnippet match {
-      case Some(pattern(y1, y2, keys, _, cite)) => (y1, y2, keys, cite)
-      case _ => throw new IllegalStateException
-    }
-    (y1.toInt,
-      if (y2 == null) None else Some(y2.trim.toInt),
-      if (keys == null) List() else keys.split("""\s""").map(_.trim).filter(!_.isEmpty).toList,
-      if (cite == null) "" else cite.drop(" Cite: ".size).toString)
+  val (year: Int, year2: Option[Int], keywords: Seq[String], cite: String) = {
+    model.unknownSections.collectFirst {
+      case XMLElement("citation", attributes, _, children) =>
+        val year1: Int = attributes("year1").trim.toInt
+        val year2: Option[Int] = attributes.get("year2").map(_.trim.toInt)
+        val keywords: Seq[String] = children.filter(_.name == "keyword").map(_.text).filter(_.nonEmpty)
+        val cite: String = attributes.get("cite").fold("")(_.trim)
+
+        (year1, year2, keywords, cite)
+    }.get
   }
 
   private val currentYear = Calendar.getInstance().get(Calendar.YEAR)
