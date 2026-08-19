@@ -10,8 +10,7 @@ import scala.util.Try
 
 class LegalInformationTests extends TestModels {
 
-  testModels("The last line of the info tab should be a " +
-    "well-formatted legal snippet inside an HTML comment") { model =>
+  testModels("The model should include a valid citation element") { model =>
     for {
       error <- Try(LegalInfo(model)).failed.toOption
       if !error.isInstanceOf[UnsupportedOperationException]
