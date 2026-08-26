@@ -302,6 +302,18 @@ to save-to-file
   nw:save-graphml "demo.graphml"
 end
 
+; Loads the file saved with the above `save-to-file` procedure.
+to load-from-file
+  if not file-exists? "demo.graphml" [
+    user-message "There is no saved file yet. Use \"save to file\" first."
+    stop
+  ]
+  clear-turtles
+  nw:set-context turtles get-links-to-use
+  nw:load-graphml "demo.graphml"
+  update-plots
+end
+
 ; Loads the example network that ships with the model as a bundled resource,
 ; reading it from that string rather than from a file on disk.
 to load-from-resource
@@ -325,18 +337,11 @@ end
     <button x="510" y="75" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="110">eigenvector</button>
     <button x="510" y="120" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="110">closeness</button>
     <button x="305" y="30" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="190" display="weak component clusters">weak-component</button>
-    <button x="305" y="278" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="150" display="save current state">save-state</button>
-    <button x="305" y="323" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="150" display="load saved state">load-state</button>
-    <monitor x="410" precision="17" y="555" height="60" fontSize="11" width="100">count turtles</monitor>
-    <monitor x="305" precision="17" y="555" height="60" fontSize="11" width="100">count links</monitor>
     <button x="305" y="210" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="190" display="biggest maximal cliques">find-biggest-cliques</button>
     <button x="175" y="245" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="55">ring</button>
     <button x="235" y="245" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="55">star</button>
-    <monitor x="515" precision="3" y="555" height="60" fontSize="11" width="140" display="Mean path length">nw:mean-path-length</monitor>
     <button x="305" y="120" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="190" display="highlight bicomponents">highlight-bicomponents</button>
     <button x="305" y="165" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="190" display="highlight maximal cliques">highlight-maximal-cliques</button>
-    <button x="460" y="278" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="160" display="save to file">save-to-file</button>
-    <button x="460" y="323" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="160" display="load from resource">load-from-resource</button>
     <button x="305" y="75" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="190" display="detect communities">community-detection</button>
     <chooser x="190" y="75" height="60" variable="layout" current="0" width="100" display="layout">
       <choice type="string" value="spring"></choice>
@@ -369,7 +374,7 @@ end
     <button x="10" y="630" height="50" disableUntilTicks="true" forever="false" kind="Observer" width="105" display="kleinberg">small-world-lattice</button>
     <button x="10" y="575" height="50" disableUntilTicks="true" forever="false" kind="Observer" width="105" display="lattice 2D">lattice-2d</button>
     <switch x="10" y="520" height="50" on="false" variable="wrap" width="105" display="wrap"></switch>
-    <plot x="305" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Nb nodes" y="375" xMin="0.0" height="175" legend="false" xMax="10.0" yMin="0.0" width="315" xAxis="Degrees" display="Degree distribution">
+    <plot x="305" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Nb nodes" y="435" xMin="0.0" height="175" legend="false" xMax="10.0" yMin="0.0" width="315" xAxis="Degrees" display="Degree distribution">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="1" display="default" color="-16777216" legend="true">
@@ -377,7 +382,15 @@ end
         <update>histogram [ count my-links ] of turtles</update>
       </pen>
     </plot>
-    <note x="305" y="255" backgroundDark="0" fontSize="12" width="150" markdown="false" height="18" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Files</note>
+    <monitor x="515" precision="3" y="615" height="60" fontSize="11" width="140" display="Mean path length">nw:mean-path-length</monitor>
+    <monitor x="305" precision="17" y="615" height="60" fontSize="11" width="100">count links</monitor>
+    <monitor x="410" precision="17" y="615" height="60" fontSize="11" width="100">count turtles</monitor>
+    <button x="305" y="280" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="150" display="save current state">save-state</button>
+    <button x="305" y="325" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="150" display="save to file">save-to-file</button>
+    <button x="460" y="370" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="150" display="load example resource">load-from-resource</button>
+    <button x="460" y="325" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="150" display="load from file">load-from-file</button>
+    <button x="460" y="280" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="150" display="load saved state">load-state</button>
+    <note x="305" y="255" backgroundDark="0" fontSize="12" width="245" markdown="false" height="25" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Files, State, and Resources</note>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
@@ -497,19 +510,23 @@ The [closeness centrality](https://en.wikipedia.org/wiki/Centrality#Closeness_ce
 
 Note that this primitive reports the _intra-component_ closeness of a turtle, that is, it takes into account only the distances to the turtles that are part of the same [component](https://en.wikipedia.org/wiki/Connected_component_%28graph_theory%29) as the current turtle, since distance to turtles in other components is undefined. The closeness centrality of an isolated turtle is defined to be zero.
 
-### Files
+### Files, State, and Resources
 
-Finally, you can save and load your networks. The four buttons in the **Files** section demonstrate a few different ways to do this with the `nw` extension's string-based primitives.
+Finally, you can save and load your networks. The five buttons in the **Files, State, and Resources** section demonstrate a few different ways to do this.
 
 SAVE CURRENT STATE / LOAD SAVED STATE
 
 SAVE CURRENT STATE stores a snapshot of the current network in a global variable, as a string containing an [adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix). LOAD SAVED STATE rebuilds the network from that snapshot. Notice that LOAD SAVED STATE uses `clear-turtles` rather than `clear-all`, so it can wipe out the current network while keeping the saved snapshot (and the model's other global variables) intact.
 
-SAVE TO FILE / LOAD FROM RESOURCE
+SAVE TO FILE / LOAD FROM FILE
 
-SAVE TO FILE saves the current network to a [GraphML](https://en.wikipedia.org/wiki/GraphML) file called `demo.graphml`. LOAD FROM RESOURCE adds an example network that is bundled with the model as a resource, using the `resource` extension. Please see the [extension's documentation](http://ccl.northwestern.edu/netlogo/docs/nw.html#save-graphml) for more detail on handling GraphML files.
+SAVE TO FILE saves the current network to a [GraphML](https://en.wikipedia.org/wiki/GraphML) file called `demo.graphml` in your default directory, and LOAD FROM FILE reads that same file back in. Please see the [extension's documentation](http://ccl.northwestern.edu/netlogo/docs/nw.html#save-graphml) for more detail on handling GraphML files.
 
-Note that saving to a file relies on a file system, which the browser does not provide, so SAVE TO FILE produces a runtime error under NetLogo Web. That error points you to the `send-to` extension, which can hand the data off as a download instead.
+Note that these two buttons rely on a file system, which the browser does not provide, so they produce a runtime error under NetLogo Web. In the case of SAVE TO FILE, that error points you to the `send-to` extension, which can hand the data off as a download instead.
+
+LOAD EXAMPLE RESOURCE
+
+LOAD EXAMPLE RESOURCE loads an example network that is bundled with the model as a resource, using the `resource` extension. Since the GraphML data comes in as a string rather than from a file, this works in NetLogo Web as well as in desktop NetLogo.
 
 ## THINGS TO NOTICE
 
