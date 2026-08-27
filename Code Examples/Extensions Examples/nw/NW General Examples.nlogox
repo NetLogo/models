@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <model version="NetLogo 7.0.4" snapToGrid="true">
-  <code><![CDATA[extensions [ nw ]
+  <code><![CDATA[extensions [ nw resource ]
 
 ; we have two different kinds of link breeds, one directed and one undirected, just
 ; to show what the different networks look like with directed vs. undirected links
@@ -13,6 +13,7 @@ globals [
   stop-highlight-bicomponents     ; indicates that highlight-bicomponents mode needs to stop
   highlight-maximal-cliques-on    ; indicates highlight-maximal-cliques mode is active
   stop-highlight-maximal-cliques  ; indicates highlight-maximal-cliques mode needs to stop
+  saved-network                   ; holds a saved copy of the current network, as a string (see save-state / load-state)
 ]
 
 to setup
@@ -274,23 +275,52 @@ end
 ;; Saving and loading of network files
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-to save-matrix
+; Saves the current network into a global variable, as an adjacency matrix string
+to save-state
   nw:set-context turtles get-links-to-use
-  nw:save-matrix "matrix.txt"
+  set saved-network nw:save-to-string "matrix"
 end
 
-to load-matrix
-  generate [ -> nw:load-matrix "matrix.txt" turtles get-links-to-use ]
+; Restores the network saved by save-state. We use clear-turtles rather than
+; clear-all so that our globals - including saved-network - are preserved.
+to load-state
+  if not is-string? saved-network [
+    user-message "There is no saved network yet. Use \"save current state\" first."
+    stop
+  ]
+  clear-turtles
+  nw:load-from-string "matrix" saved-network turtles get-links-to-use
+  layout-turtles
+  update-plots
 end
 
-to save-graphml
+; Saves the current network to a GraphML file. Note that there is no file system
+; in the browser, so this errors under NetLogo Web; the error directs the user to
+; the send-to extension, which can hand the data off as a download instead.
+to save-to-file
   nw:set-context turtles get-links-to-use
   nw:save-graphml "demo.graphml"
 end
 
-to load-graphml
+; Loads the file saved with the above `save-to-file` procedure.
+to load-from-file
+  if not file-exists? "demo.graphml" [
+    user-message "There is no saved file yet. Use \"save to file\" first."
+    stop
+  ]
+  clear-turtles
   nw:set-context turtles get-links-to-use
   nw:load-graphml "demo.graphml"
+  update-plots
+end
+
+; Loads the example network that ships with the model as a bundled resource,
+; reading it from that string rather than from a file on disk.
+to load-from-resource
+  clear-turtles
+  nw:set-context turtles get-links-to-use
+  nw:load-from-string "graphml" resource:get "sample-data" turtles get-links-to-use
+  update-plots
 end
 
 
@@ -307,18 +337,11 @@ end
     <button x="510" y="75" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="110">eigenvector</button>
     <button x="510" y="120" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="110">closeness</button>
     <button x="305" y="30" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="190" display="weak component clusters">weak-component</button>
-    <button x="305" y="278" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="85" display="save matrix">save-matrix</button>
-    <button x="305" y="323" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="85" display="load matrix">load-matrix</button>
-    <monitor x="410" precision="17" y="555" height="60" fontSize="11" width="100">count turtles</monitor>
-    <monitor x="305" precision="17" y="555" height="60" fontSize="11" width="100">count links</monitor>
     <button x="305" y="210" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="190" display="biggest maximal cliques">find-biggest-cliques</button>
     <button x="175" y="245" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="55">ring</button>
     <button x="235" y="245" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="55">star</button>
-    <monitor x="515" precision="3" y="555" height="60" fontSize="11" width="140" display="Mean path length">nw:mean-path-length</monitor>
     <button x="305" y="120" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="190" display="highlight bicomponents">highlight-bicomponents</button>
     <button x="305" y="165" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="190" display="highlight maximal cliques">highlight-maximal-cliques</button>
-    <button x="395" y="278" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="100" display="save GraphML">save-graphml</button>
-    <button x="395" y="323" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="100" display="load GraphML">load-graphml</button>
     <button x="305" y="75" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="190" display="detect communities">community-detection</button>
     <chooser x="190" y="75" height="60" variable="layout" current="0" width="100" display="layout">
       <choice type="string" value="spring"></choice>
@@ -351,7 +374,7 @@ end
     <button x="10" y="630" height="50" disableUntilTicks="true" forever="false" kind="Observer" width="105" display="kleinberg">small-world-lattice</button>
     <button x="10" y="575" height="50" disableUntilTicks="true" forever="false" kind="Observer" width="105" display="lattice 2D">lattice-2d</button>
     <switch x="10" y="520" height="50" on="false" variable="wrap" width="105" display="wrap"></switch>
-    <plot x="305" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Nb nodes" y="375" xMin="0.0" height="175" legend="false" xMax="10.0" yMin="0.0" width="315" xAxis="Degrees" display="Degree distribution">
+    <plot x="305" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Nb nodes" y="435" xMin="0.0" height="175" legend="false" xMax="10.0" yMin="0.0" width="315" xAxis="Degrees" display="Degree distribution">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="1" display="default" color="-16777216" legend="true">
@@ -359,7 +382,15 @@ end
         <update>histogram [ count my-links ] of turtles</update>
       </pen>
     </plot>
-    <note x="305" y="255" backgroundDark="0" fontSize="12" width="150" markdown="false" height="18" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Files</note>
+    <monitor x="515" precision="3" y="615" height="60" fontSize="11" width="140" display="Mean path length">nw:mean-path-length</monitor>
+    <monitor x="305" precision="17" y="615" height="60" fontSize="11" width="100">count links</monitor>
+    <monitor x="410" precision="17" y="615" height="60" fontSize="11" width="100">count turtles</monitor>
+    <button x="305" y="280" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="150" display="save current state">save-state</button>
+    <button x="305" y="325" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="150" display="save to file">save-to-file</button>
+    <button x="460" y="370" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="150" display="load example resource">load-from-resource</button>
+    <button x="460" y="325" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="150" display="load from file">load-from-file</button>
+    <button x="460" y="280" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="150" display="load saved state">load-state</button>
+    <note x="305" y="255" backgroundDark="0" fontSize="12" width="245" markdown="false" height="25" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Files, State, and Resources</note>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
@@ -479,17 +510,23 @@ The [closeness centrality](https://en.wikipedia.org/wiki/Centrality#Closeness_ce
 
 Note that this primitive reports the _intra-component_ closeness of a turtle, that is, it takes into account only the distances to the turtles that are part of the same [component](https://en.wikipedia.org/wiki/Connected_component_%28graph_theory%29) as the current turtle, since distance to turtles in other components is undefined. The closeness centrality of an isolated turtle is defined to be zero.
 
-### Files
+### Files, State, and Resources
 
-LOAD / SAVE MATRIX
+Finally, you can save and load your networks. The five buttons in the **Files, State, and Resources** section demonstrate a few different ways to do this.
 
-Finally, you can save and load your networks. This can be done through the use of simple text files containing an [adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix).
+SAVE CURRENT STATE / LOAD SAVED STATE
 
-The model currently always save the network to your NetLogo directory in a file called `matrix.txt` when you click the SAVE MATRIX button. When you click the LOAD MATRIX button, it reads from the same location and creates a new network from the file.
+SAVE CURRENT STATE stores a snapshot of the current network in a global variable, as a string containing an [adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix). LOAD SAVED STATE rebuilds the network from that snapshot. Notice that LOAD SAVED STATE uses `clear-turtles` rather than `clear-all`, so it can wipe out the current network while keeping the saved snapshot (and the model's other global variables) intact.
 
-LOAD / SAVE GRAPHML
+SAVE TO FILE / LOAD FROM FILE
 
-You can also save and load GraphML files. Please see the [extension's documentation](http://ccl.northwestern.edu/netlogo/docs/nw.html#save-graphml) for more detail on handling GraphML files. The demo simply saves the current network to (and can load from) the file `demo.graphml` in your default directory.
+SAVE TO FILE saves the current network to a [GraphML](https://en.wikipedia.org/wiki/GraphML) file called `demo.graphml` in your default directory, and LOAD FROM FILE reads that same file back in. Please see the [extension's documentation](http://ccl.northwestern.edu/netlogo/docs/nw.html#save-graphml) for more detail on handling GraphML files.
+
+Note that these two buttons rely on a file system, which the browser does not provide, so they produce a runtime error under NetLogo Web. In the case of SAVE TO FILE, that error points you to the `send-to` extension, which can hand the data off as a download instead.
+
+LOAD EXAMPLE RESOURCE
+
+LOAD EXAMPLE RESOURCE loads an example network that is bundled with the model as a resource, using the `resource` extension. Since the GraphML data comes in as a string rather than from a file, this works in NetLogo Web as well as in desktop NetLogo.
 
 ## THINGS TO NOTICE
 
@@ -1267,4 +1304,343 @@ set layout "circle"
 layout-turtles
 set layout "spring"
 repeat 300 [ layout-turtles ]</previewCommands>
+  <resources>
+    <resource name="sample-data" extension="graphml"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns/graphml"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns/graphml">
+<key id="YCOR" for="node" attr.name="YCOR" attr.type="double"/>
+<key id="HIDDEN?" for="node" attr.name="HIDDEN?" attr.type="boolean"/>
+<key id="XCOR" for="node" attr.name="XCOR" attr.type="double"/>
+<key id="SIZE" for="node" attr.name="SIZE" attr.type="double"/>
+<key id="HEADING" for="node" attr.name="HEADING" attr.type="double"/>
+<key id="SHAPE" for="node" attr.name="SHAPE" attr.type="string"/>
+<key id="LABEL-COLOR" for="node" attr.name="LABEL-COLOR" attr.type="double"/>
+<key id="PEN-SIZE" for="node" attr.name="PEN-SIZE" attr.type="double"/>
+<key id="PEN-MODE" for="node" attr.name="PEN-MODE" attr.type="string"/>
+<key id="COLOR" for="node" attr.name="COLOR" attr.type="double"/>
+<key id="LABEL" for="node" attr.name="LABEL" attr.type="string"/>
+<key id="BREED" for="node" attr.name="BREED" attr.type="string"/>
+<key id="WHO" for="node" attr.name="WHO" attr.type="double"/>
+<key id="SHAPE" for="edge" attr.name="SHAPE" attr.type="string"/>
+<key id="LABEL-COLOR" for="edge" attr.name="LABEL-COLOR" attr.type="double"/>
+<key id="HIDDEN?" for="edge" attr.name="HIDDEN?" attr.type="boolean"/>
+<key id="END1" for="edge" attr.name="END1" attr.type="string"/>
+<key id="COLOR" for="edge" attr.name="COLOR" attr.type="double"/>
+<key id="TIE-MODE" for="edge" attr.name="TIE-MODE" attr.type="string"/>
+<key id="END2" for="edge" attr.name="END2" attr.type="string"/>
+<key id="LABEL" for="edge" attr.name="LABEL" attr.type="string"/>
+<key id="BREED" for="edge" attr.name="BREED" attr.type="string"/>
+<key id="THICKNESS" for="edge" attr.name="THICKNESS" attr.type="double"/>
+<graph edgedefault="undirected">
+<node id="turtle 0">
+<data key="YCOR">0</data>
+<data key="HIDDEN?">false</data>
+<data key="XCOR">12</data>
+<data key="SIZE">1</data>
+<data key="HEADING">0</data>
+<data key="SHAPE">circle</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="PEN-SIZE">1</data>
+<data key="PEN-MODE">up</data>
+<data key="COLOR">5</data>
+<data key="LABEL"></data>
+<data key="BREED">turtles</data>
+<data key="WHO">0</data>
+</node>
+<node id="turtle 1">
+<data key="YCOR">7.053423</data>
+<data key="HIDDEN?">false</data>
+<data key="XCOR">9.708204</data>
+<data key="SIZE">1</data>
+<data key="HEADING">0</data>
+<data key="SHAPE">circle</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="PEN-SIZE">1</data>
+<data key="PEN-MODE">up</data>
+<data key="COLOR">5</data>
+<data key="LABEL"></data>
+<data key="BREED">turtles</data>
+<data key="WHO">1</data>
+</node>
+<node id="turtle 2">
+<data key="YCOR">11.412678</data>
+<data key="HIDDEN?">false</data>
+<data key="XCOR">3.708204</data>
+<data key="SIZE">1</data>
+<data key="HEADING">0</data>
+<data key="SHAPE">circle</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="PEN-SIZE">1</data>
+<data key="PEN-MODE">up</data>
+<data key="COLOR">5</data>
+<data key="LABEL"></data>
+<data key="BREED">turtles</data>
+<data key="WHO">2</data>
+</node>
+<node id="turtle 3">
+<data key="YCOR">11.412678</data>
+<data key="HIDDEN?">false</data>
+<data key="XCOR">-3.708204</data>
+<data key="SIZE">1</data>
+<data key="HEADING">0</data>
+<data key="SHAPE">circle</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="PEN-SIZE">1</data>
+<data key="PEN-MODE">up</data>
+<data key="COLOR">5</data>
+<data key="LABEL"></data>
+<data key="BREED">turtles</data>
+<data key="WHO">3</data>
+</node>
+<node id="turtle 4">
+<data key="YCOR">7.053423</data>
+<data key="HIDDEN?">false</data>
+<data key="XCOR">-9.708204</data>
+<data key="SIZE">1</data>
+<data key="HEADING">0</data>
+<data key="SHAPE">circle</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="PEN-SIZE">1</data>
+<data key="PEN-MODE">up</data>
+<data key="COLOR">5</data>
+<data key="LABEL"></data>
+<data key="BREED">turtles</data>
+<data key="WHO">4</data>
+</node>
+<node id="turtle 5">
+<data key="YCOR">0.0</data>
+<data key="HIDDEN?">false</data>
+<data key="XCOR">-12</data>
+<data key="SIZE">1</data>
+<data key="HEADING">0</data>
+<data key="SHAPE">circle</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="PEN-SIZE">1</data>
+<data key="PEN-MODE">up</data>
+<data key="COLOR">5</data>
+<data key="LABEL"></data>
+<data key="BREED">turtles</data>
+<data key="WHO">5</data>
+</node>
+<node id="turtle 6">
+<data key="YCOR">-7.053423</data>
+<data key="HIDDEN?">false</data>
+<data key="XCOR">-9.708204</data>
+<data key="SIZE">1</data>
+<data key="HEADING">0</data>
+<data key="SHAPE">circle</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="PEN-SIZE">1</data>
+<data key="PEN-MODE">up</data>
+<data key="COLOR">5</data>
+<data key="LABEL"></data>
+<data key="BREED">turtles</data>
+<data key="WHO">6</data>
+</node>
+<node id="turtle 7">
+<data key="YCOR">-11.412678</data>
+<data key="HIDDEN?">false</data>
+<data key="XCOR">-3.708204</data>
+<data key="SIZE">1</data>
+<data key="HEADING">0</data>
+<data key="SHAPE">circle</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="PEN-SIZE">1</data>
+<data key="PEN-MODE">up</data>
+<data key="COLOR">5</data>
+<data key="LABEL"></data>
+<data key="BREED">turtles</data>
+<data key="WHO">7</data>
+</node>
+<node id="turtle 8">
+<data key="YCOR">-11.412678</data>
+<data key="HIDDEN?">false</data>
+<data key="XCOR">3.708204</data>
+<data key="SIZE">1</data>
+<data key="HEADING">0</data>
+<data key="SHAPE">circle</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="PEN-SIZE">1</data>
+<data key="PEN-MODE">up</data>
+<data key="COLOR">5</data>
+<data key="LABEL"></data>
+<data key="BREED">turtles</data>
+<data key="WHO">8</data>
+</node>
+<node id="turtle 9">
+<data key="YCOR">-7.053423</data>
+<data key="HIDDEN?">false</data>
+<data key="XCOR">9.708204</data>
+<data key="SIZE">1</data>
+<data key="HEADING">0</data>
+<data key="SHAPE">circle</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="PEN-SIZE">1</data>
+<data key="PEN-MODE">up</data>
+<data key="COLOR">5</data>
+<data key="LABEL"></data>
+<data key="BREED">turtles</data>
+<data key="WHO">9</data>
+</node>
+<edge source="turtle 0" target="turtle 1">
+<data key="SHAPE">default</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="HIDDEN?">false</data>
+<data key="END1">(turtle 0)</data>
+<data key="COLOR">5</data>
+<data key="TIE-MODE">none</data>
+<data key="END2">(turtle 1)</data>
+<data key="LABEL"></data>
+<data key="BREED">undirected-edges</data>
+<data key="THICKNESS">0</data>
+</edge>
+<edge source="turtle 1" target="turtle 2">
+<data key="SHAPE">default</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="HIDDEN?">false</data>
+<data key="END1">(turtle 1)</data>
+<data key="COLOR">5</data>
+<data key="TIE-MODE">none</data>
+<data key="END2">(turtle 2)</data>
+<data key="LABEL"></data>
+<data key="BREED">undirected-edges</data>
+<data key="THICKNESS">0</data>
+</edge>
+<edge source="turtle 2" target="turtle 3">
+<data key="SHAPE">default</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="HIDDEN?">false</data>
+<data key="END1">(turtle 2)</data>
+<data key="COLOR">5</data>
+<data key="TIE-MODE">none</data>
+<data key="END2">(turtle 3)</data>
+<data key="LABEL"></data>
+<data key="BREED">undirected-edges</data>
+<data key="THICKNESS">0</data>
+</edge>
+<edge source="turtle 3" target="turtle 4">
+<data key="SHAPE">default</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="HIDDEN?">false</data>
+<data key="END1">(turtle 3)</data>
+<data key="COLOR">5</data>
+<data key="TIE-MODE">none</data>
+<data key="END2">(turtle 4)</data>
+<data key="LABEL"></data>
+<data key="BREED">undirected-edges</data>
+<data key="THICKNESS">0</data>
+</edge>
+<edge source="turtle 4" target="turtle 5">
+<data key="SHAPE">default</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="HIDDEN?">false</data>
+<data key="END1">(turtle 4)</data>
+<data key="COLOR">5</data>
+<data key="TIE-MODE">none</data>
+<data key="END2">(turtle 5)</data>
+<data key="LABEL"></data>
+<data key="BREED">undirected-edges</data>
+<data key="THICKNESS">0</data>
+</edge>
+<edge source="turtle 5" target="turtle 6">
+<data key="SHAPE">default</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="HIDDEN?">false</data>
+<data key="END1">(turtle 5)</data>
+<data key="COLOR">5</data>
+<data key="TIE-MODE">none</data>
+<data key="END2">(turtle 6)</data>
+<data key="LABEL"></data>
+<data key="BREED">undirected-edges</data>
+<data key="THICKNESS">0</data>
+</edge>
+<edge source="turtle 6" target="turtle 7">
+<data key="SHAPE">default</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="HIDDEN?">false</data>
+<data key="END1">(turtle 6)</data>
+<data key="COLOR">5</data>
+<data key="TIE-MODE">none</data>
+<data key="END2">(turtle 7)</data>
+<data key="LABEL"></data>
+<data key="BREED">undirected-edges</data>
+<data key="THICKNESS">0</data>
+</edge>
+<edge source="turtle 7" target="turtle 8">
+<data key="SHAPE">default</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="HIDDEN?">false</data>
+<data key="END1">(turtle 7)</data>
+<data key="COLOR">5</data>
+<data key="TIE-MODE">none</data>
+<data key="END2">(turtle 8)</data>
+<data key="LABEL"></data>
+<data key="BREED">undirected-edges</data>
+<data key="THICKNESS">0</data>
+</edge>
+<edge source="turtle 8" target="turtle 9">
+<data key="SHAPE">default</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="HIDDEN?">false</data>
+<data key="END1">(turtle 8)</data>
+<data key="COLOR">5</data>
+<data key="TIE-MODE">none</data>
+<data key="END2">(turtle 9)</data>
+<data key="LABEL"></data>
+<data key="BREED">undirected-edges</data>
+<data key="THICKNESS">0</data>
+</edge>
+<edge source="turtle 9" target="turtle 0">
+<data key="SHAPE">default</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="HIDDEN?">false</data>
+<data key="END1">(turtle 9)</data>
+<data key="COLOR">5</data>
+<data key="TIE-MODE">none</data>
+<data key="END2">(turtle 0)</data>
+<data key="LABEL"></data>
+<data key="BREED">undirected-edges</data>
+<data key="THICKNESS">0</data>
+</edge>
+<edge source="turtle 0" target="turtle 5">
+<data key="SHAPE">default</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="HIDDEN?">false</data>
+<data key="END1">(turtle 0)</data>
+<data key="COLOR">5</data>
+<data key="TIE-MODE">none</data>
+<data key="END2">(turtle 5)</data>
+<data key="LABEL"></data>
+<data key="BREED">undirected-edges</data>
+<data key="THICKNESS">0</data>
+</edge>
+<edge source="turtle 2" target="turtle 7">
+<data key="SHAPE">default</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="HIDDEN?">false</data>
+<data key="END1">(turtle 2)</data>
+<data key="COLOR">5</data>
+<data key="TIE-MODE">none</data>
+<data key="END2">(turtle 7)</data>
+<data key="LABEL"></data>
+<data key="BREED">undirected-edges</data>
+<data key="THICKNESS">0</data>
+</edge>
+<edge source="turtle 3" target="turtle 8">
+<data key="SHAPE">default</data>
+<data key="LABEL-COLOR">9.9</data>
+<data key="HIDDEN?">false</data>
+<data key="END1">(turtle 3)</data>
+<data key="COLOR">5</data>
+<data key="TIE-MODE">none</data>
+<data key="END2">(turtle 8)</data>
+<data key="LABEL"></data>
+<data key="BREED">undirected-edges</data>
+<data key="THICKNESS">0</data>
+</edge>
+</graph>
+</graphml>
+]]></resource>
+  </resources>
 </model>
