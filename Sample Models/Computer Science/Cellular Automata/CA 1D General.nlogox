@@ -9,20 +9,13 @@
 
 
 globals [
-  rule-array     ;; the rule currently being run: a list of RULE-SIZE state
-  ;; values in Wolfram order, so the first entry is the output
-  ;; for the highest-numbered neighborhood (every cell in state
-  ;; k - 1) and the last entry is the output for all zeros.
-  ;; SETUP rebuilds this from the RULE-SOURCE chooser.
+  rule-array     ;; The rule currently being run.
+                 ;; SETUP rebuilds this from the RULE-SOURCE chooser.
   rule-lookup    ;; RULE-ARRAY reversed, so it can be indexed directly by
-  ;; neighborhood number.  Rebuilt by SETUP.
-  rule-number    ;; the rule number of whatever is in RULE-ARRAY, cached here
-  ;; by SET-RULE.  The RULE NUMBER monitor reads this rather
-  ;; than recomputing it, which for a large table would mean
-  ;; folding the whole thing several times a second.  It is
-  ;; only meaningful while the rule matches the current k and r
-  ;; and the numbering is still exact -- RULE-NUMBER-DISPLAY
-  ;; checks both before reporting it.
+                 ;; neighborhood number.  Rebuilt by SETUP.
+  rule-number    ;; The rule number of whatever is in RULE-ARRAY, cached here
+                 ;; by SET-RULE. It is only meaningful while the rule matches
+                 ;; the current k and r and the numbering is still exact.
   current-row    ;; the row holding the newest generation
   gone?          ;; has GO reached the bottom of the world at least once?
 
@@ -48,24 +41,12 @@ to startup
   set rule-table-shown? false
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; The rule
-;;
-;; The RULE-SOURCE chooser is the single place that decides where the rule
-;; comes from, and SETUP is the single moment it is applied.  Nothing else
-;; changes the rule behind your back, so the widgets cannot disagree.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;; how many neighborhoods a rule has to cover, for the current k and r
 to-report rule-size
   report round (num-states ^ (2 * radius + 1))
 end
 
-;; The largest rule this model will build.  The sliders alone cannot keep
-;; RULE-SIZE small (k=10 with r=6 is 10^13), so every procedure that creates a
-;; rule has to check this.  A rule is also written into the INPUT-RULE box as
-;; text, and a box holding hundreds of thousands of numbers will hang the
-;; NetLogo interface, so this is a hard limit, not a hint.
+;; The largest rule this model will build.
 to-report max-rule-entries
   report 10000
 end
@@ -102,9 +83,8 @@ end
 ;; r=1, [0 0 0 1 1 1 1 0] is 30, i.e. Wolfram's Rule 30.
 ;;
 ;; NetLogo numbers are doubles, so the numbering is only exact while
-;; k ^ rule-size stays below 2^53.  That covers k=2 r=1 (256 rules), k=3 r=1
-;; and k=2 r=2; past that the count of rules exceeds what can be counted
-;; exactly and the model works in tables only.
+;; k ^ rule-size stays below 2^53. Past that the count of rules exceeds what
+;; can be counted exactly and the model works in tables only.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report rule-number-exact?
@@ -174,8 +154,7 @@ to read-rule-box-as-number
   set-rule rule-from-number n
 end
 
-;; The one place that writes RULE-ARRAY, and the last line of defence against
-;; dumping an enormous list into the INPUT-RULE widget.
+;; Writes the RULE-ARRAY
 to set-rule [ new-rule ]
   if length new-rule > max-rule-entries [ warn-rule-too-big stop ]
   set rule-array new-rule
@@ -200,12 +179,9 @@ to make-random-rule
   set-rule n-values rule-size [ i -> random num-states ]
 end
 
-;; parse the rule box; a preset you loaded earlier is sitting there, so this
-;; is also how you tweak a preset by hand
+;; Parses the rule box
 ;; Read the rule box in either form: the list "[0 0 0 1 1 1 1 0]" or the
-;; compact "00011110".  k is at most 10, so every state is a single digit and
-;; the two forms carry the same information; brackets, commas and whitespace
-;; are just separators.  Reports FALSE if anything else turns up.
+;; compact "00011110". Reports FALSE if anything else turns up.
 to-report parse-rule-text [ txt ]
   let result []
   let ok? true
@@ -250,7 +226,7 @@ to read-rule-box-as-table
     "Or set RULE-SOURCE to \"random\" or a preset.") ]
 end
 
-;; presets set k, r and the rule together, so they always agree
+;; Presets set k, r and the rule together
 to load-preset [ name ]
   set rule-array []
   (ifelse
@@ -275,19 +251,13 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The clickable rule table
 ;;
-;; EDIT RULE TABLE gives the view over to a diagram per neighborhood: the
-;; 2r+1 cells that get read, with the state they produce drawn underneath the
-;; centre one.  Click that lower block to step the output through the states.
-;; The table IS the rule, so editing it is editing the rule -- the rule box
-;; keeps up as you click, and RULE-SOURCE switches to "from rule box" so
-;; SETUP runs what you drew.
+;; EDIT RULE TABLE converts the view to a diagram depicting the rule: the
+;; 2r+1 cells that form the neighbourhood and the state they produce are drawn
+;; Click that lower block to modify the rule by changing the states.
 ;;
 ;; Cases appear in rule box order: the first diagram is the first entry of the
 ;; box (every neighbor in state k-1) and the last is the all-zero one.
 ;;
-;; This generalizes CA 1D Elementary's SHOW-RULES, which draws the same
-;; diagrams for the fixed k=2, r=1 case.  Here the block size is chosen to fit
-;; whatever k and r are set, and the blocks are live rather than a picture.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; cells read per neighborhood
@@ -310,9 +280,9 @@ to-report min-table-block
   report 2
 end
 
-;; The rule table stops being a usable editor well before it stops fitting:
+;; The rule table stops being a usable editor before it stops fitting:
 ;; past this many cases the blocks are only a few pixels across.  Bigger rules
-;; can still be built, run, saved and loaded -- just not drawn.
+;; can still be built, run, saved and loaded but not drawn.
 to-report max-editable-entries
   report 1024
 end
@@ -355,7 +325,7 @@ end
 
 ;; The smallest GRID-SIZE whose world can hold the whole table, or 0 if even
 ;; the largest world cannot.  EDIT RULE TABLE grows the world to this rather
-;; than refusing to show a table that merely needs more room; SETUP puts the
+;; than refusing to show a table that needs more room; SETUP puts the
 ;; world back to GRID-SIZE afterwards.
 to-report grid-size-for-rule-table
   let n grid-size
@@ -381,7 +351,6 @@ end
 
 ;; paint a B-by-B block of patches in state S, with its top-left at BX BY
 to draw-block [ bx by b s ]
-  ;; note: ox / oy rather than dx / dy, which are NetLogo primitives
   let ox 0
   while [ ox < b ] [
     let oy 0
@@ -440,8 +409,7 @@ to draw-rule-table
   set rule-table-shown? true
 end
 
-;; Handle a click at MX MY.  Takes the coordinates rather than reading the
-;; mouse, so it can be exercised without one.
+;; Handle a click at MX MY.
 to click-rule-table [ mx my b cols ]
   let cw case-width b
   let ch case-height b
@@ -513,7 +481,7 @@ end
 ;;     ["rule" [0 0 0 1 1 1 1 0]]
 ;;   ]
 ;;
-;; k and r travel with the rule, because a rule means nothing without them.
+;; k and r travel with the rule, because a rule is meaningless without them.
 ;; Loading fills in the rule box and points RULE-SOURCE at it, so a loaded
 ;; rule arrives the same way a preset does and SETUP runs it.
 ;;
@@ -566,7 +534,7 @@ end
 
 to load-rule
   let path user-file
-  if not is-string? path [ stop ]      ;; the user cancelled
+  if not is-string? path [ stop ]
   read-rule-file path
 end
 
@@ -585,7 +553,7 @@ to read-rule-file [ path ]
 end
 
 ;; Check a loaded file completely before changing anything, so a bad file
-;; leaves the model exactly as it was.
+;; remains unchanged.
 to install-rule-file [ data ]
   if not is-list? data [
     user-message "That file doesn't contain a CA 1D rule." stop
@@ -642,7 +610,7 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to resize-grid [ n ]
-  let half max list 4 n            ;; never let the world collapse to nothing
+  let half max list 4 n            ;; minimum world size
   resize-world (- half) half (- half) half
   set-patch-size (11.5 * 50) / (2 * half + 1)
 end
@@ -712,16 +680,16 @@ to apply-initial-text
       ]
     ] [
       user-message (word
-      "Couldn't use that initial condition.\n\n"
-      "It should be a list of whole numbers from 0 to " (num-states - 1)
-      ", for example:\n\n[0 1 0 2 0]\n\n"
-      "It gets centered in the top row, so it does not have to fill "
-      "the whole width.")
+        "Couldn't use that initial condition.\n\n"
+        "It should be a list of whole numbers from 0 to " (num-states - 1)
+        ", for example:\n\n[0 1 0 2 0]\n\n"
+        "It gets centered in the top row, so it does not have to fill "
+        "the whole width.")
     ]
   ] [
     user-message (word
-    "Couldn't read that initial condition.\n\n"
-    "It should be a list in square brackets, for example:\n\n[0 1 0 2 0]")
+      "Couldn't read that initial condition.\n\n"
+      "It should be a list in square brackets, for example:\n\n[0 1 0 2 0]")
   ]
 end
 
@@ -776,7 +744,7 @@ to paint-cells
   display
 end
 
-;; Reports true (and says so) when the view is the rule table rather than the
+;; Reports true when the view is the rule table rather than the
 ;; CA, so the row-editing buttons cannot act on a world that is not the CA.
 to-report busy-with-rule-table?
   if not rule-table-shown? [ report false ]
@@ -876,12 +844,13 @@ to copy-row-to-text
   set input-initial-condition (word get-current-row-state)
 end
 
+
 ]]></code>
   <widgets>
-    <view x="215" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-64" height="567" showTickCounter="true" patchSize="4.5" fontSize="10" wrappingAllowedY="false" width="567" tickCounterLabel="ticks" maxPycor="64" updateMode="1" maxPxcor="64" minPxcor="-64"></view>
+    <view x="215" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-64" height="562" showTickCounter="true" patchSize="4.457364341085271" fontSize="10" wrappingAllowedY="false" width="562" tickCounterLabel="ticks" maxPycor="64" updateMode="1" maxPxcor="64" minPxcor="-64"></view>
     <note x="10" y="10" backgroundDark="0" fontSize="12" width="195" markdown="false" height="26" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">1. WORLD AND STATES </note>
     <note x="10" y="200" backgroundDark="0" fontSize="12" width="195" markdown="false" height="20" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">2. RULE  </note>
-    <chooser x="10" y="225" height="60" variable="rule-source" current="0" width="195" display="rule-source">
+    <chooser x="10" y="225" height="60" variable="rule-source" current="1" width="195" display="rule-source">
       <choice type="string" value="random"></choice>
       <choice type="string" value="from rule box"></choice>
       <choice type="string" value="Rule 30"></choice>
@@ -907,12 +876,12 @@ end
     <button x="10" y="645" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="96" display="paint cells">paint-cells</button>
     <button x="110" y="645" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="96" display="clear row">clear-row</button>
     <switch x="10" y="685" height="40" on="false" variable="auto-continue?" width="195" display="auto-continue?"></switch>
-    <note x="215" y="680" backgroundDark="0" fontSize="11" width="470" markdown="false" height="20" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Top row, used when INITIAL-CONDITION is "from text". It is centered in the row, so it need not fill the whole width.</note>
+    <note x="215" y="680" backgroundDark="0" fontSize="11" width="470" markdown="false" height="25" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Top row, used when INITIAL-CONDITION is "from text". It is centered by default.</note>
     <input x="215" multiline="true" y="705" height="70" variable="input-initial-condition" type="string" width="470">[0 1 0 1 1 0 0 1 0]</input>
     <button x="10" y="605" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="95">setup</button>
     <button x="110" y="605" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="95">go</button>
-    <note x="215" y="585" backgroundDark="0" fontSize="11" width="470" markdown="false" height="20" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Rule table in Wolfram order (last entry is the all-0 neighborhood). Any of these work: [0 0 0 1 1 1 1 0]   00011110   #30. Presets, LOAD RULE and the rule table fill this in for you.</note>
-    <input x="215" multiline="true" y="605" height="70" variable="input-rule" type="string" width="470">[0 0 0 1 0 1 0 0 2 2 2 0 1 2 2 1 1 0 0 2 0 2 2 1 1 2 0]</input>
+    <note x="215" y="585" backgroundDark="0" fontSize="11" width="470" markdown="false" height="25" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Rule table. Any of these formats examples work: [0 0 0 1 1 1 1 0]   00011110   #30. </note>
+    <input x="215" multiline="true" y="605" height="70" variable="input-rule" type="string" width="470">[1 1 0 2 0 0 0 1 0 1 0 2 2 2 1 2 2 2 0 0 0 0 0 0 1 2 1]</input>
     <monitor x="690" precision="17" y="585" height="60" fontSize="10" width="120" display="rule size">rule-size</monitor>
     <monitor x="690" precision="17" y="650" height="60" fontSize="11" width="120" display="# of possible rules">(word num-states " ^ " rule-size)</monitor>
     <button x="690" y="715" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="120" display="copy row to box">copy-row-to-text</button>
@@ -920,6 +889,7 @@ end
     <button x="110" y="395" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="96" display="load rule">load-rule</button>
   </widgets>
   <info><![CDATA[
+
 ## WHAT IS IT?
 
 This is a model of one-dimensional cellular automata. A 1D cellular automaton is a row of cells, each holding one of a small number of states, which all update together in step: every cell looks at itself and its nearest neighbors, and a rule says what it becomes next. Each new row is drawn below the one that produced it, so the picture on screen is a history, with time running downwards.
@@ -1110,6 +1080,7 @@ For the model itself:
 Please cite the NetLogo software as:
 
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
 
 ]]></info>
   <turtleShapes>

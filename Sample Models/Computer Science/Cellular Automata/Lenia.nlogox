@@ -1,0 +1,1243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.1.0-alpha1" title="Lenia" snapToGrid="true">
+  <code><![CDATA[
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Lenia - Continuous Cellular Automata Artifical Life Model
+;; A continuous generalization of Conway's Game of Life
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+extensions [palette]
+
+patches-own [
+  state         ;; continuous value from 0 to 1
+  new-state     ;; buffer for the potential field U produced by convolution
+  my-neighbors  ;; precomputed list of [neighbor-patch weight] pairs
+]
+
+globals [
+  kernel     ;; list of [kx ky weight] triples describing the convolution kernel
+]
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Setup Procedures
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to setup
+  clear-all
+  configure-organism               ;; named creatures set their own parameters
+  setup-kernel
+  ask patches [
+    precompute-neighbors           ;; cache kernel neighbors for fast convolution
+    set state 0
+  ]
+  ifelse initial-config = "Random" [
+    ask patches [ set state random-float 1.0 ]
+  ] [
+    seed-organism initial-config   ;; initialize the chosen creature at the center
+  ]
+  ask patches [ update-color ]
+  reset-ticks
+end
+
+to setup-kernel
+  ;; Build a bell-shaped ring kernel:
+  ;;   K(d) = bell(d, kernel-center, kernel-width) for normalized distance d < 1
+  ;; kernel-center is where the ring peaks (as a fraction of the radius) and
+  ;; kernel-width is how thick/fuzzy the ring is. The kernel is zero outside the
+  ;; unit circle and is normalized so all weights sum to 1.
+  let r kernel-radius
+  set kernel []
+  let total-weight 0
+
+  ;; Scan the (2r+1) x (2r+1) box centered on the origin. Centering the loop
+  ;; here (rather than offsetting the distance) keeps the kernel symmetric.
+  let kx (- r)
+  while [kx <= r] [
+    let ky (- r)
+    while [ky <= r] [
+      ;; Normalized distance from center: 0 at the center, 1 at radius r.
+      let dist (sqrt ((kx ^ 2) + (ky ^ 2))) / r
+      if dist < 1 [                                  ;; keep cells inside the unit circle
+        let weight bell dist kernel-center kernel-width
+        set kernel lput (list kx ky weight) kernel
+        set total-weight total-weight + weight
+      ]
+      set ky ky + 1
+    ]
+    set kx kx + 1
+  ]
+
+  ;; Normalize so the kernel weights sum to 1.
+  set kernel map [ k -> (list (item 0 k) (item 1 k) ((item 2 k) / total-weight)) ] kernel
+end
+
+to precompute-neighbors ;patch procedure
+  ;; Cache each in-kernel neighbor together with its weight so the update loop
+  ;; never recomputes offsets. patch-at resolves the toroidal wraparound.
+  set my-neighbors []
+  foreach kernel [ k ->
+    let kx item 0 k
+    let ky item 1 k
+    let weight item 2 k
+    let neighbor patch-at kx ky
+    if neighbor != nobody [
+      set my-neighbors lput (list neighbor weight) my-neighbors
+    ]
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Organisms
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to configure-organism
+  ;; Named creatures only survive with their associated parameters, so loading one
+  ;; sets the sliders to match (all use radius 13, T = 10, the standard single
+  ;; ring, and differ only in the growth window). "Random" leaves sliders as-is.
+  if initial-config != "Random" [
+    set kernel-radius 13
+    set time-scale 10
+    set kernel-center 0.5
+    set kernel-width 0.15
+  ]
+
+  ;;; {{{ umit: the following lines break <one command per line> rule of the style guide }}}
+
+  (ifelse initial-config = "Orbium" [
+    set growth-center 0.15
+    set growth-width 0.015
+  ]
+  initial-config = "Gyrorbium" [
+    set growth-center 0.156
+    set growth-width 0.0224 ]
+
+  initial-config = "Scutium" [
+    set growth-center 0.29
+    set growth-width 0.045
+  ]
+  initial-config = "Discutium" [
+    set growth-center 0.356
+    set growth-width 0.063
+  ])
+end
+
+to seed-organism [creature]
+  ;; Initialize a creature's pattern onto the patches, centered on the origin.
+  let cells creature-seed creature
+  let n-rows length cells
+  let n-cols length item 0 cells
+  let x-off floor (n-cols / 2)
+  let y-off floor (n-rows / 2)
+  foreach range n-rows [ row ->
+    foreach range n-cols [ col ->
+      ask patch (col - x-off) (row - y-off) [
+        set state item col (item row cells)
+      ]
+    ]
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Go Procedures
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  ;; Step 1: compute the potential field U at every patch (the convolution).
+  ask patches [
+    set new-state compute-convolution
+  ]
+  ;; Step 2: apply the growth function and integrate with time step 1 / T,
+  ;; clipping the result back into [0, 1].
+  ask patches [
+    set state clip (state + (1 / time-scale) * (growth-function new-state))
+    update-color
+  ]
+  tick
+end
+
+to-report compute-convolution ; patch procedure
+  ;; Convolve the kernel with the local neighborhood using the precomputed
+  ;; [neighbor weight] pairs.
+  let total 0
+  foreach my-neighbors [ pair ->
+    set total total + (([state] of item 0 pair) * (item 1 pair))
+  ]
+  report total
+end
+
+to-report growth-function [u]
+  ;; Growth mapped to [-1, 1]: g(u) = 2 * bell(u, m, s) - 1
+  report ((bell u growth-center growth-width) * 2) - 1
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Drawing
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to draw
+  ;; Paint your own configuration: hold this button down and drag the mouse
+  ;; inside the world to brush in live cells. brush-size sets the radius.
+  if mouse-inside? and mouse-down? [
+    ask patch mouse-xcor mouse-ycor [
+      ask patches in-radius brush-size [
+        set state 1
+        update-color
+      ]
+    ]
+    display              ;; force a refresh so strokes show between ticks
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Helper Reporters
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to-report bell [x mu sigma]
+  ;; Gaussian-like bell curve: exp(-((x - mu) / sigma)^2 / 2)
+  report exp (-1 * (((x - mu) / sigma) ^ 2) / 2)
+end
+
+to-report clip [x]
+  ;; Constrain a value to [0, 1].
+  report (ifelse-value x <= 0 [0] x >= 1 [1] [x])
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Display Procedures
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to update-color ;; patch procedure
+  ;; Color each patch by its state; the color-scheme chooser picks the palette.
+  (ifelse
+  color-scheme = "Viridis" [
+    set pcolor palette:scale-gradient [[68 1 84] [59 82 139] [33 145 140] [94 201 98] [253 231 37]] state 0 1
+  ]
+  color-scheme = "Magma" [
+    set pcolor palette:scale-gradient [[13 8 135] [126 3 168] [204 71 120] [248 149 64] [240 249 33]] state 0 1
+  ]
+  [ ;; Monochrome: black (0) to white (1)
+    set pcolor scale-color white state 0 1
+  ])
+end
+
+to reset-states
+  ask patches [
+    set state 0
+    update-color
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Creature Library
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to-report creature-seed [creature]
+  report (ifelse-value
+  creature = "Orbium"    [ orbium-seed ]
+  creature = "Gyrorbium" [ gyrorbium-seed ]
+  creature = "Scutium"   [ scutium-seed ]
+  creature = "Discutium" [ discutium-seed ]
+  [ [[0]] ])
+end
+
+to-report orbium-seed
+  ;; Orbium unicaudatus - the canonical Lenia glider. R=13, T=10, m=0.15, s=0.015.
+  report [[0 0 0 0 0 0 0 0.051 0.0157 0 0 0 0 0 0 0.2353 0 0 0 0] [0 0 0 0 0 0 0.1373 0.2078 0.2118 0.0824 0.0706 0.098 0.102 0.0706 0.0039 0.2549 0 0 0 0] [0 0 0 0 0 0.0863 0.2667 0.3569 0.3843 0.3412 0.1882 0.1843 0.1725 0.1843 0.1765 0.1059 0.349 0 0 0] [0 0 0 0 0.0118 0.0667 0.349 0.4549 0.4667 0.3804 0.1294 0.0784 0.0549 0.0627 0.1216 0.2157 0.7059 0 0 0] [0 0 0 0.0353 0.1294 0.1843 0.3412 0.4039 0.3843 0.2824 0.1333 0 0 0 0 0.0471 0.4 0.3294 0 0] [0.0039 0 0.0157 0.1373 0.1686 0.1333 0.1098 0.2471 0.2706 0.2627 0.2078 0 0 0 0 0 0.0196 0.8627 0 0] [0.2353 0 0.102 0.1725 0.0784 0 0 0.2 0.3098 0.3686 0.3725 0.2392 0 0 0 0 0 0.4549 0.1569 0] [0 0.1216 0.1843 0.1098 0 0 0 0.2706 0.4275 0.5059 0.5373 0.5098 0 0 0 0 0 0 0.5176 0] [0 0.5882 0.2157 0.0314 0 0 0 0.1882 0.5294 0.6353 0.6824 0.6824 0.4196 0 0 0 0 0 0.4275 0] [0 0.5529 0.2353 0 0 0 0 0.0275 0.6196 0.7569 0.8392 0.8549 0.8078 0.1059 0 0 0 0 0.2824 0.098] [0 0 0.5961 0 0 0 0 0 0.6667 0.8745 0.9608 0.9922 0.9725 0.5608 0 0 0 0 0.2235 0.1412] [0 0 0.8392 0 0 0 0 0 0.5059 0.9686 1 1 1 0.9137 0.2784 0 0 0.0235 0.2196 0.1333] [0 0 0.5529 0.0745 0 0 0 0 0.3333 1 1 0.9804 1 0.9725 0.5569 0.1569 0.051 0.1176 0.2431 0.0863] [0 0 0.0314 0.4471 0 0 0 0 0.1765 0.851 1 0.8941 0.8627 0.8667 0.651 0.3333 0.1961 0.2157 0.2314 0.0392] [0 0 0 0.4235 0.1137 0 0 0 0.1137 0.6196 0.8784 0.8235 0.7804 0.7412 0.6118 0.4078 0.2941 0.2667 0.1647 0] [0 0 0 0.0784 0.3333 0.0745 0 0 0.1176 0.4235 0.6745 0.7216 0.6784 0.6275 0.5255 0.4039 0.3098 0.2235 0.0627 0] [0 0 0 0 0.1647 0.2588 0.149 0.1176 0.1725 0.3373 0.498 0.5569 0.5451 0.498 0.4275 0.3373 0.2431 0.1176 0 0] [0 0 0 0 0 0.1451 0.2314 0.2353 0.2588 0.3176 0.3882 0.4235 0.4118 0.3608 0.3059 0.2275 0.1255 0.0196 0 0] [0 0 0 0 0 0 0.0706 0.1686 0.2275 0.251 0.2745 0.2784 0.2588 0.2314 0.1647 0.0941 0.0196 0 0 0] [0 0 0 0 0 0 0 0 0.0588 0.102 0.1294 0.1333 0.1176 0.0784 0.0431 0 0 0 0 0]]
+end
+
+to-report scutium-seed
+  ;; Scutium solidus - a solid shield/crescent that glides. R=13, T=10, m=0.29, s=0.045.
+  report [[0 0 0 0 0 0.1216 0.0667 0 0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0.4588 0.3922 0.2588 0.0706 0 0 0 0 0 0 0 0] [0 0 0 0 0.0863 0.1882 0.3216 0.7961 0.7137 0.5647 0.3725 0 0 0 0 0 0 0] [0 0 0.0039 0.1804 0.3098 0.3725 0.4118 0.7961 1 0.9569 0.8314 0.6196 0.0588 0 0 0 0 0] [0 0 0.1922 0.3412 0.3176 0.2235 0.1569 0.1725 0.8784 1 1 0.9765 0.702 0.2157 0 0 0 0] [0.3686 0.1294 0.3373 0.3216 0.1255 0 0 0 0 0.9098 1 1 1 0.6824 0.2784 0.0039 0 0] [0.4196 0.7137 0.4196 0.2078 0 0 0 0 0 0.1294 1 1 1 1 0.5961 0.251 0.0118 0] [0.4314 0.8549 0.6157 0.1098 0 0 0 0 0 0.0392 0.6196 1 1 1 0.8471 0.4588 0.149 0] [0.4039 0.8706 1 0.0784 0 0 0 0 0 0.2314 0.5451 0.9216 1 1 1 0.6941 0.349 0.0784] [0.3451 0.8471 1 0.9255 0 0 0 0 0 0.1059 0.5059 0.9647 1 1 1 0.6078 0.2706 0.0314] [0.1608 0.7961 1 1 0.5608 0.0941 0.0392 0.0941 0.2196 0.4039 0.6549 0.9373 1 1 1 0.7216 0.3804 0.1059] [0 0.7255 1 1 1 0.651 0.4235 0.4039 0.4706 0.6157 0.8118 0.9843 1 1 1 0.6902 0.3686 0.1059] [0 0.3255 0.9843 1 1 1 0.8667 0.7608 0.7647 0.8471 0.9608 1 1 1 0.9137 0.6157 0.3216 0.0824] [0 0.0902 0.6706 1 1 1 1 1 0.9922 1 1 1 1 1 0.7765 0.5098 0.2471 0.0471] [0 0 0.3686 0.8118 1 1 1 1 1 1 1 1 1 0.8431 0.6157 0.3804 0.1529 0.0118] [0 0 0.1412 0.4784 0.7961 1 1 1 1 1 1 0.9804 0.8196 0.6431 0.4431 0.2353 0.0627 0] [0 0 0 0.2196 0.4667 0.6784 0.8353 0.9255 0.9529 0.9176 0.8431 0.7294 0.5922 0.4314 0.2627 0.098 0 0] [0 0 0 0.0314 0.1961 0.3647 0.502 0.5922 0.6275 0.6118 0.5569 0.4706 0.3569 0.2235 0.0941 0.0078 0 0] [0 0 0 0 0.0157 0.1098 0.2078 0.2784 0.3176 0.3176 0.2784 0.2157 0.1333 0.0549 0 0 0 0] [0 0 0 0 0 0 0.0196 0.0549 0.0784 0.0824 0.0627 0.0314 0.0039 0 0 0 0 0]]
+end
+
+to-report discutium-seed
+  ;; Discutium solidus - a hollow disc / horseshoe that glides. R=13, T=10, m=0.356, s=0.063.
+  report [[0 0 0 0 0 0 0 0 0.0039 0.0196 0.0275 0.0392 0.0392 0.0314 0.0235 0.0078 0 0 0 0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0.0314 0.0824 0.1373 0.1843 0.2157 0.2314 0.2353 0.2196 0.1882 0.1529 0.1059 0.0588 0.0196 0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0.0235 0.1059 0.2157 0.3098 0.3882 0.4431 0.4784 0.4902 0.4863 0.4588 0.4275 0.3765 0.3176 0.2431 0.1647 0.0863 0.0235 0 0 0 0 0 0 0 0] [0 0 0 0.051 0.1922 0.3451 0.4863 0.5961 0.6745 0.7216 0.7412 0.7451 0.7333 0.7098 0.6627 0.6157 0.549 0.4667 0.3725 0.2706 0.1647 0.0667 0.0039 0 0 0 0 0 0] [0 0 0.051 0.2392 0.451 0.6392 0.7882 0.8902 0.9569 0.9843 0.9922 0.9843 0.9647 0.9294 0.8902 0.8353 0.7647 0.6863 0.5922 0.4824 0.3608 0.2314 0.102 0.0157 0 0 0 0 0] [0 0.0157 0.2314 0.502 0.749 0.9529 1 1 1 1 1 1 1 1 1 1 0.9725 0.8941 0.8 0.6902 0.5647 0.4275 0.2706 0.1255 0.0196 0 0 0 0] [0 0.1451 0.4667 0.7804 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0.9922 0.8863 0.7608 0.6235 0.4627 0.2902 0.1255 0.0157 0 0 0] [0 0.3294 0.7098 1 1 1 1 1 1 0.9882 0.9569 0.949 0.9686 0.9882 1 1 1 1 1 1 0.9451 0.8118 0.651 0.4706 0.2745 0.0941 0 0 0] [0.0863 0.5216 0.9216 1 1 1 1 1 0.9686 0.8235 0.7529 0.7529 0.7922 0.8588 0.9255 0.9765 1 1 1 1 1 0.9882 0.8314 0.6471 0.4353 0.2196 0.051 0 0] [0.2157 0.6745 0.9922 1 1 1 1 1 0.749 0.5412 0.4863 0.502 0.5608 0.6431 0.7333 0.8235 0.902 0.9608 0.9961 1 1 1 1 0.8235 0.6039 0.3647 0.1373 0.0078 0] [0.3255 0.7765 0.9412 0.9843 1 1 1 0.9176 0.4157 0.2431 0.2235 0.2627 0.3333 0.4157 0.5059 0.6 0.6902 0.7882 0.8863 0.9725 1 1 1 0.9922 0.7686 0.5098 0.2471 0.0471 0] [0.3882 0.8 0.8431 0.9294 1 1 1 0.6353 0.0784 0 0 0.0275 0.102 0.1922 0.2824 0.3765 0.4706 0.5725 0.6941 0.8431 0.9725 1 1 1 0.9255 0.651 0.3569 0.102 0] [0.4078 0.6392 0.7059 0.851 0.9843 1 1 0.3412 0 0 0 0 0 0 0.0588 0.1529 0.251 0.3608 0.4941 0.6745 0.8863 1 1 1 1 0.7804 0.4588 0.1647 0.0039] [0.3765 0.451 0.5569 0.7451 0.9373 1 1 0.1529 0 0 0 0 0 0 0 0 0.0353 0.1529 0.302 0.5098 0.8039 1 1 1 1 0.8941 0.5451 0.2157 0.0118] [0.1961 0.2549 0.4 0.6275 0.8549 0.9882 0.9373 0.2784 0.0863 0 0 0 0 0 0 0 0 0 0.1176 0.3725 0.7686 1 1 1 1 0.9804 0.6 0.2471 0.0157] [0 0.0549 0.2471 0.498 0.7373 0.9098 0.6118 0.3922 0.2706 0.1373 0.0392 0 0 0 0 0 0 0 0 0.298 0.8627 1 1 1 1 1 0.6235 0.2471 0.0078] [0 0 0.0902 0.3529 0.5882 0.7686 0.3451 0.3608 0.3608 0.3137 0.2353 0.1333 0.0471 0 0 0 0 0 0 0.4196 1 1 1 1 1 1 0.6 0.2078 0] [0 0 0 0.1961 0.4118 0.3451 0.1373 0.1922 0.2471 0.2902 0.3176 0.3059 0.2471 0.1725 0.0941 0.0392 0.0118 0.0078 0.0431 0.8824 1 1 1 1 1 0.9412 0.5216 0.1294 0] [0 0 0 0.0314 0.2275 0 0 0 0.0314 0.102 0.1804 0.2549 0.3098 0.3255 0.302 0.2549 0.2196 0.2157 0.5843 1 1 1 1 0.9922 0.9961 0.8078 0.3843 0.0078 0] [0 0 0 0 0 0 0 0 0 0 0 0.0549 0.149 0.2353 0.3059 0.3608 0.3922 0.4353 1 1 0.9961 0.9608 0.9216 0.9216 0.9529 0.6118 0.1922 0 0] [0 0 0 0 0 0 0 0 0 0 0 0 0 0.0275 0.1412 0.2431 0.3451 0.6078 0.9569 0.9294 0.8627 0.7922 0.7647 0.8 0.7412 0.3686 0 0 0] [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.0549 0.1725 0.7686 0.7647 0.7098 0.6275 0.5647 0.5765 0.6627 0.4627 0.0745 0 0 0] [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.0275 0.5255 0.5059 0.4392 0.3608 0.3294 0.3922 0.4549 0.1412 0 0 0 0] [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1137 0.2627 0.2235 0.149 0.0863 0.102 0.2118 0.1255 0 0 0 0 0] [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.0039 0 0 0 0 0 0.0275 0 0 0 0 0 0]]
+end
+
+to-report gyrorbium-seed
+  ;; Gyrorbium gyrans - a rotator: holds position while its core spins. R=13, T=10, m=0.156, s=0.0224.
+  report [[0 0 0 0 0 0 0 0 0 0 0.0196 0.0471 0.0667 0.0667 0.0471 0.0196 0 0 0 0 0] [0 0 0 0 0 0 0 0.0784 0.1765 0.2196 0.2196 0.2 0.1882 0.1765 0.149 0.1176 0.0471 0 0 0 0] [0 0 0 0 0.0392 0.3686 0.549 0.6078 0.6275 0.6078 0.5176 0.3765 0.2667 0.2196 0.2 0.1569 0.1098 0.0275 0 0 0] [0 0 0 0.2784 0.4863 0.2588 0.1373 0.2078 0.4275 0.6588 0.6667 0.498 0.2863 0.1882 0.1765 0.1686 0.1294 0.0588 0 0 0] [0 0 0.349 0.3373 0 0 0 0 0.098 0.5686 0.7294 0.549 0.3176 0.1765 0.1294 0.1373 0.1176 0.0588 0 0 0] [0 0.1686 0.4275 0 0 0 0 0 0 0.5098 0.7765 0.6196 0.4392 0.4 0.3686 0.1569 0.1098 0.0471 0 0 0] [0 0.5882 0.0078 0 0 0 0 0 0 0.5098 1 1 0.9882 0.9882 1 0.9569 0.4196 0.0471 0 0 0] [0.1098 0.5765 0 0 0 0 0 0 0.1176 0.9373 1 1 1 0.7882 0.7686 0.9098 0.9098 0.2196 0 0 0] [0.3373 0.5569 0 0 0 0 0 0.0196 0.4275 0.8588 0.9765 1 0.8471 0.5098 0.4275 0.5098 0.7765 0.6588 0 0 0] [0.4078 0.6392 0.0863 0 0 0 0.0196 0.1098 0.7176 0.7765 0.8667 0.8196 0.4471 0.2588 0.2196 0.2196 0.4 0.749 0.0196 0 0] [0.349 0.698 0.4667 0.1569 0.0667 0.1373 0.1686 0.2 0.6784 0.6667 0.5765 0.1098 0 0 0 0.0078 0.1098 0.498 0.349 0 0] [0.1882 0.6078 0.7098 0.6275 0.5176 0.4667 0.3882 0.3176 0.5765 0.4784 0.3569 0 0 0 0 0 0 0.2784 0.349 0 0] [0.0196 0.4196 0.6784 0.8471 0.949 0.8 0.5569 0.3686 0.3882 0.298 0.2196 0 0 0 0 0 0 0.1882 0.3098 0 0] [0 0.2196 0.5569 0.8863 1 0.8196 0.349 0.149 0.2275 0.1569 0.0863 0 0 0 0 0 0 0.2275 0.2078 0 0] [0 0.0392 0.4588 0.898 1 0.3765 0 0 0 0 0 0 0 0 0 0 0.1176 0.2588 0.0392 0 0] [0 0 0.349 0.9098 0.7882 0.1294 0 0 0 0 0 0 0 0 0 0.1373 0.2275 0.0784 0 0 0] [0 0 0.2275 0.8667 0.6275 0.1373 0.0078 0 0 0 0 0 0 0 0.2 0.1569 0 0 0 0 0] [0 0 0.0196 0.7176 0.7098 0.1569 0.0588 0 0 0 0 0 0.0784 0.3098 0.2196 0 0 0 0 0 0] [0 0 0 0.3882 1 0.2078 0.1294 0.0588 0.0196 0.0078 0.0588 0.2196 0.2078 0.4471 0.498 0 0 0 0 0 0] [0 0 0 0 0.898 0.4275 0.2275 0.2 0.1882 0.2275 0.2588 0.1294 0.2471 0.5765 0.4784 0.4 0 0 0 0 0] [0 0 0 0 0 0.9098 0.2863 0.2667 0.2392 0.1686 0.0196 0 0.3569 0.4275 0.3294 0.2588 0.2196 0.0863 0 0.0784 0.1686] [0 0 0 0 0 0 0.6784 0.298 0.0196 0 0 0.0863 0.1569 0.0078 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0.1294 0.3373 0.2196 0.1373 0.0667 0 0 0 0 0 0 0 0 0]]
+end
+]]></code>
+  <widgets>
+    <view x="275" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-32" height="653" showTickCounter="true" patchSize="10.0" fontSize="10" wrappingAllowedY="true" width="653" tickCounterLabel="ticks" maxPycor="32" updateMode="1" maxPxcor="32" minPxcor="-32"></view>
+    <chooser x="15" y="10" height="60" variable="initial-config" current="0" width="240" display="initial-config">
+      <choice type="string" value="Random"></choice>
+      <choice type="string" value="Orbium"></choice>
+      <choice type="string" value="Gyrorbium"></choice>
+      <choice type="string" value="Scutium"></choice>
+      <choice type="string" value="Discutium"></choice>
+    </chooser>
+    <slider x="15" step="1" y="75" max="20" width="240" display="kernel-radius" height="50" min="1" direction="Horizontal" default="13.0" variable="kernel-radius"></slider>
+    <slider x="15" step="0.01" y="130" max="1" width="240" display="kernel-center" height="50" min="0" direction="Horizontal" default="0.5" variable="kernel-center"></slider>
+    <slider x="15" step="0.01" y="185" max="0.5" width="240" display="kernel-width" height="50" min="0.01" direction="Horizontal" default="0.15" variable="kernel-width"></slider>
+    <button x="140" y="245" height="45" disableUntilTicks="false" forever="true" kind="Observer" width="115">go</button>
+    <button x="15" y="245" height="45" disableUntilTicks="false" forever="false" kind="Observer" width="115">setup</button>
+    <slider x="15" step="0.1" y="300" max="20" width="240" display="time-scale" height="50" min="4" direction="Horizontal" default="10.0" variable="time-scale"></slider>
+    <slider x="15" step="0.001" y="355" max="1" width="240" display="growth-center" height="50" min="0" direction="Horizontal" default="0.15" variable="growth-center"></slider>
+    <slider x="15" step="0.001" y="410" max="0.1" width="240" display="growth-width" height="50" min="0.001" direction="Horizontal" default="0.015" variable="growth-width"></slider>
+    <chooser x="15" y="465" height="60" variable="color-scheme" current="0" width="240" display="color-scheme">
+      <choice type="string" value="Viridis"></choice>
+      <choice type="string" value="Magma"></choice>
+      <choice type="string" value="Monochrome"></choice>
+    </chooser>
+    <slider x="15" step="0.5" y="530" max="5" width="240" display="brush-size" height="50" min="1" direction="Horizontal" default="1.5" variable="brush-size"></slider>
+    <button x="140" y="590" height="45" disableUntilTicks="false" forever="false" kind="Observer" width="115">reset-states</button>
+    <button x="15" y="590" height="45" disableUntilTicks="false" forever="true" kind="Observer" width="115">draw</button>
+  </widgets>
+  <info><![CDATA[
+## WHAT IS IT?
+
+Lenia is a well-known form of artificial life created by Bert Chan. It consists of a system of continuous cellular automata: a grid of cells that repeatedly update from a simple local rule, building complex patterns from the bottom up. Unlike a discrete automaton such as Conway's Game of Life, where a cell is only alive or dead, each Lenia cell holds a value that varies smoothly from 0 (empty) to 1 (full) and changes in small steps. From random speckles the grid organizes into lifelike shapes that move, hold their form, and repair themselves.
+
+Lenia is continuous in three aspects: its cell states are smooth values rather than simply on or off, its sense of space is smooth because each cell blends with a wide soft neighborhood, and its passage through time is smooth because the world advances in small increments. These make the world flow instead of flicker, and out of that flow emerge shapes that behave like simple organisms. Blobs, rotating rings, and gliding arcs form on their own, travel across the grid, recover after being disturbed, and can even be sorted into "species"; the best known is Orbium, a crescent that swims steadily along. For this reason Lenia is widely studied as a model of artificial life, a mathematical world in which lifelike organization emerges from simple rules.
+
+
+## HOW IT WORKS
+
+Each cell has a state, ranging from 0 (empty) to 1 (full). At each tick, each cell looks at its neighbors, judges whether it is in a good place to grow or a too-empty or too-crowded place to shrink, and adjusts its state slightly. The whole grid updates together, and repeating this is what brings the world to life. The rule has three parts, described below: a neighborhood weighting called the kernel, a growth response, and a small update step.
+
+First, each cell looks at its surrounding neighbors, but these neighbors do not have equal influence. The influence of the neighbors are weighted with a bell curve, the smooth hump
+
+$\text{bell}(x,\mu,\sigma) = \text{exp}\left(-\frac{\left((x - \mu) / \sigma\right)^2}{2} \right)$
+
+which equals 1 when $x$ sits exactly at $\mu = \text{KERNEL-CENTER}$ and tapers smoothly toward $0$ as $x$ moves away, with $\sigma = \text{KERNEL-WIDTH}$ setting how quickly it fades. The kernel applies this hump to distance: a neighbor's weight depends on how far it lies from the cell, written as a fraction $r$ of the cell's reach, so that $r = 0$ at the cell itself and $r = 1$ at the farthest neighbors (KERNEL-RADIUS cells away). Placing the hump's peak at $r = \text{KERNEL-CENTER}$ ($0.5$ by default) with spread KERNEL-WIDTH makes neighbors about halfway out count for the most and the nearest and farthest count for almost nothing, giving the kernel the shape of a soft, blurry ring. Every weight is then scaled so that all of them add up to 1. This is akin to focusing objects at a medium distance, so objects at the focused distance are clear but objects that are near and far appear hazy. In this analogy, the clear objects or neighbors have higher influence and the hazy ones have less.
+
+Second, each cell blends the weighted values of their neighbors into a single number: it multiplies each neighbor's state by that neighbor's weight and adds the results. Because the weights add up to 1, the total is a weighted average of the neighborhood, a value between 0 and 1 called the potential and written denoted by $U$. In plain terms, the potential $U$ answers the question, how full is my ring-shaped neighborhood right now? (This weighted sum over a neighborhood is the operation mathematicians call a convolution of the grid with the kernel.)
+
+Third, the potential is converted into a value called growth. Each cell has an ideal neighborhood fullness, determined by the setting GROWTH-CENTER. If $U$ is close to the GROWTH-CENTER, the cell has just the right amount of life around it and should grow; if $U$ is well below or well above the GROWTH-CENTER, the cell should shrink. This growing or shrinking operation is performed by plugging the potential value $U$ into a growth function, which is another bell curve centered at GROWTH-CENTER with spread GROWTH-WIDTH, and then stretching that hump's output onto the range from -1 to +1. The growth function is given by,
+
+$\text{growth}(U) = 2 \times \text{bell}(U, \text{GROWTH-CENTER}, \text{GROWTH-WIDTH}) - 1$
+
+So when $U$ equals GROWTH-CENTER the growth is +1, the fastest possible growth; as $U$ moves away from GROWTH-CENTER the growth drops down to -1, the fastest possible decay. The spread GROWTH-WIDTH controls how forgiving this is: a small  GROWTH-WIDTH rewards only a narrow band of fullness, while a larger  GROWTH-WIDTH rewards a wider range of neighborhoods.
+
+Finally, the cell changes its state by only a fraction of that growth, and the result is kept in range:
+
+$\text{new state} = \text{clip}( \text{state} + (1 / T) * \text{growth}(U) )$
+
+Here clip just pushes any value below 0 back up to 0 and any value above 1 back down to 1. The setting $T=\text{TIME-SCALE}$, controls the step size: dividing by $T$ means each step moves the state only a little, so a large $T$ gives many tiny, smooth updates (slow, fluid change) and a small $T$ gives fewer, larger jumps. This is a gentle repeated nudging, rather than a binary on-or-off switch. Which is what makes Lenia continuous in time and lets its patterns flow. It is worth noting that decreasing the TIME-SCALE too much can force the growth updates to be too large and cause all cells to die.
+
+Lastly, the grid wraps around at all four edges, so a shape that drifts off one side comes back on the opposite side and never runs into a wall.
+
+
+## HOW TO USE IT
+
+Press SETUP to build a world, then GO to run it. To paint your own pattern, hold down the DRAW button and drag the mouse across the view; press RESET-STATES to clear the world to empty, which is handy before drawing from scratch.
+
+The controls above the SETUP button shape the world and take effect only the next time you press SETUP. The INITIAL-CONFIG chooser picks the starting pattern: "Random", or one of the named creatures (Orbium, Gyrorbium, Scutium, or Discutium), each of which automatically loads the settings it needs to survive. The KERNEL-RADIUS sets how far out each cell looks, and KERNEL-CENTERr and KERNEL-WITDH set where its ring of influence peaks and how thick that ring is.
+
+The controls below the SETUP button take effect immediately, even while the model is running. The TIME-SCALE sets how gradually the world changes, with higher values giving slower, smoother motion. The GROWTH-CENTER is the ideal amount of surrounding life a cell wants, and GROWTH-WIDTH is how forgiving it is about being off from that ideal. The color-scheme chooses the color palette, and BRUSH-SIZE sets how large the drawing brush is when the DRAW button is toggled.
+
+
+## THINGS TO NOTICE
+
+Start from random initial configurations and watch it organize itself. Within a few moments the noise condenses into smooth blobs, rings, and arcs instead of simply fading away.
+
+Load a creature from the INITIAL-CONFIG chooser and notice that it keeps its shape while it moves. Orbium, Scutium, and Discutium travel steadily across the world, while Gyrorbium stays in one spot and spins.
+
+Watch a gliding creature closely and you will see it rebuild itself as it travels: new material brightens along its leading edge while the trailing edge fades. It holds its shape not by staying still but by constantly renewing itself.
+
+
+## THINGS TO TRY
+
+While a creature is running, nudge growth-center or growth-width by a tiny amount. The balance is delicate: a healthy creature may suddenly dissolve into nothing or bloat into a solid, overgrown mass.
+
+Change kernel-radius or kernel-width and press SETUP to rebuild the world. Even from the same kind of random start, a wider or narrower ring of influence grows completely different patterns.
+
+Press RESET-STATES, hold the DRAW button, and paint a blob of your own. Does it fade away, freeze in place, or start to crawl?
+
+Switch the color-scheme while the model runs to view the same dynamics through a different palette.
+
+
+## EXTENDING THE MODEL
+
+Several creatures could be seeded at once instead of just one in the center. A handful of Orbiums placed at different spots and headings would glide around and interact, some pairs passing cleanly through one another while others collide, merge, or destroy each other.
+
+Many more of discovered creatures in Lenia could be added to the creature library, which runs to hundreds; any that are built from a single ring kernel will work without modification.
+
+The neighborhood weighting could reach beyond a single ring. Widening it into several concentric rings, or combining several separate kernels that each drive their own growth response, is what most of the more elaborate creatures depend on, and it would greatly enlarge the variety the model supports.
+
+Each cell could carry several values at once, like interacting color channels, which is how the extended form of Lenia grows multi-colored organisms with richer internal structure.
+
+The bell curve is not the only possible profile. The reference implementation also offers polynomial, rectangular, and stepped shapes for both the neighborhood weighting and the growth response, each giving the world a different character.
+
+A larger grid would give big creatures room to travel without colliding with themselves across the wrap-around edges, and would leave space for several creatures at once.
+
+A running graph of the total amount of life would show at a glance whether a pattern is holding steady, growing, or dying out.
+
+
+## NETLOGO FEATURES
+
+To keep each step fast, every cell builds its list of neighbors and their weights once during setup and then reuses that list on every step, rather than recomputing it each time.
+
+The wrap-around world lets neighbors be found correctly even across the edges, with no special bookkeeping at the borders.
+
+The DRAW button reads the live mouse position so you can paint interactively, and the color schemes use the palette extension to produce smooth, evenly graded colors.
+
+
+## RELATED MODELS
+
+The most closely related model in the NetLogo Model's Library is SmoothLife, the model that first made the Game of Life continuous and that directly inspired Lenia. The key difference is how each cell reads its surroundings. SmoothLife measures two separate regions, a small inner disk standing in for the cell itself and an outer ring standing in for its neighbors, and combines those two measurements with a birth-and-death rule. Lenia instead blends the whole neighborhood through a single soft ring into one number, feeds that number to one smooth growth rule, and also lets time advance continuously. That extra smoothness is what gives Lenia its unusually rich variety of stable, freely moving creatures.
+
+The discrete cellular automata in the NetLogo Models Library are relatives too, especially Life. Comparing them with this model shows the step from the original black-and-white, on-or-off rules to their smooth, continuous descendants.
+
+
+## CREDITS AND REFERENCES
+
+Lenia was created by Bert Chan. This model reproduces the Lenia update rule and several of Chan's named creatures; the creatures' starting shapes are taken from the data files in the public Lenia repository.
+
+Repository: https://github.com/Chakazul/Lenia
+
+Project page: https://chakazul.github.io/lenia.html
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Gurkan, C. and Wilensky, U. (2026). NetLogo Lenia model. [link]. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+
+]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="15">
+      <circle x="203" y="65" marked="true" color="-1" diameter="88" filled="true"></circle>
+      <circle x="70" y="65" marked="true" color="-1" diameter="162" filled="true"></circle>
+      <circle x="150" y="105" marked="true" color="-1" diameter="120" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="218" y="120"></point>
+        <point x="240" y="165"></point>
+        <point x="255" y="165"></point>
+        <point x="278" y="120"></point>
+      </polygon>
+      <circle x="214" y="72" marked="false" color="-1920102913" diameter="67" filled="true"></circle>
+      <rectangle endX="179" startY="223" marked="true" color="-1" endY="298" startX="164" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="45" y="285"></point>
+        <point x="30" y="285"></point>
+        <point x="30" y="240"></point>
+        <point x="15" y="195"></point>
+        <point x="45" y="210"></point>
+      </polygon>
+      <circle x="3" y="83" marked="true" color="-1" diameter="150" filled="true"></circle>
+      <rectangle endX="80" startY="221" marked="true" color="-1" endY="296" startX="65" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="195" y="285"></point>
+        <point x="210" y="285"></point>
+        <point x="210" y="240"></point>
+        <point x="240" y="210"></point>
+        <point x="195" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="276" y="85"></point>
+        <point x="285" y="105"></point>
+        <point x="302" y="99"></point>
+        <point x="294" y="83"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="219" y="85"></point>
+        <point x="210" y="105"></point>
+        <point x="193" y="99"></point>
+        <point x="201" y="83"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="253" y="133"></point>
+        <point x="245" y="131"></point>
+        <point x="245" y="133"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="194"></point>
+        <point x="13" y="197"></point>
+        <point x="30" y="191"></point>
+        <point x="38" y="193"></point>
+        <point x="38" y="205"></point>
+        <point x="20" y="226"></point>
+        <point x="20" y="257"></point>
+        <point x="27" y="265"></point>
+        <point x="38" y="266"></point>
+        <point x="40" y="260"></point>
+        <point x="31" y="253"></point>
+        <point x="31" y="230"></point>
+        <point x="60" y="206"></point>
+        <point x="68" y="198"></point>
+        <point x="75" y="209"></point>
+        <point x="66" y="228"></point>
+        <point x="65" y="243"></point>
+        <point x="82" y="261"></point>
+        <point x="84" y="268"></point>
+        <point x="100" y="267"></point>
+        <point x="103" y="261"></point>
+        <point x="77" y="239"></point>
+        <point x="79" y="231"></point>
+        <point x="100" y="207"></point>
+        <point x="98" y="196"></point>
+        <point x="119" y="201"></point>
+        <point x="143" y="202"></point>
+        <point x="160" y="195"></point>
+        <point x="166" y="210"></point>
+        <point x="172" y="213"></point>
+        <point x="173" y="238"></point>
+        <point x="167" y="251"></point>
+        <point x="160" y="248"></point>
+        <point x="154" y="265"></point>
+        <point x="169" y="264"></point>
+        <point x="178" y="247"></point>
+        <point x="186" y="240"></point>
+        <point x="198" y="260"></point>
+        <point x="200" y="271"></point>
+        <point x="217" y="271"></point>
+        <point x="219" y="262"></point>
+        <point x="207" y="258"></point>
+        <point x="195" y="230"></point>
+        <point x="192" y="198"></point>
+        <point x="210" y="184"></point>
+        <point x="227" y="164"></point>
+        <point x="242" y="144"></point>
+        <point x="259" y="145"></point>
+        <point x="284" y="151"></point>
+        <point x="277" y="141"></point>
+        <point x="293" y="140"></point>
+        <point x="299" y="134"></point>
+        <point x="297" y="127"></point>
+        <point x="273" y="119"></point>
+        <point x="270" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="-1" y="195"></point>
+        <point x="14" y="180"></point>
+        <point x="36" y="166"></point>
+        <point x="40" y="153"></point>
+        <point x="53" y="140"></point>
+        <point x="82" y="131"></point>
+        <point x="134" y="133"></point>
+        <point x="159" y="126"></point>
+        <point x="188" y="115"></point>
+        <point x="227" y="108"></point>
+        <point x="236" y="102"></point>
+        <point x="238" y="98"></point>
+        <point x="268" y="86"></point>
+        <point x="269" y="92"></point>
+        <point x="281" y="87"></point>
+        <point x="269" y="103"></point>
+        <point x="269" y="113"></point>
+      </polygon>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+  <citation year1="2026" cite="Gurkan, C., Wilensky, U."></citation>
+</model>
