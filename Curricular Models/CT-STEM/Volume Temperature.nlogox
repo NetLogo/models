@@ -963,15 +963,20 @@ end
 ]]></code>
   <widgets>
     <view x="195" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-30" height="431" showTickCounter="true" patchSize="7.0" fontSize="10" wrappingAllowedY="false" width="200" tickCounterLabel="ticks" maxPycor="30" updateMode="1" maxPxcor="0" minPxcor="-27"></view>
-    <button x="10" y="70" height="50" disableUntilTicks="false" forever="true" kind="Observer" width="165" display="go/stop">go</button>
-    <button x="10" y="10" height="46" disableUntilTicks="false" forever="false" kind="Observer" width="165" display="setup/reset">setup</button>
+    <button x="10" y="70" height="50" disableUntilTicks="false" forever="true" kind="Observer" width="165" display="go/stop">
+      <source>go</source>
+    </button>
+    <button x="10" y="10" height="46" disableUntilTicks="false" forever="false" kind="Observer" width="165" display="setup/reset">
+      <source>setup</source>
+    </button>
     <chooser x="10" y="244" height="60" variable="visualize-particle-speed" current="2" width="165" display="visualize-particle-speed">
       <choice type="string" value="no"></choice>
       <choice type="string" value="arrows"></choice>
       <choice type="string" value="different shades"></choice>
     </chooser>
     <slider x="10" step="1" y="182" max="100" width="165" display="gas-temperature" height="50" min="0" direction="Horizontal" default="21.0" variable="gas-temperature" units="C"></slider>
-    <button x="10" y="132" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="165" display="reset temperature"><![CDATA[set gas-temperature 23
+    <button x="10" y="132" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="165" display="reset temperature">
+      <source><![CDATA[set gas-temperature 23
 ask walls with [
       pycor = syringe-bottom-y - 1
      and pxcor > syringe-left-x + 1
@@ -979,7 +984,8 @@ ask walls with [
   ][
     let redness gas-temperature * 2.5
     set color (list redness 0 (250 - redness))
-  ]]]></button>
+  ]]]></source>
+    </button>
     <plot x="420" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="volume (mL)" y="10" xMin="0.0" height="431" legend="true" xMax="10.0" yMin="0.0" width="360" xAxis="ticks" display="Volume">
       <setup></setup>
       <update>if (experiment-running? != true)
@@ -993,7 +999,9 @@ ask walls with [
         <update>plotxy ticks  precision [ycor] of one-of plungers 2 * 2 + 50</update>
       </pen>
     </plot>
-    <monitor x="10" precision="17" y="381" height="60" fontSize="13" width="165" display="Volume">word (precision ([ycor] of one-of plungers * 2 + 50) 2) " mL"</monitor>
+    <monitor x="10" precision="17" y="381" height="60" fontSize="13" width="165" display="Volume">
+      <source>word (precision ([ycor] of one-of plungers * 2 + 50) 2) " mL"</source>
+    </monitor>
   </widgets>
   <info><![CDATA[
 ## WHAT IS IT?

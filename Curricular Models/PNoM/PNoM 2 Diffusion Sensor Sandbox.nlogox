@@ -724,8 +724,12 @@ end
 ]]></code>
   <widgets>
     <view x="234" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-25" height="514" showTickCounter="true" patchSize="10.0" fontSize="11" wrappingAllowedY="false" width="694" tickCounterLabel="ticks" maxPycor="25" updateMode="1" maxPxcor="34" minPxcor="-34"></view>
-    <button x="5" y="234" height="60" disableUntilTicks="false" forever="true" kind="Observer" width="215" display="go/stop/add elements">go</button>
-    <button x="5" y="144" height="55" disableUntilTicks="false" forever="false" kind="Observer" width="215">setup</button>
+    <button x="5" y="234" height="60" disableUntilTicks="false" forever="true" kind="Observer" width="215" display="go/stop/add elements">
+      <source>go</source>
+    </button>
+    <button x="5" y="144" height="55" disableUntilTicks="false" forever="false" kind="Observer" width="215">
+      <source>setup</source>
+    </button>
     <slider x="5" step="1" y="10" max="300" width="215" display="initial-#-particles" height="50" min="0" direction="Horizontal" default="200.0" variable="initial-#-particles"></slider>
     <slider x="5" step="1" y="77" max="500" width="215" display="initial-gas-temperature" height="50" min="1" direction="Horizontal" default="375.0" variable="initial-gas-temperature"></slider>
     <chooser x="5" y="304" height="60" variable="mouse-interaction" current="0" width="215" display="mouse-interaction">
@@ -747,35 +751,45 @@ end
       <choice type="string" value="add/move sensor 3"></choice>
       <choice type="string" value="add/move sensor 4"></choice>
     </chooser>
-    <button x="5" y="429" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="215" display="remove/replace blue wall">toggle-blue-wall</button>
-    <button x="5" y="384" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="215" display="remove/replace red wall">toggle-red-wall</button>
+    <button x="5" y="429" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="215" display="remove/replace blue wall">
+      <source>toggle-blue-wall</source>
+    </button>
+    <button x="5" y="384" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="215" display="remove/replace red wall">
+      <source>toggle-red-wall</source>
+    </button>
     <chooser x="5" y="499" height="60" variable="visualize-particle-speed" current="0" width="215" display="visualize-particle-speed">
       <choice type="string" value="no"></choice>
       <choice type="string" value="different shades"></choice>
       <choice type="string" value="arrows"></choice>
     </chooser>
     <switch x="5" y="569" height="40" on="true" variable="show-wall-hits?" width="215" display="show-wall-hits?"></switch>
-    <input x="1300" multiline="true" y="10" height="160" variable="code1" type="command" width="505"><![CDATA[;average (mean) number of violet particles nearby, over whole history.
+    <input x="1300" multiline="true" y="10" height="160" variable="code1" type="command" width="505">
+      <value><![CDATA[;average (mean) number of violet particles nearby, over whole history.
 record (count particles in-radius 3 with [color-type = violet] )
 set reading mean my-history
 set reading precision reading 1
 
 ;turn the sensor "on" (white) if the reading is > 1.
-set light-up-threshold 1]]></input>
-    <input x="1300" multiline="true" y="175" height="155" variable="code2" type="command" width="505"><![CDATA[;cumulative count (sum) of violet particles that touch the sensor
+set light-up-threshold 1]]></value>
+    </input>
+    <input x="1300" multiline="true" y="175" height="155" variable="code2" type="command" width="505">
+      <value><![CDATA[;cumulative count (sum) of violet particles that touch the sensor
 record (count particles-here with [color-type = violet])
 set reading sum my-history
 set reading precision reading 1
 
 ;turn the sensor "on" (white) if the reading is > 50.
-set light-up-threshold 50]]></input>
-    <input x="1300" multiline="true" y="335" height="165" variable="code3" type="command" width="505"><![CDATA[;instantaneous count of violet particles that are nearby NOW (last measure)
+set light-up-threshold 50]]></value>
+    </input>
+    <input x="1300" multiline="true" y="335" height="165" variable="code3" type="command" width="505">
+      <value><![CDATA[;instantaneous count of violet particles that are nearby NOW (last measure)
 record (count particles-here with [color-type = violet])
 set reading last my-history
 set reading precision reading 1
 
 ;turn the sensor "on" (white) if the reading is > 1.
-set light-up-threshold 1]]></input>
+set light-up-threshold 1]]></value>
+    </input>
     <plot x="950" autoPlotX="false" yMax="10.0" autoPlotY="false" yAxis="reading" y="10" xMin="0.0" height="191" legend="true" xMax="10.0" yMin="0.0" width="340" xAxis="time" display="Type 1 Sensors">
       <setup></setup>
       <update>ifelse (uniform-y-scales? = true)
@@ -882,39 +896,67 @@ carefully
       </pen>
     </plot>
     <note x="1925" y="20" backgroundDark="0" fontSize="11" width="210" markdown="false" height="26" textColorDark="-1" textColorLight="-16777216" backgroundLight="0"></note>
-    <input x="1810" multiline="true" y="10" height="160" variable="example1" type="command" width="465"><![CDATA[;average number of violet particles nearby, over whole history.
+    <input x="1810" multiline="true" y="10" height="160" variable="example1" type="command" width="465">
+      <value><![CDATA[;average number of violet particles nearby, over whole history.
 record (count particles in-radius 3 with [color-type = violet] )
 set reading mean my-history
 set reading precision reading 1
 
 ;turn the sensor "on" (white) if the reading is > 1.
-set light-up-threshold 1]]></input>
-    <input x="1810" multiline="true" y="175" height="155" variable="example2" type="command" width="465"><![CDATA[;cumulative count of violet particles that touch the sensor
+set light-up-threshold 1]]></value>
+    </input>
+    <input x="1810" multiline="true" y="175" height="155" variable="example2" type="command" width="465">
+      <value><![CDATA[;cumulative count of violet particles that touch the sensor
 record (count particles-here with [color-type = violet])
 set reading sum my-history
 set reading precision reading 1
 
 ;turn the sensor "on" (white) if the reading is > 50.
-set light-up-threshold 50]]></input>
-    <input x="1810" multiline="true" y="335" height="165" variable="example3" type="command" width="465"><![CDATA[;instantaneous count of violet particles that are nearby NOW
+set light-up-threshold 50]]></value>
+    </input>
+    <input x="1810" multiline="true" y="335" height="165" variable="example3" type="command" width="465">
+      <value><![CDATA[;instantaneous count of violet particles that are nearby NOW
 record (count particles-here with [color-type = violet])
 set reading last my-history
 set reading precision reading 1
 
 ;turn the sensor "on" (white) if the reading is > 1.
-set light-up-threshold 1]]></input>
-    <button x="5" y="626" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="170" display="Reset Tick Counter">init-time</button>
-    <button x="5" y="673" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="170" display="load">let file user-file
-if file != "" [ import-world file ]</button>
-    <button x="5" y="718" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="170" display="save">export-world user-input "Save as:"</button>
-    <monitor x="230" precision="17" y="535" height="60" fontSize="13" width="135" display="# Type 1 Sensors">count sensors with [ number = 1 ]</monitor>
-    <monitor x="230" precision="17" y="600" height="60" fontSize="13" width="135" display="Avg Sensor 1 value">precision ( mean [reading] of sensors with [ number = 1 ])  3</monitor>
-    <monitor x="370" precision="17" y="600" height="60" fontSize="13" width="135" display="Avg Sensor 2 value">precision (mean [reading] of sensors with [ number = 2 ]) 3</monitor>
-    <monitor x="510" precision="17" y="600" height="60" fontSize="13" width="135" display="Avg Sensor 3 value">precision (mean [reading] of sensors with [ number = 3 ]) 3</monitor>
-    <monitor x="650" precision="17" y="600" height="60" fontSize="13" width="135" display="Avg Sensor 4 value">precision (mean [reading] of sensors with [ number = 4 ]) 3</monitor>
-    <monitor x="650" precision="17" y="535" height="60" fontSize="13" width="135" display="# Type 4 Sensors">count sensors with [ number = 4 ]</monitor>
-    <monitor x="510" precision="17" y="535" height="60" fontSize="13" width="135" display="# Type 3 Sensors">count sensors with [ number = 3 ]</monitor>
-    <monitor x="370" precision="17" y="535" height="60" fontSize="13" width="135" display="# Type 2 Sensors">count sensors with [ number = 2 ]</monitor>
+set light-up-threshold 1]]></value>
+    </input>
+    <button x="5" y="626" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="170" display="Reset Tick Counter">
+      <source>init-time</source>
+    </button>
+    <button x="5" y="673" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="170" display="load">
+      <source>let file user-file
+if file != "" [ import-world file ]</source>
+    </button>
+    <button x="5" y="718" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="170" display="save">
+      <source>export-world user-input "Save as:"</source>
+    </button>
+    <monitor x="230" precision="17" y="535" height="60" fontSize="13" width="135" display="# Type 1 Sensors">
+      <source>count sensors with [ number = 1 ]</source>
+    </monitor>
+    <monitor x="230" precision="17" y="600" height="60" fontSize="13" width="135" display="Avg Sensor 1 value">
+      <source>precision ( mean [reading] of sensors with [ number = 1 ])  3</source>
+    </monitor>
+    <monitor x="370" precision="17" y="600" height="60" fontSize="13" width="135" display="Avg Sensor 2 value">
+      <source>precision (mean [reading] of sensors with [ number = 2 ]) 3</source>
+    </monitor>
+    <monitor x="510" precision="17" y="600" height="60" fontSize="13" width="135" display="Avg Sensor 3 value">
+      <source>precision (mean [reading] of sensors with [ number = 3 ]) 3</source>
+    </monitor>
+    <monitor x="650" precision="17" y="600" height="60" fontSize="13" width="135" display="Avg Sensor 4 value">
+      <source>precision (mean [reading] of sensors with [ number = 4 ]) 3</source>
+    </monitor>
+    <monitor x="650" precision="17" y="535" height="60" fontSize="13" width="135" display="# Type 4 Sensors">
+      <source>count sensors with [ number = 4 ]</source>
+    </monitor>
+    <monitor x="510" precision="17" y="535" height="60" fontSize="13" width="135" display="# Type 3 Sensors">
+      <source>count sensors with [ number = 3 ]</source>
+    </monitor>
+    <monitor x="370" precision="17" y="535" height="60" fontSize="13" width="135" display="# Type 2 Sensors">
+      <source>count sensors with [ number = 2 ]</source>
+    </monitor>
     <note x="790" y="645" backgroundDark="0" fontSize="14" width="150" markdown="false" height="18" textColorDark="-1" textColorLight="-8053223" backgroundLight="0">PLOT SETTINGS</note>
     <slider x="740" step="10" y="730" max="1000" width="200" display="window-width" height="50" min="50" direction="Horizontal" default="360.0" variable="window-width" units="ticks"></slider>
     <switch x="740" y="685" height="40" on="true" variable="uniform-y-scales?" width="200" display="uniform-y-scales?"></switch>
@@ -953,7 +995,8 @@ carefully
 [ plotxy ticks 0 ]</update>
       </pen>
     </plot>
-    <input x="1300" multiline="true" y="505" height="165" variable="code4" type="command" width="505"><![CDATA[;running average number of violet particles nearby, over last 20 ticks.
+    <input x="1300" multiline="true" y="505" height="165" variable="code4" type="command" width="505">
+      <value><![CDATA[;running average number of violet particles nearby, over last 20 ticks.
 record (count particles in-radius 3 with [color-type = violet] )
 if (length my-history > 20) [
   let recent-data (sublist my-history ((length my-history) - 20) (length my-history))
@@ -961,8 +1004,10 @@ if (length my-history > 20) [
   set reading precision reading 1
 ]
 ;turn the sensor "on" (white) if the reading is > 1.
-set light-up-threshold 1]]></input>
-    <input x="1810" multiline="true" y="505" height="165" variable="example4" type="command" width="460"><![CDATA[;running average number of violet particles nearby, over last 20 ticks.
+set light-up-threshold 1]]></value>
+    </input>
+    <input x="1810" multiline="true" y="505" height="165" variable="example4" type="command" width="460">
+      <value><![CDATA[;running average number of violet particles nearby, over last 20 ticks.
 record (count particles in-radius 3 with [color-type = violet] )
 if (length my-history > 20) [
   let recent-data (sublist my-history ((length my-history) - 20) (length my-history))
@@ -970,7 +1015,8 @@ if (length my-history > 20) [
   set reading precision reading 1
 ]
 ;turn the sensor "on" (white) if the reading is > 1.
-set light-up-threshold 1]]></input>
+set light-up-threshold 1]]></value>
+    </input>
   </widgets>
   <info><![CDATA[
 ## WHAT IS IT?
